@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+  actions: read
+  checks: write
+
 jobs:
   setup:
     name: Setup Unity Environment ⚡
@@ -19,7 +24,7 @@ jobs:
         with:
           lfs: true
 
-      # Cache Unity Hub
+      # Incremental cache for Unity Hub (rarely changes)
       - name: Cache Unity Hub
         id: unity-cache
         uses: actions/cache@v3
@@ -27,15 +32,17 @@ jobs:
           path: ~/.cache/unityhub
           key: UnityHub-${{ runner.os }}-${{ hashFiles('Packages/manifest.json') }}
           restore-keys: UnityHub-${{ runner.os }}-
+          if: github.event_name == 'push'
 
-      # Cache Library
+      # Incremental cache for Library (only depends on files that affect import)
       - name: Cache Library
         id: library-cache
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
           restore-keys: Library-${{ runner.os }}-
+          if: github.event_name == 'push'
 
   test:
     name: Test my project 🧪
@@ -47,7 +54,7 @@ jobs:
         with:
           lfs: true
 
-      # Restore caches from setup job
+      # Restore caches (always)
       - name: Restore Unity Hub Cache
         uses: actions/cache@v3
         with:
@@ -58,7 +65,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
 
       - name: Run tests
         uses: game-ci/unity-test-runner@v4
@@ -79,7 +86,7 @@ jobs:
         with:
           lfs: true
 
-      # Restore caches from setup job
+      # Restore caches (always)
       - name: Restore Unity Hub Cache
         uses: actions/cache@v3
         with:
@@ -90,7 +97,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
 
       - name: Build project
         uses: game-ci/unity-builder@v4
