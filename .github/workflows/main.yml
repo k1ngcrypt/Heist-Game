@@ -81,6 +81,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+    
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
