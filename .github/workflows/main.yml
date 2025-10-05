@@ -35,15 +35,6 @@ jobs:
           restore-keys: |
             Library-${{ runner.os }}-
 
-      # Cache Unity PackageCache
-      - name: Cache PackageCache
-        uses: actions/cache@v3
-        with:
-          path: Library/PackageCache
-          key: PackageCache-${{ runner.os }}-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: |
-            PackageCache-${{ runner.os }}-
-
       # Run tests
       - name: Run tests
         uses: game-ci/unity-test-runner@v4
@@ -81,15 +72,6 @@ jobs:
           key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             Library-${{ runner.os }}-
-
-      # Cache Unity PackageCache
-      - name: Cache PackageCache
-        uses: actions/cache@v3
-        with:
-          path: Library/PackageCache
-          key: PackageCache-${{ runner.os }}-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: |
-            PackageCache-${{ runner.os }}-
 
       # Build project
       - name: Build project
