@@ -7,11 +7,13 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Test my project 🧪
+  setup:
+    name: Setup Unity Environment ⚡
     runs-on: ubuntu-latest
+    outputs:
+      unity-cache-key: ${{ steps.unity-cache.outputs.cache-hit }}
+      library-cache-key: ${{ steps.library-cache.outputs.cache-hit }}
     steps:
-      # Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -19,23 +21,45 @@ jobs:
 
       # Cache Unity Hub
       - name: Cache Unity Hub
+        id: unity-cache
         uses: actions/cache@v3
         with:
           path: ~/.cache/unityhub
           key: UnityHub-${{ runner.os }}-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: |
-            UnityHub-${{ runner.os }}-
+          restore-keys: UnityHub-${{ runner.os }}-
 
       # Cache Library
       - name: Cache Library
+        id: library-cache
         uses: actions/cache@v3
         with:
           path: Library
           key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: |
-            Library-${{ runner.os }}-
+          restore-keys: Library-${{ runner.os }}-
 
-      # Run tests
+  test:
+    name: Test my project 🧪
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # Restore caches from setup job
+      - name: Restore Unity Hub Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/unityhub
+          key: UnityHub-${{ runner.os }}-${{ hashFiles('Packages/manifest.json') }}
+
+      - name: Restore Library Cache
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+
       - name: Run tests
         uses: game-ci/unity-test-runner@v4
         env:
@@ -48,32 +72,26 @@ jobs:
   build:
     name: Build my project ✨
     runs-on: ubuntu-latest
+    needs: test
     steps:
-      # Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      # Cache Unity Hub
-      - name: Cache Unity Hub
+      # Restore caches from setup job
+      - name: Restore Unity Hub Cache
         uses: actions/cache@v3
         with:
           path: ~/.cache/unityhub
           key: UnityHub-${{ runner.os }}-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: |
-            UnityHub-${{ runner.os }}-
 
-      # Cache Library
-      - name: Cache Library
+      - name: Restore Library Cache
         uses: actions/cache@v3
         with:
           path: Library
           key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: |
-            Library-${{ runner.os }}-
 
-      # Build project
       - name: Build project
         uses: game-ci/unity-builder@v4
         env:
@@ -84,8 +102,8 @@ jobs:
           targetPlatform: WebGL
           allowDirtyBuild: true
 
-      # Upload build artifact
-      - uses: actions/upload-artifact@v4
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
           name: Build
           path: build
