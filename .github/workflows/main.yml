@@ -1,6 +1,10 @@
 name: Actions 😎
 
-on: [push, pull_request]
+on: 
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   test:
@@ -13,15 +17,25 @@ jobs:
         with:
           lfs: true
 
-      # Cache
-      - uses: actions/cache@v3
+      # Cache Unity Hub
+      - name: Cache Unity Hub
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/unityhub
+          key: UnityHub-${{ runner.os }}-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: |
+            UnityHub-${{ runner.os }}-
+
+      # Cache Library
+      - name: Cache Library
+        uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-
+            Library-${{ runner.os }}-
 
-      # Test
+      # Run tests
       - name: Run tests
         uses: game-ci/unity-test-runner@v4
         env:
@@ -41,15 +55,25 @@ jobs:
         with:
           lfs: true
 
-      # Cache
-      - uses: actions/cache@v3
+      # Cache Unity Hub
+      - name: Cache Unity Hub
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/unityhub
+          key: UnityHub-${{ runner.os }}-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: |
+            UnityHub-${{ runner.os }}-
+
+      # Cache Library
+      - name: Cache Library
+        uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-
+            Library-${{ runner.os }}-
 
-      # Build
+      # Build project
       - name: Build project
         uses: game-ci/unity-builder@v4
         env:
@@ -60,7 +84,7 @@ jobs:
           targetPlatform: WebGL
           allowDirtyBuild: true
 
-      # Output
+      # Upload build artifact
       - uses: actions/upload-artifact@v4
         with:
           name: Build
