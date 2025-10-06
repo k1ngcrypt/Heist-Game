@@ -16,21 +16,32 @@ jobs:
     name: Test my project 🧪
     runs-on: ubuntu-latest
     outputs:
-      cache-key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+      cache-key: ${{ steps.library-restore.outputs.cache-primary-key }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      # Restore Library cache (always)
+      # Restore Library cache
       - name: Restore Library Cache
-        id: cache-restore
+        id: library-restore
         uses: actions/cache/restore@v3
         with:
           path: Library
           key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
           restore-keys: Library-${{ runner.os }}-
+
+      # Docker layer cache (to avoid re-pulling Unity editor image)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: docker-${{ runner.os }}-unity-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: docker-${{ runner.os }}-unity-
 
       - name: Run tests
         uses: game-ci/unity-test-runner@v4
@@ -54,14 +65,25 @@ jobs:
         with:
           lfs: true
 
-      # Restore Library cache again (using the same key from test)
+      # Restore Library cache
       - name: Restore Library Cache
-        id: cache-restore
+        id: library-restore
         uses: actions/cache/restore@v3
         with:
           path: Library
           key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
           restore-keys: Library-${{ runner.os }}-
+
+      # Docker layer cache (same key as test job)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: docker-${{ runner.os }}-unity-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: docker-${{ runner.os }}-unity-
 
       - name: Build project
         uses: game-ci/unity-builder@v4
@@ -79,7 +101,7 @@ jobs:
           name: Build
           path: build
 
-      # Save Library cache (only after successful build & only on push)
+      # Save Library cache (only on push, after successful build)
       - name: Save Library Cache
         if: github.event_name == 'push'
         uses: actions/cache/save@v3
