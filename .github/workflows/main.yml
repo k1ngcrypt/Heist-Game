@@ -1,61 +1,118 @@
 name: Actions 😎
 
-on: 
+on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  release:
+    types: [published]
 
 permissions:
   contents: write
   actions: read
   checks: write
 
+env:
+  unityVersion: 6000.2.6f2
+  BUILD_NAME: ${{ github.event.repository.name }}
+
 jobs:
   test:
     name: Test my project 🧪
     runs-on: ubuntu-latest
+    if: github.event_name != 'release'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      # Restore Library cache
-      - name: Restore Library Cache
-        id: library-restore
-        uses: actions/cache/restore@v3
+      - name: Cache Unity Library
+        uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
-          restore-keys: Library-${{ runner.os }}-
+          key: library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
+          restore-keys: |
+            library-${{ runner.os }}-${{ env.unityVersion }}-
 
-      # Set up Docker Buildx (for Unity Docker images)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Cache Docker layers
       - name: Cache Docker layers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: docker-${{ runner.os }}-unity-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: docker-${{ runner.os }}-unity-
+          key: docker-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: |
+            docker-${{ runner.os }}-${{ env.unityVersion }}-
 
-      # Run Unity tests
-      - name: Run tests
+      - name: Run Unity tests
         uses: game-ci/unity-test-runner@v4
         env:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          unityVersion: ${{ env.unityVersion }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      # Save Library cache (only on push)
-      - name: Save Library Cache
-        if: github.event_name == 'push'
-        uses: actions/cache/save@v3
+  build-release:
+    name: Build Windows Release 🎮
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
+          key: library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
+          restore-keys: |
+            library-${{ runner.os }}-${{ env.unityVersion }}-
+
+      - name: Cache Unity Editor
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/unityhub
+            ~/.local/share/unity3d
+          key: unity-editor-${{ runner.os }}-${{ env.unityVersion }}
+          restore-keys: |
+            unity-editor-${{ runner.os }}-
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: docker-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: |
+            docker-${{ runner.os }}-${{ env.unityVersion }}-
+
+      - name: Build Windows Standalone
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: ${{ env.unityVersion }}
+          targetPlatform: StandaloneWindows64
+          buildName: ${{ env.BUILD_NAME }}
+          buildPath: build
+
+      - name: Zip Build
+        run: |
+          cd build/StandaloneWindows64
+          zip -r ../../${{ env.BUILD_NAME }}-Windows64.zip .
+
+      - name: Upload Build to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.BUILD_NAME }}-Windows64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
