@@ -13,36 +13,38 @@ permissions:
   actions: read
   checks: write
 
+env:
+  unityVersion: 6000.2.6f2
+
 jobs:
   test:
     name: Test my project 🧪
     runs-on: ubuntu-latest
     if: github.event_name != 'release'
-    env:
-      unityVersion: 6000.2.6f2
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Restore Library Cache
-        id: library-restore
-        uses: actions/cache/restore@v3
+      - name: Cache Unity Library
+        uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
-          restore-keys: Library-${{ runner.os }}-${{ env.unityVersion }}-
+          key: library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
+          restore-keys: |
+            library-${{ runner.os }}-${{ env.unityVersion }}-
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: docker-${{ runner.os }}-unity-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: docker-${{ runner.os }}-unity-${{ env.unityVersion }}-
+          key: docker-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: |
+            docker-${{ runner.os }}-${{ env.unityVersion }}-
 
       - name: Run Unity tests
         uses: game-ci/unity-test-runner@v4
@@ -54,32 +56,23 @@ jobs:
           unityVersion: ${{ env.unityVersion }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Save Library Cache
-        if: github.event_name == 'push'
-        uses: actions/cache/save@v3
-        with:
-          path: Library
-          key: Library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
-
   build-release:
     name: Build Windows Release 🎮
     runs-on: ubuntu-latest
     if: github.event_name == 'release'
-    env:
-      unityVersion: 6000.2.6f2
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Restore Library Cache
-        id: library-restore
-        uses: actions/cache/restore@v3
+      - name: Cache Unity Library
+        uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
-          restore-keys: Library-${{ runner.os }}-${{ env.unityVersion }}-
+          key: library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
+          restore-keys: |
+            library-${{ runner.os }}-${{ env.unityVersion }}-
 
       - name: Cache Unity Editor
         uses: actions/cache@v4
@@ -87,15 +80,17 @@ jobs:
           path: |
             ~/.cache/unityhub
             ~/.local/share/unity3d
-          key: unity-editor-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('**/Packages/manifest.json') }}
-          restore-keys: unity-editor-${{ runner.os }}-${{ env.unityVersion }}-
+          key: unity-editor-${{ runner.os }}-${{ env.unityVersion }}
+          restore-keys: |
+            unity-editor-${{ runner.os }}-
 
       - name: Cache Docker layers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: docker-${{ runner.os }}-unity-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: docker-${{ runner.os }}-unity-${{ env.unityVersion }}-
+          key: docker-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: |
+            docker-${{ runner.os }}-${{ env.unityVersion }}-
 
       - name: Build Windows Standalone
         uses: game-ci/unity-builder@v4
