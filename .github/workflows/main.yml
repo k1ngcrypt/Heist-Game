@@ -15,6 +15,7 @@ permissions:
 
 env:
   unityVersion: 6000.2.6f2
+  BUILD_NAME: ${{ github.event.repository.name }}
 
 jobs:
   test:
@@ -101,17 +102,17 @@ jobs:
         with:
           unityVersion: ${{ env.unityVersion }}
           targetPlatform: StandaloneWindows64
-          buildName: MyGame
+          buildName: ${{ env.BUILD_NAME }}
           buildPath: build
 
       - name: Zip Build
         run: |
           cd build/StandaloneWindows64
-          zip -r ../../MyGame-Windows64.zip .
+          zip -r ../../${{ env.BUILD_NAME }}-Windows64.zip .
 
       - name: Upload Build to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: MyGame-Windows64.zip
+          files: ${{ env.BUILD_NAME }}-Windows64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
