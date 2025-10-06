@@ -1,0 +1,61 @@
+name: Actions 😎
+
+on: 
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  actions: read
+  checks: write
+
+jobs:
+  test:
+    name: Test my project 🧪
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # Restore Library cache
+      - name: Restore Library Cache
+        id: library-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: Library
+          key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
+          restore-keys: Library-${{ runner.os }}-
+
+      # Set up Docker Buildx (for Unity Docker images)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Cache Docker layers
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: docker-${{ runner.os }}-unity-${{ hashFiles('Packages/manifest.json') }}
+          restore-keys: docker-${{ runner.os }}-unity-
+
+      # Run Unity tests
+      - name: Run tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      # Save Library cache (only on push)
+      - name: Save Library Cache
+        if: github.event_name == 'push'
+        uses: actions/cache/save@v3
+        with:
+          path: Library
+          key: Library-${{ runner.os }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
