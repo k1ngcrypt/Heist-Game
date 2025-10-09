@@ -335,7 +335,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0f6a65ad1db6ea4bbce40255b2dbe06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  FloorTile: {fileID: 11400000, guid: 880635fbe0dbbde4b8fb37f069917d5a, type: 2}
+  floorTile: {fileID: 11400000, guid: 92f4d0f008467264dbe89e610cb0f2b6, type: 2}
+  useMapBounds: 0
+  mapMin: {x: -50, y: -50}
+  mapMax: {x: 50, y: 50}
+  tilesPerFrame: 0
+  onlyFillEmpty: 1
+  integrateWithMapSystem: 1
+  showDebugInfo: 0
 --- !u!483693784 &962010234
 TilemapRenderer:
   m_ObjectHideFlags: 0
@@ -503,8 +510,8 @@ Transform:
   m_GameObject: {fileID: 1393778742}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: -0.2241, z: 0}
+  m_LocalScale: {x: 1, y: 0.9552, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1238435706}
@@ -521,6 +528,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bd9c2d0840ad9b49853be07e46598d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  nullTile: {fileID: 11400000, guid: a1b59614650a8c342a6ce14e39e25ba0, type: 2}
+  refreshBoundsOnStart: 1
 --- !u!483693784 &1393778745
 TilemapRenderer:
   m_ObjectHideFlags: 0
@@ -1069,6 +1078,8 @@ MonoBehaviour:
   WallTile: {fileID: 11400000, guid: 92f4d0f008467264dbe89e610cb0f2b6, type: 2}
   TopTile: {fileID: 11400000, guid: 6bd64523adb37bb468fcadd9e6d208b6, type: 2}
   CornerTile: {fileID: 11400000, guid: 8124e3da9526fa44f80c7917cbef0437, type: 2}
+  useProgressiveGeneration: 0
+  tilesPerFrame: 1000
 --- !u!483693784 &1881985249
 TilemapRenderer:
   m_ObjectHideFlags: 0
