@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class ObjectMarker : MonoBehaviour
+public class MainMarker : MonoBehaviour
 {
     void Awake()
     {

@@ -6,25 +6,21 @@ using UnityEngine.Tilemaps;
 
 public class Map
 {
-    public static Tilemap objectTilemap, playerTilemap;
+    public static Tilemap tilemap;
     public static RuleTile nullTile;
     public static int xMin, xMax, yMin, yMax;
     public static void SetTilemap(Tilemap t)
     {
-        objectTilemap = t;
-        xMin = objectTilemap.cellBounds.xMin;
-        xMax = objectTilemap.cellBounds.xMax;
-        yMin = objectTilemap.cellBounds.yMin;
-        yMax = objectTilemap.cellBounds.yMax;
+        tilemap = t;
+        xMin = tilemap.cellBounds.xMin;
+        xMax = tilemap.cellBounds.xMax;
+        yMin = tilemap.cellBounds.yMin;
+        yMax = tilemap.cellBounds.yMax;
         nullTile = (RuleTile)Resources.Load("NullTile");
-    }
-    public static void SetPlayerTilemap(Tilemap t)
-    {
-        playerTilemap = t;
     }
     public static bool IsTile(Vector3Int v, TileBase tile)
     {
-        return objectTilemap.GetTile(v) == tile;
+        return tilemap.GetTile(v) == tile;
     }
     public static bool IsTile(int x, int y, TileBase tile)
     {
@@ -32,7 +28,7 @@ public class Map
     }
     public static bool IsFilled(Vector3Int v)
     {
-        return objectTilemap.GetTile(v);
+        return tilemap.GetTile(v);
     }
     public static bool IsFilled(int x, int y)
     {
@@ -40,7 +36,7 @@ public class Map
     }
     public static void SetTile(Vector3Int v, TileBase tile)
     {
-        objectTilemap.SetTile(v, tile);
+        tilemap.SetTile(v, tile);
     }
     public static void SetTile(int x, int y, TileBase tile)
     {
