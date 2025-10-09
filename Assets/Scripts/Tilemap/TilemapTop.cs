@@ -9,9 +9,7 @@ using UnityEngine.Tilemaps;
 public class TilemapTop : MonoBehaviour
 {
     [Header("Tile References")]
-    public RuleTile WallTile;
-    public RuleTile TopTile; 
-    public RuleTile CornerTile;
+    public RuleTile WallTile, TopTile, CornerTile;
     
     [Header("Performance")]
     [SerializeField] private bool useProgressiveGeneration = false;
@@ -30,10 +28,7 @@ public class TilemapTop : MonoBehaviour
             return;
         }
 
-        if (!ValidateConfiguration())
-        {
-            return;
-        }
+        if (!ValidateConfiguration()) return;
 
         // Wait for Map system to be ready
         StartCoroutine(WaitForMapThenGenerate());
@@ -82,14 +77,8 @@ public class TilemapTop : MonoBehaviour
             yield break;
         }
 
-        if (useProgressiveGeneration)
-        {
-            yield return StartCoroutine(GenerateTopTilesProgressive());
-        }
-        else
-        {
-            GenerateTopTilesBatch();
-        }
+        if (useProgressiveGeneration) yield return StartCoroutine(GenerateTopTilesProgressive());
+        else GenerateTopTilesBatch();
     }
 
     /// <summary>
@@ -211,13 +200,8 @@ public class TilemapTop : MonoBehaviour
     private void GenerateInEditor()
     {
         if (Application.isPlaying)
-        {
             RegenerateTopTiles();
-        }
-        else
-        {
-            Debug.LogWarning("[TilemapTop] Editor generation requires Play mode for Map system access.", this);
-        }
+        else Debug.LogWarning("[TilemapTop] Editor generation requires Play mode for Map system access.", this);
     }
 #endif
 }

@@ -66,15 +66,11 @@ public class MainMarker : MonoBehaviour
     private void OnValidate()
     {
         if (_tilemap == null)
-        {
             _tilemap = GetComponent<Tilemap>();
-        }
 
         // Check if null tile resource is assigned
         if (nullTile == null)
-        {
             Debug.LogWarning("[MainMarker] Null tile not assigned!", this);
-        }
     }
 
     /// <summary>

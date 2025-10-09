@@ -108,9 +108,7 @@ public static class Map
     public static void RefreshBounds()
     {
         if (_tilemap != null)
-        {
-            _bounds = _tilemap.cellBounds;
-        }
+           _bounds = _tilemap.cellBounds;
     }
 
     /// <summary>
@@ -193,12 +191,6 @@ public static class Map
             Debug.LogError("[Map] Not initialized. Call SetTilemap() first.");
             return false;
         }
-
-        if (!IsInBounds(position))
-        {
-            return false;
-        }
-
         return GetTileInternal(position) != null;
     }
 
@@ -220,12 +212,8 @@ public static class Map
     /// <returns>The tile at the position, or null if empty/out of bounds</returns>
     public static TileBase GetTile(Vector3Int position)
     {
-        if (!IsInitialized || !IsInBounds(position))
-        {
-            return null;
-        }
-
-        return GetTileInternal(position);
+        if (!IsInitialized) return null;
+        return GetTile(position);
     }
 
     /// <summary>
@@ -254,24 +242,12 @@ public static class Map
             Debug.LogError("[Map] Not initialized. Call SetTilemap() first.");
             return false;
         }
-
-        if (!IsInBounds(position))
-        {
-            Debug.LogWarning($"[Map] Attempted to set tile outside bounds: {position}");
-            return false;
-        }
-
         _tilemap.SetTile(position, tile);
         
         // Update cache
         if (tile == null)
-        {
             _tileCache.Remove(position);
-        }
-        else
-        {
-            _tileCache[position] = tile;
-        }
+        else _tileCache[position] = tile;
 
         return true;
     }
@@ -308,29 +284,14 @@ public static class Map
             return false;
         }
 
-        // Validate all positions are in bounds
-        for (int i = 0; i < positions.Length; i++)
-        {
-            if (!IsInBounds(positions[i]))
-            {
-                Debug.LogWarning($"[Map] Position {positions[i]} is out of bounds, skipping batch operation");
-                return false;
-            }
-        }
-
         _tilemap.SetTiles(positions, tiles);
 
         // Update cache
         for (int i = 0; i < positions.Length; i++)
         {
             if (tiles[i] == null)
-            {
                 _tileCache.Remove(positions[i]);
-            }
-            else
-            {
-                _tileCache[positions[i]] = tiles[i];
-            }
+            else _tileCache[positions[i]] = tiles[i];
         }
 
         return true;
