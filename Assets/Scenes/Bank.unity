@@ -144,7 +144,7 @@ Transform:
   m_GameObject: {fileID: 35637777}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -317,9 +317,9 @@ Transform:
   m_GameObject: {fileID: 962010231}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 35637778}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -335,13 +335,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0f6a65ad1db6ea4bbce40255b2dbe06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  floorTile: {fileID: 11400000, guid: 92f4d0f008467264dbe89e610cb0f2b6, type: 2}
-  useMapBounds: 0
+  floorTile: {fileID: 11400000, guid: 880635fbe0dbbde4b8fb37f069917d5a, type: 2}
+  useMapBounds: 1
   mapMin: {x: -50, y: -50}
   mapMax: {x: 50, y: 50}
   tilesPerFrame: 0
-  onlyFillEmpty: 1
-  integrateWithMapSystem: 1
   showDebugInfo: 0
 --- !u!483693784 &962010234
 TilemapRenderer:
@@ -510,8 +508,8 @@ Transform:
   m_GameObject: {fileID: 1393778742}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.2241, z: 0}
-  m_LocalScale: {x: 1, y: 0.9552, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1238435706}
@@ -1057,7 +1055,7 @@ Transform:
   m_GameObject: {fileID: 1881985246}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

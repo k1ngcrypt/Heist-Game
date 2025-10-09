@@ -9,7 +9,8 @@ using UnityEngine.Tilemaps;
 public class TilemapTop : MonoBehaviour
 {
     [Header("Tile References")]
-    public RuleTile WallTile, TopTile, CornerTile;
+    public RuleTile WallTile;
+    public RuleTile TopTile, CornerTile;
     
     [Header("Performance")]
     [SerializeField] private bool useProgressiveGeneration = false;

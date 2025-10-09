@@ -24,9 +24,6 @@ public class AutoFloor : MonoBehaviour
     [Tooltip("Maximum tiles to process per frame (0 = process all at once)")]
     [SerializeField] private int tilesPerFrame = 0;
     [Tooltip("If true, will only fill empty tiles")]
-    [SerializeField] private bool onlyFillEmpty = true;
-    [Tooltip("If true, will use Map system for tile operations when available")]
-    [SerializeField] private bool integrateWithMapSystem = true;
 
     [Header("Debug")]
     [SerializeField] private bool showDebugInfo = false;
@@ -63,16 +60,7 @@ public class AutoFloor : MonoBehaviour
             Debug.LogError("[AutoFloor] No floor tile assigned. Please set a RuleTile in the inspector.", this);
             return;
         }
-
-        // Wait a frame to ensure Map system is initialized if using it
-        if (integrateWithMapSystem && useMapBounds)
-        {
-            StartCoroutine(WaitForMapSystemThenGenerate());
-        }
-        else
-        {
-            GenerateFloor();
-        }
+        GenerateFloor();
     }
     #endregion
 
@@ -140,13 +128,11 @@ public class AutoFloor : MonoBehaviour
 
         // Determine bounds to use
         Vector2Int actualMin, actualMax;
-        if (useMapBounds && integrateWithMapSystem && Map.IsInitialized)
+        if (useMapBounds&&Map.IsInitialized)
         {
-            var bounds = Map.Bounds;
-            actualMin = new Vector2Int(bounds.xMin, bounds.yMin);
-            actualMax = new Vector2Int(bounds.xMax, bounds.yMax);
-        }
-        else
+            actualMin = (Vector2Int)Map.Bounds.min;
+            actualMax = (Vector2Int)Map.Bounds.max;
+        } else
         {
             actualMin = mapMin;
             actualMax = mapMax;
@@ -157,9 +143,7 @@ public class AutoFloor : MonoBehaviour
         var totalTiles = width * height;
 
         if (showDebugInfo)
-        {
             Debug.Log($"[AutoFloor] Generating floor: {width}x{height} = {totalTiles} tiles", this);
-        }
 
         // Choose generation method based on performance settings
         if (tilesPerFrame <= 0)
@@ -198,17 +182,6 @@ public class AutoFloor : MonoBehaviour
             {
                 var pos = new Vector3Int(x, y, 0);
                 
-                // Skip if should only fill empty tiles and this position is occupied
-                if (onlyFillEmpty)
-                {
-                    bool hasExistingTile = integrateWithMapSystem && Map.IsInitialized 
-                        ? Map.IsFilled(pos) 
-                        : _tilemap.GetTile(pos) != null;
-                        
-                    if (hasExistingTile)
-                        continue;
-                }
-
                 positions[validTileCount] = pos;
                 tiles[validTileCount] = floorTile;
                 validTileCount++;
@@ -223,14 +196,7 @@ public class AutoFloor : MonoBehaviour
         }
 
         // Apply tiles using the most efficient method available
-        if (integrateWithMapSystem && Map.IsInitialized)
-        {
-            Map.SetTiles(positions, tiles);
-        }
-        else
-        {
-            _tilemap.SetTiles(positions, tiles);
-        }
+        _tilemap.SetTiles(positions, tiles);
 
         yield return null;
     }
@@ -247,27 +213,7 @@ public class AutoFloor : MonoBehaviour
             for (int y = min.y; y < max.y && _isGenerating; y++)
             {
                 var pos = new Vector3Int(x, y, 0);
-
-                // Skip if should only fill empty tiles and this position is occupied
-                if (onlyFillEmpty)
-                {
-                    bool hasExistingTile = integrateWithMapSystem && Map.IsInitialized 
-                        ? Map.IsFilled(pos) 
-                        : _tilemap.GetTile(pos) != null;
-                        
-                    if (hasExistingTile)
-                        continue;
-                }
-
-                // Set tile using the most efficient method available
-                if (integrateWithMapSystem && Map.IsInitialized)
-                {
-                    Map.SetTile(pos, floorTile);
-                }
-                else
-                {
-                    _tilemap.SetTile(pos, floorTile);
-                }
+                _tilemap.SetTile(pos, floorTile);
 
                 tilesProcessed++;
 
@@ -302,9 +248,7 @@ public class AutoFloor : MonoBehaviour
         }
 
         if (_tilemap == null)
-        {
             _tilemap = GetComponent<Tilemap>();
-        }
 
         _performanceTimer = _performanceTimer ?? new System.Diagnostics.Stopwatch();
         _performanceTimer.Restart();
@@ -339,23 +283,15 @@ public class AutoFloor : MonoBehaviour
     {
         // Ensure map bounds are valid
         if (mapMin.x >= mapMax.x)
-        {
             mapMax.x = mapMin.x + 1;
-        }
         if (mapMin.y >= mapMax.y)
-        {
             mapMax.y = mapMin.y + 1;
-        }
 
         // Clamp tiles per frame to reasonable values
         if (tilesPerFrame < 0)
-        {
             tilesPerFrame = 0;
-        }
         else if (tilesPerFrame > 10000)
-        {
             tilesPerFrame = 10000;
-        }
     }
 
     /// <summary>
@@ -366,13 +302,11 @@ public class AutoFloor : MonoBehaviour
         if (!showDebugInfo) return;
 
         Vector2Int actualMin, actualMax;
-        if (useMapBounds && integrateWithMapSystem && Map.IsInitialized)
+        if (useMapBounds&&Map.IsInitialized)
         {
-            var bounds = Map.Bounds;
-            actualMin = new Vector2Int(bounds.xMin, bounds.yMin);
-            actualMax = new Vector2Int(bounds.xMax, bounds.yMax);
-        }
-        else
+            actualMin = (Vector2Int)Map.Bounds.min;
+            actualMax = (Vector2Int)Map.Bounds.max;
+        } else
         {
             actualMin = mapMin;
             actualMax = mapMax;
