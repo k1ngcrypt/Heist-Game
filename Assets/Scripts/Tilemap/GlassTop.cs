@@ -2,17 +2,17 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class DuplicateTilemap : MonoBehaviour
+public class GlassTop : MonoBehaviour
 {
     [Header("Tile References")]
-    public RuleTile ReferenceTile;
-    public RuleTile NewTile;
+    public RuleTile WallTile;
+    public Tile TopTile;
     private Tilemap _thisTilemap;
 
     void Start()
     {
         _thisTilemap = GetComponent<Tilemap>();
-        if (_thisTilemap == null||ReferenceTile == null || NewTile == null) return;
+        if (_thisTilemap == null||WallTile == null || TopTile == null) return;
         StartCoroutine(WaitForMapThenGenerate());
     }
     private System.Collections.IEnumerator WaitForMapThenGenerate()
@@ -41,7 +41,7 @@ public class DuplicateTilemap : MonoBehaviour
         for (int x = bounds.xMin; x < bounds.xMax; x++)
             for (int y = bounds.yMin; y < bounds.yMax + 1; y++) {
                 positions.Add(new Vector3Int(x, y, 0));
-                tiles.Add(Map.IsTile(x, y, ReferenceTile) ? NewTile : null);
+                tiles.Add(Map.IsTile(x, y - 1, WallTile) && !Map.IsTile(x, y, WallTile) && !Map.IsTile(x, y, null) && !Map.IsTile(x, y-2, null) ? TopTile : null);
             }
         _thisTilemap.SetTiles(positions.ToArray(), tiles.ToArray());
         Debug.Log($"[GlassTop] Generated {positions.Count} top tiles in batch mode", this);
