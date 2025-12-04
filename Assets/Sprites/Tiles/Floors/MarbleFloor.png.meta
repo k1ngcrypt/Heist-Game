@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ea7b595310369d245990ec00396e4242
+guid: b0e38a6defcb73c4986770949de2d60b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1105427578294484294
-    second: MarbleFloor1_0
+      213: -1350995847172939377
+    second: MarbleFloor_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MarbleFloor1_0
+      name: MarbleFloor_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ab246de697bb8a0f0800000000000000
-      internalID: -1105427578294484294
+      spriteID: f81aa345f6c404de0800000000000000
+      internalID: -1350995847172939377
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MarbleFloor1_0: -1105427578294484294
+      MarbleFloor_0: -1350995847172939377
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -26,7 +26,7 @@ public class DuplicateTilemap : MonoBehaviour
 
         if (!Map.IsInitialized)
         {
-            Debug.LogError("[GlassTop] Map system not initialized, cannot generate top tiles!", this);
+            Debug.LogError("[Duplicate] Map system not initialized, cannot generate top tiles!", this);
             yield break;
         }
 
@@ -44,6 +44,6 @@ public class DuplicateTilemap : MonoBehaviour
                 tiles.Add(Map.IsTile(x, y, ReferenceTile) ? NewTile : null);
             }
         _thisTilemap.SetTiles(positions.ToArray(), tiles.ToArray());
-        Debug.Log($"[GlassTop] Generated {positions.Count} top tiles in batch mode", this);
+        Debug.Log($"[Duplicate] Generated {positions.Count} top tiles in batch mode", this);
     }
 }
