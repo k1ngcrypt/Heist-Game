@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -12,7 +11,7 @@ public class DuplicateTilemap : MonoBehaviour
     void Start()
     {
         _thisTilemap = GetComponent<Tilemap>();
-        if (_thisTilemap == null||ReferenceTile == null || NewTile == null) return;
+        if (_thisTilemap == null) return;
         StartCoroutine(WaitForMapThenGenerate());
     }
     private System.Collections.IEnumerator WaitForMapThenGenerate()
@@ -38,12 +37,21 @@ public class DuplicateTilemap : MonoBehaviour
         var positions = new System.Collections.Generic.List<Vector3Int>();
         var tiles = new System.Collections.Generic.List<TileBase>();
 
-        for (int x = bounds.xMin; x < bounds.xMax; x++)
-            for (int y = bounds.yMin; y < bounds.yMax + 1; y++) {
-                positions.Add(new Vector3Int(x, y, 0));
-                tiles.Add(Map.IsTile(x, y, ReferenceTile) ? NewTile : null);
-            }
+        if (ReferenceTile == null || NewTile == null)
+            for (int x = bounds.xMin; x < bounds.xMax; x++)
+                for (int y = bounds.yMin; y < bounds.yMax + 1; y++)
+                {
+                    positions.Add(new Vector3Int(x, y, 0));
+                    tiles.Add(Map.GetTile(x,y));
+                }
+        else
+            for (int x = bounds.xMin; x < bounds.xMax; x++)
+                for (int y = bounds.yMin; y < bounds.yMax + 1; y++)
+                {
+                    positions.Add(new Vector3Int(x, y, 0));
+                    tiles.Add(Map.IsTile(x, y, ReferenceTile) ? NewTile : null);
+                }
         _thisTilemap.SetTiles(positions.ToArray(), tiles.ToArray());
-        Debug.Log($"[Duplicate] Generated {positions.Count} top tiles in batch mode", this);
+        Debug.Log($"[DuplicateTilemapp] Generated {positions.Count} top tiles in batch mode", this);
     }
 }

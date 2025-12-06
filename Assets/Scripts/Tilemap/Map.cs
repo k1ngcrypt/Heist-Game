@@ -213,7 +213,7 @@ public static class Map
     public static TileBase GetTile(Vector3Int position)
     {
         if (!IsInitialized) return null;
-        return GetTile(position);
+        return GetTileInternal(position);
     }
 
     /// <summary>
