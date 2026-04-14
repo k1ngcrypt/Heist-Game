@@ -19,8 +19,7 @@ public class CurrencyManager : MonoBehaviour
     }
 
     [Header("Startup")]
-    [SerializeField] private bool dontDestroyOnLoad = true;
-    [SerializeField] private bool loadProgressOnAwake;
+    [SerializeField] private bool loadProgressOnAwake = true;
     [SerializeField] private bool saveProgressOnChange = true;
     [SerializeField] private string saveSlot = "default";
 
@@ -32,36 +31,81 @@ public class CurrencyManager : MonoBehaviour
     private const int CurrencyCount = 3;
     private readonly int[] balances = new int[CurrencyCount];
     private string SaveKey => $"Currency.Progress.{saveSlot}";
+    private bool isServiceInitialized;
+    private static bool isApplicationQuitting;
 
-    public static CurrencyManager Instance { get; private set; }
+    private static CurrencyManager instance;
+    public static CurrencyManager Instance => EnsureInstance();
 
     public static event Action<CurrencyType, int, int> OnCurrencyChanged;
     public static event Action OnCurrenciesChanged;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Bootstrap()
+    {
+        EnsureInstance();
+    }
+
+    private static CurrencyManager EnsureInstance()
+    {
+        if (isApplicationQuitting)
+        {
+            return null;
+        }
+
+        if (instance != null)
+        {
+            return instance;
+        }
+
+        instance = FindAnyObjectByType<CurrencyManager>();
+        if (instance != null)
+        {
+            return instance;
+        }
+
+        var serviceObject = new GameObject("[Service] CurrencyManager");
+        instance = serviceObject.AddComponent<CurrencyManager>();
+        return instance;
+    }
+
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (instance != null && instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        instance = this;
+        DontDestroyOnLoad(gameObject);
 
-        if (dontDestroyOnLoad)
+        if (!isServiceInitialized)
         {
-            DontDestroyOnLoad(gameObject);
+            isServiceInitialized = true;
+            ResetToStartingValues(false, false);
+
+            if (loadProgressOnAwake)
+            {
+                LoadProgress();
+            }
+            else
+            {
+                RaiseAllCurrencyChanged();
+            }
         }
+    }
 
-        ResetToStartingValues(false, false);
+    private void OnApplicationQuit()
+    {
+        isApplicationQuitting = true;
+    }
 
-        if (loadProgressOnAwake)
+    private void OnDestroy()
+    {
+        if (instance == this)
         {
-            LoadProgress();
-        }
-        else
-        {
-            RaiseAllCurrencyChanged();
+            instance = null;
         }
     }
 

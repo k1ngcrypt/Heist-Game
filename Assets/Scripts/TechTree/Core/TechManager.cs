@@ -59,7 +59,7 @@ public class TechManager : MonoBehaviour
     {
         if (currencyManager == null)
         {
-            currencyManager = FindAnyObjectByType<CurrencyManager>();
+            currencyManager = CurrencyManager.Instance;
         }
 
         SyncFromTreeAsset();
