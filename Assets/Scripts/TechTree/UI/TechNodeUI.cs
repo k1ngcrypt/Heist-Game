@@ -6,7 +6,9 @@ public class TechNodeUI : MonoBehaviour
 {
     [Header("UI References")]
     public TextMeshProUGUI titleText;
+    public TextMeshProUGUI descriptionText;
     public TextMeshProUGUI costText;
+    public TextMeshProUGUI statusText;
     public Image iconImage;
     public Button unlockButton;
 
@@ -20,12 +22,17 @@ public class TechNodeUI : MonoBehaviour
 
         if (titleText != null)
         {
-            titleText.text = tech.techName;
+            titleText.text = string.IsNullOrWhiteSpace(tech.techName) ? tech.techID : tech.techName;
+        }
+
+        if (descriptionText != null)
+        {
+            descriptionText.text = tech.description;
         }
 
         if (costText != null)
         {
-            costText.text = tech.resourceCost.ToString();
+            costText.text = $"Cost: {tech.resourceCost}";
         }
 
         if (iconImage != null)
@@ -53,16 +60,19 @@ public class TechNodeUI : MonoBehaviour
         {
             if (iconImage != null) iconImage.color = Color.white;
             if (unlockButton != null) unlockButton.interactable = false;
+            if (statusText != null) statusText.text = "Unlocked";
         }
         else if (techManager.CanUnlock(myTech))
         {
             if (iconImage != null) iconImage.color = new Color(0.8f, 0.8f, 0.8f);
             if (unlockButton != null) unlockButton.interactable = true;
+            if (statusText != null) statusText.text = "Available";
         }
         else
         {
             if (iconImage != null) iconImage.color = new Color(0.2f, 0.2f, 0.2f);
             if (unlockButton != null) unlockButton.interactable = false;
+            if (statusText != null) statusText.text = techManager.GetLockReason(myTech);
         }
     }
 
