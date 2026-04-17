@@ -14,12 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TechNodeSO
   techID: Tech2
   techName: Technology 2
-  description: 
+  description: 'Describe Me!
+
+    Describe Me!
+
+    Describe Me!'
   techIcon: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
-  tier: 0
+  tier: 2
   category: 
   resourceCost: 2
   prerequisiteMode: 0
   prerequisites:
   - {fileID: 11400000, guid: 3b8eab1086c1dea4daace8169ddc54bf, type: 2}
-  editorPosition: {x: 0, y: 0}
+  editorPosition: {x: 200, y: 200}

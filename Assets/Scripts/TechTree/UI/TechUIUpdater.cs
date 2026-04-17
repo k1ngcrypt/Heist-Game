@@ -4,8 +4,7 @@ using UnityEngine.UI;
 
 public enum TechNodeLayoutMode
 {
-    VerticalList,
-    TierColumns,
+    TierRows,
     DesignerPositions
 }
 
@@ -108,28 +107,12 @@ public class TechUIUpdater : MonoBehaviour
 
         switch (layoutMode)
         {
-            case TechNodeLayoutMode.VerticalList:
-                ApplyVerticalLayout();
-                break;
-            case TechNodeLayoutMode.TierColumns:
+            case TechNodeLayoutMode.TierRows:
                 ApplyTierLayout(techNodes);
                 break;
             case TechNodeLayoutMode.DesignerPositions:
                 ApplyDesignerPositionLayout(techNodes);
                 break;
-        }
-    }
-
-    private void ApplyVerticalLayout()
-    {
-        for (int i = 0; i < spawnedNodes.Count; i++)
-        {
-            if (!TryGetRectTransform(spawnedNodes[i], out var rectTransform))
-            {
-                continue;
-            }
-
-            rectTransform.anchoredPosition = new Vector2(0f, -i * verticalSpacing);
         }
     }
 
