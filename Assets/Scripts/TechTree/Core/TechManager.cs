@@ -7,7 +7,6 @@ public class TechManager : MonoBehaviour
     [Serializable]
     private class TechProgressData
     {
-        public int availableTechPoints;
         public List<string> unlockedTechIDs = new();
     }
 
@@ -16,11 +15,8 @@ public class TechManager : MonoBehaviour
     public List<TechNodeSO> allTechNodes = new();//full list of all techs
     public List<TechNodeSO> startingUnlockedTechs = new();
 
-    [Header("Progression")]
-    [Min(0)] public int availableTechPoints;
     [Header("Currency Integration")]
     public CurrencyManager currencyManager;
-    public bool useKnowledgeCurrency = true;
     public bool loadProgressOnAwake;
     public bool saveProgressOnChange = true;
     public string saveSlot = "default";
@@ -31,29 +27,20 @@ public class TechManager : MonoBehaviour
     public static event Action<TechNodeSO> OnTechUnlocked;//event for tech unlocks
     public static event Action OnTechStateChanged;
 
-    private int CurrentTechPoints
+    private CurrencyManager Currency
     {
         get
         {
-            if (useKnowledgeCurrency && currencyManager != null)
+            if (currencyManager == null)
             {
-                return currencyManager.Get(CurrencyType.Knowledge);
+                currencyManager = CurrencyManager.Instance;
             }
 
-            return availableTechPoints;
-        }
-        set
-        {
-            var clampedValue = Mathf.Max(0, value);
-
-            if (useKnowledgeCurrency && currencyManager != null)
-            {
-                currencyManager.Set(CurrencyType.Knowledge, clampedValue);
-            }
-
-            availableTechPoints = clampedValue;
+            return currencyManager;
         }
     }
+
+    private int CurrentTechPoints => Currency != null ? Currency.Get(CurrencyType.Knowledge) : 0;
 
     private void Awake()
     {
@@ -85,12 +72,11 @@ public class TechManager : MonoBehaviour
 
     private void HandleCurrencyChanged(CurrencyType currencyType, int value, int delta)
     {
-        if (!useKnowledgeCurrency || currencyType != CurrencyType.Knowledge)
+        if (currencyType != CurrencyType.Knowledge)
         {
             return;
         }
 
-        availableTechPoints = value;
         OnTechStateChanged?.Invoke();
     }
 
@@ -136,8 +122,12 @@ public class TechManager : MonoBehaviour
     {
         if (CanUnlock(tech))
         {
+            if (Currency == null || !Currency.TrySpend(CurrencyType.Knowledge, tech.resourceCost))
+            {
+                return;
+            }
+
             unlockedTechIDs.Add(tech.techID);
-            CurrentTechPoints -= tech.resourceCost;
             OnTechUnlocked?.Invoke(tech);
 
             if (saveProgressOnChange)
@@ -225,9 +215,9 @@ public class TechManager : MonoBehaviour
 
     public void AddTechPoints(int amount)
     {
-        if (amount <= 0) return;
+        if (amount <= 0 || Currency == null) return;
 
-        CurrentTechPoints += amount;
+        Currency.Add(CurrencyType.Knowledge, amount);
 
         if (saveProgressOnChange)
         {
@@ -261,7 +251,6 @@ public class TechManager : MonoBehaviour
     {
         var data = new TechProgressData
         {
-            availableTechPoints = CurrentTechPoints,
             unlockedTechIDs = new List<string>(unlockedTechIDs)
         };
 
@@ -289,7 +278,6 @@ public class TechManager : MonoBehaviour
             return false;
         }
 
-        CurrentTechPoints = data.availableTechPoints;
         unlockedTechIDs = data.unlockedTechIDs != null
             ? new HashSet<string>(data.unlockedTechIDs)
             : new HashSet<string>();
