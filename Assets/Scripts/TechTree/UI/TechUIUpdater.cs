@@ -77,45 +77,60 @@ public class TechUIUpdater : MonoBehaviour
         var nodesByCategoryUI = new Dictionary<string, List<TechNodeUI>>();
         var categoryParents = new Dictionary<string, RectTransform>();
 
-        for (int i = 0; i < techNodes.Count; i++)
+        foreach (var tech in techNodes)
         {
-            var tech = techNodes[i];
             if (tech == null)
             {
                 continue;
             }
             TechNodeUI nodeInstance; 
 
-            if (tech.tier <= 0)
+            if (tech.tier == 0 || tech.category == "Base")
             {
-                nodeInstance = Instantiate(techNodePrefab, nodeParent);
+                if (!categoryParents.TryGetValue("Base", out var papa))
+                {
+                    GameObject container = new GameObject($"Category_Base", typeof(RectTransform));
+                    container.transform.SetParent(nodeParent, false);
+
+                    papa = container.GetComponent<RectTransform>();
+                    categoryParents["Base"] = papa;
+                }
+                if (!nodesByCategorySO.ContainsKey("Base")) {
+                    nodesByCategorySO["Base"] = new List<TechNodeSO>();
+                    nodesByCategoryUI["Base"] = new List<TechNodeUI>();
+                }
+                nodesByCategorySO["Base"].Add(tech);
+
+                nodeInstance = Instantiate(techNodePrefab, papa);
                 nodeInstance.name = $"TechNode_{tech.techID}";
                 nodeInstance.Initialize(tech, techManager);
                 nodeInstance.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
                 spawnedNodes.Add(nodeInstance);
-                continue;
+                nodesByCategoryUI["Base"].Add(nodeInstance);
             }
-
-            //group into sub catagories
-            if (!categoryParents.TryGetValue(tech.category, out var parent))
+            else
             {
-                GameObject container = new GameObject($"Category_{tech.category}", typeof(RectTransform));
-                container.transform.SetParent(nodeParent, false);
+                //group into sub catagories
+                if (!categoryParents.TryGetValue(tech.category, out var parent))
+                {
+                    GameObject container = new GameObject($"Category_{tech.category}", typeof(RectTransform));
+                    container.transform.SetParent(nodeParent, false);
 
-                parent = container.GetComponent<RectTransform>();
-                categoryParents[tech.category] = parent;
-            }
-            if (!nodesByCategorySO.ContainsKey(tech.category)) {
-                nodesByCategorySO[tech.category] = new List<TechNodeSO>();
-                nodesByCategoryUI[tech.category] = new List<TechNodeUI>();
-            }
-            nodesByCategorySO[tech.category].Add(tech);
+                    parent = container.GetComponent<RectTransform>();
+                    categoryParents[tech.category] = parent;
+                }
+                if (!nodesByCategorySO.ContainsKey(tech.category)) {
+                    nodesByCategorySO[tech.category] = new List<TechNodeSO>();
+                    nodesByCategoryUI[tech.category] = new List<TechNodeUI>();
+                }
+                nodesByCategorySO[tech.category].Add(tech);
 
-            nodeInstance = Instantiate(techNodePrefab, parent);
-            nodeInstance.name = $"TechNode_{tech.techID}";
-            nodeInstance.Initialize(tech, techManager);
-            spawnedNodes.Add(nodeInstance);
-            nodesByCategoryUI[tech.category].Add(nodeInstance);
+                nodeInstance = Instantiate(techNodePrefab, parent);
+                nodeInstance.name = $"TechNode_{tech.techID}";
+                nodeInstance.Initialize(tech, techManager);
+                spawnedNodes.Add(nodeInstance);
+                nodesByCategoryUI[tech.category].Add(nodeInstance);   
+            }
         }
 
         if (spawnedNodes.Count == 0)
@@ -201,7 +216,11 @@ public class TechUIUpdater : MonoBehaviour
                 
 
                 float x = (row * (nodeWidth + tierHorizontalSpacing)) - offsetPerTier[tier];
-                float y = branchDirection * (tier - 1) * (tierVerticalSpacing + nodeHeight);
+                float y = 0;
+                if (category != "Base")
+                {
+                    y = branchDirection * (tier - 1) * (tierVerticalSpacing + nodeHeight);
+                }                
 
                 Vector2 pos = new Vector2(x, y);
 
@@ -244,6 +263,9 @@ public class TechUIUpdater : MonoBehaviour
         Vector2 maxCanvas = nodeCorner;
         foreach (var kpv in categoryParents)
         {
+            if (kpv.Key == "Base") {
+                continue;
+            }
             var parent = kpv.Value;
             float width = parent.sizeDelta.x;
             float height = parent.sizeDelta.y;
@@ -272,6 +294,7 @@ public class TechUIUpdater : MonoBehaviour
             parent.anchorMax = new Vector2(0.5f, 0.5f);
         }
 
+        //resize content with padding
         var canvasRT = nodeParent.GetComponent<RectTransform>();
         Vector2 padding = new Vector2(((canvasRT.sizeDelta.x - nodeWidth) / 2f), ((canvasRT.sizeDelta.y - nodeHeight) / 2f));
         maxCanvas += padding;
@@ -279,6 +302,13 @@ public class TechUIUpdater : MonoBehaviour
         //resize contents
         canvasRT.pivot = new Vector2(0.5f, 1f);
         canvasRT.sizeDelta = (maxCanvas - minCanvas);
+
+        //shift each parent to account for new size
+        Vector2 center = (maxCanvas + minCanvas) / 2f;
+        foreach (var kvp in categoryParents) {
+            RectTransform rt = kvp.Value;
+            rt.anchoredPosition += new Vector2(0, branchDirection * center.y);
+        }
     }
 
     private bool TryGetRectTransform(TechNodeUI nodeUI, out RectTransform rectTransform)
