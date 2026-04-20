@@ -2,11 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public enum TechNodeLayoutMode
-{
-    TierRows,
-    DesignerPositions
-}
 
 public class TechUIUpdater : MonoBehaviour
 {
@@ -16,11 +11,11 @@ public class TechUIUpdater : MonoBehaviour
     public Transform nodeParent;
 
     [Header("Layout")]
-    public TechNodeLayoutMode layoutMode = TechNodeLayoutMode.DesignerPositions;
-    [Min(0f)] public float verticalSpacing = 120f;
     [Min(0f)] public float tierHorizontalSpacing = 260f;
     [Min(0f)] public float tierVerticalSpacing = 140f;
-    public bool invertDesignerY = true;
+    public bool branchDown = true;
+
+    int branchDirection = 0;
 
     private readonly List<TechNodeUI> spawnedNodes = new();
 
@@ -29,6 +24,13 @@ public class TechUIUpdater : MonoBehaviour
         if (techManager == null)
         {
             techManager = FindAnyObjectByType<TechManager>();
+        }
+        if (branchDown)
+        {
+            branchDirection = -1;
+        } else
+        {
+            branchDirection = 1;
         }
 
         BuildTreeUI();
@@ -71,17 +73,49 @@ public class TechUIUpdater : MonoBehaviour
             return;
         }
 
-        foreach (var tech in techNodes)
+        var nodesByCategorySO = new Dictionary<string, List<TechNodeSO>>();
+        var nodesByCategoryUI = new Dictionary<string, List<TechNodeUI>>();
+        var categoryParents = new Dictionary<string, RectTransform>();
+
+        for (int i = 0; i < techNodes.Count; i++)
         {
+            var tech = techNodes[i];
             if (tech == null)
             {
                 continue;
             }
+            TechNodeUI nodeInstance; 
 
-            var nodeInstance = Instantiate(techNodePrefab, nodeParent);
+            if (tech.tier <= 0)
+            {
+                nodeInstance = Instantiate(techNodePrefab, nodeParent);
+                nodeInstance.name = $"TechNode_{tech.techID}";
+                nodeInstance.Initialize(tech, techManager);
+                nodeInstance.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
+                spawnedNodes.Add(nodeInstance);
+                continue;
+            }
+
+            //group into sub catagories
+            if (!categoryParents.TryGetValue(tech.category, out var parent))
+            {
+                GameObject container = new GameObject($"Category_{tech.category}", typeof(RectTransform));
+                container.transform.SetParent(nodeParent, false);
+
+                parent = container.GetComponent<RectTransform>();
+                categoryParents[tech.category] = parent;
+            }
+            if (!nodesByCategorySO.ContainsKey(tech.category)) {
+                nodesByCategorySO[tech.category] = new List<TechNodeSO>();
+                nodesByCategoryUI[tech.category] = new List<TechNodeUI>();
+            }
+            nodesByCategorySO[tech.category].Add(tech);
+
+            nodeInstance = Instantiate(techNodePrefab, parent);
             nodeInstance.name = $"TechNode_{tech.techID}";
             nodeInstance.Initialize(tech, techManager);
             spawnedNodes.Add(nodeInstance);
+            nodesByCategoryUI[tech.category].Add(nodeInstance);
         }
 
         if (spawnedNodes.Count == 0)
@@ -89,91 +123,162 @@ public class TechUIUpdater : MonoBehaviour
             Debug.LogWarning("Tech node list contained only null entries.", techManager);
         }
 
-        ApplyLayout(techNodes);
+        ApplyLayout(nodesByCategorySO, nodesByCategoryUI, categoryParents);
     }
 
-    private void ApplyLayout(IReadOnlyList<TechNodeSO> techNodes)
+    private void ApplyLayout(Dictionary<string, List<TechNodeSO>> nodesByCategorySO, Dictionary<string, List<TechNodeUI>> nodesByCategoryUI, Dictionary<string, RectTransform> categoryParents)
     {
+
         if (nodeParent == null)
         {
             return;
         }
 
-        var layoutGroup = nodeParent.GetComponent<LayoutGroup>();
-        if (layoutGroup != null)
+        float nodeWidth = techNodePrefab.GetComponent<RectTransform>().rect.width;
+        float nodeHeight = techNodePrefab.GetComponent<RectTransform>().rect.height;
+        Vector2 nodeCorner = new Vector2(nodeWidth/2f, nodeHeight/2f);
+
+        //organize each node in each category
+        foreach (var kvp in nodesByCategorySO)
         {
-            Debug.LogWarning("Node parent has a LayoutGroup. It will override manual tech node positions.", layoutGroup);
+            string category = kvp.Key;
+            List<TechNodeSO> techItem = kvp.Value;
+            List<TechNodeUI> techInstance = nodesByCategoryUI[category];
+            
+            RectTransform parent = categoryParents[category];
+            parent.pivot = new Vector2(0.5f, 0.5f);
+
+            int count = techItem.Count;
+
+            int maxTier = 0;
+            for (int i = 0; i < count; i++) {
+                if (techItem[i] != null) {
+                    maxTier = Mathf.Max(maxTier, techItem[i].tier);
+                }
+            }
+
+            // Count nodes per tier
+            int[] numOfRows = new int[maxTier + 1];
+            for (int i = 0; i < count; i++) {
+                var tech = techItem[i];
+                if (tech == null) {
+                    continue;
+                }
+                int tier = Mathf.Max(0, tech.tier);
+                numOfRows[tier]++;
+            }
+
+            // Precompute offsets
+            float[] offsetPerTier = new float[maxTier + 1];
+
+            for (int t = 0; t <= maxTier; t++)
+            {
+                if (numOfRows[t] <= 1) {
+                    offsetPerTier[t] = 0;
+                }
+                else {
+                    offsetPerTier[t] = (((numOfRows[t] - 1) * (nodeWidth + tierHorizontalSpacing)) / 2f);
+                }
+            }
+
+            // Track row index per tier
+            int[] placementRow = new int[maxTier + 1];
+
+            Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+            Vector2 max = new Vector2(float.MinValue, float.MinValue);
+
+            // Place nodes
+            for (int i = 0; i < count; i++)
+            {
+                var tech = techItem[i];
+                if (tech == null) {
+                    continue;
+                }
+
+                int tier = Mathf.Max(0, tech.tier);
+                int row = placementRow[tier];
+
+                
+
+                float x = (row * (nodeWidth + tierHorizontalSpacing)) - offsetPerTier[tier];
+                float y = branchDirection * (tier - 1) * (tierVerticalSpacing + nodeHeight);
+
+                Vector2 pos = new Vector2(x, y);
+
+                min = Vector2.Min(min, pos - nodeCorner);
+                max = Vector2.Max(max, pos + nodeCorner);
+
+                techInstance[i].GetComponent<RectTransform>().anchoredPosition = pos;
+
+                placementRow[tier]++;
+
+                techInstance[i].GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 1);
+                techInstance[i].GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 1);
+                techInstance[i].GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1);
+            }
+
+            //resize parent
+            parent.sizeDelta = (max - min);
         }
 
-        switch (layoutMode)
+        //organize parents & resize content
+        int numOfCategories = categoryParents.Count;
+        float offset = 0;
+        int c = 0;
+        foreach (var kpv in categoryParents)
         {
-            case TechNodeLayoutMode.TierRows:
-                ApplyTierLayout(techNodes);
-                break;
-            case TechNodeLayoutMode.DesignerPositions:
-                ApplyDesignerPositionLayout(techNodes);
-                break;
+            var parent = kpv.Value;
+            if (c == 0 || c == numOfCategories - 1) {
+                offset += ((parent.sizeDelta.x + tierHorizontalSpacing) / 2f);
+            } else {
+                offset += parent.sizeDelta.x + tierHorizontalSpacing;
+            }
         }
-    }
 
-    private void ApplyTierLayout(IReadOnlyList<TechNodeSO> techNodes)
-    {
-        var rowByTier = new Dictionary<int, int>();
+        offset /= 2;
 
-        int nodeIndex = 0;
-        foreach (var tech in techNodes)
+        float lastLocation = 0f;
+        bool doneOnce = false;
+        float lastWidth = 0f;
+        Vector2 minCanvas = -nodeCorner;
+        Vector2 maxCanvas = nodeCorner;
+        foreach (var kpv in categoryParents)
         {
-            if (tech == null || nodeIndex >= spawnedNodes.Count)
+            var parent = kpv.Value;
+            float width = parent.sizeDelta.x;
+            float height = parent.sizeDelta.y;
+            if (!doneOnce)
             {
-                continue;
+                doneOnce = true;
+                parent.anchoredPosition += new Vector2(-offset, branchDirection * (tierVerticalSpacing + ((nodeHeight + height)/2f)));
+                lastLocation = -offset;
+                lastWidth = width;
+            } else 
+            {
+                lastLocation += (((lastWidth + width) / 2f) + tierHorizontalSpacing);
+                parent.anchoredPosition = new Vector2(lastLocation, branchDirection * (tierVerticalSpacing + ((nodeHeight + height)/2f)));
+                lastWidth = width;
             }
 
-            if (!TryGetRectTransform(spawnedNodes[nodeIndex], out var rectTransform))
-            {
-                nodeIndex++;
-                continue;
-            }
+            //for content resize
+            Vector2 pos = parent.anchoredPosition;
+            Vector2 canvasCorner = new Vector2(width / 2f, height / 2f);
+            
+            // Update bounds
+            maxCanvas = Vector2.Max(maxCanvas, pos + canvasCorner);
+            minCanvas = Vector2.Min(minCanvas, pos - canvasCorner);
 
-            var tier = Mathf.Max(0, tech.tier);
-            if (!rowByTier.TryGetValue(tier, out var row))
-            {
-                row = 0;
-            }
-
-            var x = tier * tierHorizontalSpacing;
-            var y = -row * tierVerticalSpacing;
-            rectTransform.anchoredPosition = new Vector2(x, y);
-
-            rowByTier[tier] = row + 1;
-            nodeIndex++;
+            parent.anchorMin = new Vector2(0.5f, 0.5f);
+            parent.anchorMax = new Vector2(0.5f, 0.5f);
         }
-    }
 
-    private void ApplyDesignerPositionLayout(IReadOnlyList<TechNodeSO> techNodes)
-    {
-        int nodeIndex = 0;
-        foreach (var tech in techNodes)
-        {
-            if (tech == null || nodeIndex >= spawnedNodes.Count)
-            {
-                continue;
-            }
-
-            if (!TryGetRectTransform(spawnedNodes[nodeIndex], out var rectTransform))
-            {
-                nodeIndex++;
-                continue;
-            }
-
-            var position = tech.editorPosition;
-            if (invertDesignerY)
-            {
-                position.y = -position.y;
-            }
-
-            rectTransform.anchoredPosition = position;
-            nodeIndex++;
-        }
+        var canvasRT = nodeParent.GetComponent<RectTransform>();
+        Vector2 padding = new Vector2(((canvasRT.sizeDelta.x - nodeWidth) / 2f), ((canvasRT.sizeDelta.y - nodeHeight) / 2f));
+        maxCanvas += padding;
+        minCanvas -= padding;
+        //resize contents
+        canvasRT.pivot = new Vector2(0.5f, 1f);
+        canvasRT.sizeDelta = (maxCanvas - minCanvas);
     }
 
     private bool TryGetRectTransform(TechNodeUI nodeUI, out RectTransform rectTransform)

@@ -23,7 +23,7 @@ MonoBehaviour:
     Describe Me!'
   techIcon: {fileID: 0}
   tier: 3
-  category: 
+  category: Technology
   resourceCost: 4
   prerequisiteMode: 0
   prerequisites:
