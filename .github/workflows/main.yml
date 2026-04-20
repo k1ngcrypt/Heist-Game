@@ -14,7 +14,7 @@ permissions:
   checks: write
 
 env:
-  unityVersion: 6000.2.6f2
+  unityVersion: 6000.4.2f1
   BUILD_NAME: ${{ github.event.repository.name }}
 
 jobs:
