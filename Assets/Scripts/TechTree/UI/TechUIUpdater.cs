@@ -241,11 +241,14 @@ public class TechUIUpdater : MonoBehaviour
         }
 
         //organize parents & resize content
-        int numOfCategories = categoryParents.Count;
+        int numOfCategories = categoryParents.Count-1;
         float offset = 0;
         int c = 0;
         foreach (var kpv in categoryParents)
         {
+            if (kpv.Key == "Base") {
+                continue;
+            }
             var parent = kpv.Value;
             if (c == 0 || c == numOfCategories - 1) {
                 offset += ((parent.sizeDelta.x + tierHorizontalSpacing) / 2f);
