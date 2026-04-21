@@ -1,5 +1,4 @@
 name: Actions 😎
-
 on:
   push:
     branches: [main]
@@ -7,16 +6,14 @@ on:
     branches: [main]
   release:
     types: [published]
-
 permissions:
   contents: write
   actions: read
   checks: write
-
 env:
-  unityVersion: 6000.2.6f2
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  unityVersion: 6000.4.2f1
   BUILD_NAME: ${{ github.event.repository.name }}
-
 jobs:
   test:
     name: Test my project 🧪
@@ -32,20 +29,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: Library
-          key: library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
+          key: library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             library-${{ runner.os }}-${{ env.unityVersion }}-
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: docker-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: |
-            docker-${{ runner.os }}-${{ env.unityVersion }}-
 
       - name: Run Unity tests
         uses: game-ci/unity-test-runner@v4
@@ -71,27 +57,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: Library
-          key: library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/**') }}
+          key: library-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             library-${{ runner.os }}-${{ env.unityVersion }}-
-
-      - name: Cache Unity Editor
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/unityhub
-            ~/.local/share/unity3d
-          key: unity-editor-${{ runner.os }}-${{ env.unityVersion }}
-          restore-keys: |
-            unity-editor-${{ runner.os }}-
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: docker-${{ runner.os }}-${{ env.unityVersion }}-${{ hashFiles('Packages/manifest.json') }}
-          restore-keys: |
-            docker-${{ runner.os }}-${{ env.unityVersion }}-
 
       - name: Build Windows Standalone
         uses: game-ci/unity-builder@v4
