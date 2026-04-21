@@ -12,7 +12,7 @@ permissions:
   checks: write
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  unityVersion: 6000.2.6f2
+  unityVersion: 6000.4.2f1
   BUILD_NAME: ${{ github.event.repository.name }}
 jobs:
   test:
