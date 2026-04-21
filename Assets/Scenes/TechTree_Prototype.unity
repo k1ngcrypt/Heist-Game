@@ -237,8 +237,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1683049822}
   m_HandleRect: {fileID: 1683049821}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 1
+  m_Value: 0.3930347
+  m_Size: 0.9985326
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -393,10 +393,10 @@ RectTransform:
   - {fileID: 1443351700}
   m_Father: {fileID: 1644197891}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 5.806, y: 5.1609}
-  m_SizeDelta: {x: -150.9554, y: -108.3782}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 5.8059998, y: 5.160904}
+  m_SizeDelta: {x: 827.0446, y: 361.62183}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &953730457
 MonoBehaviour:
@@ -511,11 +511,9 @@ MonoBehaviour:
   techManager: {fileID: 1322009243}
   techNodePrefab: {fileID: 7389489549967389023}
   nodeParent: {fileID: 1986970889}
-  layoutMode: 0
-  verticalSpacing: 200
-  tierHorizontalSpacing: 300
-  tierVerticalSpacing: 100
-  invertDesignerY: 1
+  tierHorizontalSpacing: 50
+  tierVerticalSpacing: 50
+  branchDown: 1
 --- !u!4 &1176564065
 Transform:
   m_ObjectHideFlags: 0
@@ -602,9 +600,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3b8eab1086c1dea4daace8169ddc54bf, type: 2}
   - {fileID: 11400000, guid: 52ec8fb83ab6d3e4b92e97540acfe741, type: 2}
   - {fileID: 11400000, guid: 3c9dcb21a73879f4d9089b490e414ecc, type: 2}
+  - {fileID: 11400000, guid: c9a1cc17f95e4184d97388052b66757c, type: 2}
+  - {fileID: 11400000, guid: 610c3b70b3ccda34799f9f4bbf5d7d78, type: 2}
+  - {fileID: 11400000, guid: 87e51b4127833384e8ab9c0a11349987, type: 2}
+  - {fileID: 11400000, guid: ac09ac19923f06d4c85ecead42a9e5d5, type: 2}
   startingUnlockedTechs:
   - {fileID: 11400000, guid: bc61b7351062ba64dbfd7a0015bb7b30, type: 2}
   availableTechPoints: 10
+  currencyManager: {fileID: 0}
+  useKnowledgeCurrency: 1
   loadProgressOnAwake: 0
   saveProgressOnChange: 0
   saveSlot: default
@@ -704,7 +708,7 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 745654309}
   m_HandleRect: {fileID: 745654308}
-  m_Direction: 3
+  m_Direction: 2
   m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
@@ -1153,6 +1157,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1986970889}
   - component: {fileID: 1986970891}
+  - component: {fileID: 1986970892}
   m_Layer: 5
   m_Name: TechTree_Contents
   m_TagString: Untagged
@@ -1174,11 +1179,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 953730456}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0.000030517578, y: 0.000015258789}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.13000488, y: 180.81093}
+  m_SizeDelta: {x: 828.26, y: 356.81}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &1986970891
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1187,6 +1192,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1986970888}
   m_CullTransparentMesh: 1
+--- !u!114 &1986970892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986970888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1001 &4529460862734340024
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1221,7 +1256,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 190144052293399969, guid: f698a12b02f91f641ba4edd38e13ed81, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 218.2057
+      value: 219
       objectReference: {fileID: 0}
     - target: {fileID: 190144052293399969, guid: f698a12b02f91f641ba4edd38e13ed81, type: 3}
       propertyPath: m_SizeDelta.y

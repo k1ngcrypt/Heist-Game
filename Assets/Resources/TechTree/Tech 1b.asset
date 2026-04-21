@@ -10,21 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de0eb52a46625d54bbee615a1341f6d1, type: 3}
-  m_Name: Tech2
+  m_Name: Tech 1b
   m_EditorClassIdentifier: Assembly-CSharp::TechNodeSO
-  techID: Tech2
-  techName: Technology 2
-  description: 'Describe Me!
+  techID: Tech1b
+  techName: Technology 1B
+  description: '- Describe Me!
 
-    Describe Me!
-
-    Describe Me!'
-  techIcon: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
-  tier: 2
+    - Describe Me!'
+  techIcon: {fileID: 0}
+  tier: 1
   category: Technology
-  resourceCost: 2
+  resourceCost: 0
   prerequisiteMode: 0
   prerequisites:
-  - {fileID: 11400000, guid: 3b8eab1086c1dea4daace8169ddc54bf, type: 2}
-  - {fileID: 11400000, guid: 87e51b4127833384e8ab9c0a11349987, type: 2}
-  editorPosition: {x: 200, y: 200}
+  - {fileID: 11400000, guid: bc61b7351062ba64dbfd7a0015bb7b30, type: 2}
+  editorPosition: {x: 0, y: 0}
