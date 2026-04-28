@@ -24,9 +24,9 @@ public class CurrencyManager : MonoBehaviour
     [SerializeField] private string saveSlot = "default";
 
     [Header("Starting Values")]
-    [Min(0)][SerializeField] private int startingKnowledge;
-    [Min(0)][SerializeField] private int startingMoney;
-    [Min(0)][SerializeField] private int startingSwissMoney;
+    [Min(0)][SerializeField] private int startingKnowledge = 10;//hardcoded.
+    [Min(0)][SerializeField] private int startingMoney = 0;
+    [Min(0)][SerializeField] private int startingSwissMoney = 0;
 
     private const int CurrencyCount = 3;
     private readonly int[] balances = new int[CurrencyCount];

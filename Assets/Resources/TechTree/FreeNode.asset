@@ -10,22 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de0eb52a46625d54bbee615a1341f6d1, type: 3}
-  m_Name: Tech3
+  m_Name: FreeNode
   m_EditorClassIdentifier: Assembly-CSharp::TechNodeSO
-  techID: Tech3
-  techName: Technology 3
-  description: 'Describe Me!
-
-    Describe Me!
-
-    Describe Me!
-
-    Describe Me!'
+  techID: FreeNode
+  techName: Free
+  description: Its free, what do you expect?
   techIcon: {fileID: 0}
-  tier: 3
-  category: Technology
-  resourceCost: 4
+  tier: 0
+  category: Base
+  resourceCost: 0
   prerequisiteMode: 0
-  prerequisites:
-  - {fileID: 11400000, guid: 52ec8fb83ab6d3e4b92e97540acfe741, type: 2}
-  editorPosition: {x: 300, y: 300}
+  prerequisites: []
+  editorPosition: {x: 0, y: 0}
