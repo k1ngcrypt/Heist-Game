@@ -41,5 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Interactables
+    uniqueID: 602119465
+    locked: 0
+  - name: Decor
+    uniqueID: 423100523
+    locked: 0
   m_RenderingLayers:
   - Default
+  m_MigratedRenderPipelines: []

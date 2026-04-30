@@ -3,20 +3,19 @@ using UnityEngine.Events;
 
 public class CameraDetector : MonoBehaviour
 {
-    [Header("Targets")]
-    [SerializeField] private Transform player;
+    [Header("References")]
+    [SerializeField] private Transform player;//Looks for player tag if not assigned, but can be set directly for better performance
 
     [Header("Detection")]
-    [SerializeField, Min(0f)] private float detectionRange = 8f;
-    [SerializeField, Range(1f, 360f)] private float viewAngle = 75f;
+    [SerializeField, Min(0f)] private float detectionRange;
+    [SerializeField, Range(1f, 360f)] private float viewAngle;
     [SerializeField] private LayerMask environmentMask;
     [SerializeField] private LayerMask playerMask;
 
     [Header("Suspicion")]
-    [SerializeField, Range(0f, 100f)] private float suspicion = 0f;
-    [SerializeField, Min(0f)] private float suspicionFillPerSecondAtClosest = 70f;
-    [SerializeField, Min(0f)] private float suspicionFillPerSecondAtMaxRange = 20f;
-    [SerializeField, Min(0f)] private float suspicionDecayPerSecond = 25f;
+    [SerializeField, Min(0f)] private float suspicionFillPerSecondAtClosest;
+    [SerializeField, Min(0f)] private float suspicionFillPerSecondAtMaxRange;
+    [SerializeField, Min(0f)] private float suspicionDecayPerSecond;
 
     [Header("Events")]
     [SerializeField] private UnityEvent onPlayerDetected;
@@ -25,6 +24,7 @@ public class CameraDetector : MonoBehaviour
 
     private bool hasDetectedPlayer;
     private bool hadSuspicionLastFrame;
+    private float suspicion;
 
     public float Suspicion => suspicion;
     public float DetectionRange => detectionRange;
@@ -101,13 +101,13 @@ public class CameraDetector : MonoBehaviour
 
         if (sqrDistance > detectionRange * detectionRange)
         {
-            return false;
+            return false;//distance cheap compute check
         }
 
-        float angleToPlayer = Vector2.Angle(transform.right, toPlayer);
+        float angleToPlayer = Vector2.Angle(-transform.up, toPlayer);
         if (angleToPlayer > viewAngle * 0.5f)
         {
-            return false;
+            return false;//out of FOV
         }
 
         Vector2 direction = toPlayer.normalized;
@@ -129,8 +129,8 @@ public class CameraDetector : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
         float halfAngle = viewAngle * 0.5f;
-        Vector3 leftDir = Quaternion.Euler(0f, 0f, -halfAngle) * transform.right;
-        Vector3 rightDir = Quaternion.Euler(0f, 0f, halfAngle) * transform.right;
+        Vector3 leftDir = Quaternion.Euler(0f, 0f, -halfAngle) * -transform.up;
+        Vector3 rightDir = Quaternion.Euler(0f, 0f, halfAngle) * -transform.up;
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawRay(transform.position, leftDir * detectionRange);
