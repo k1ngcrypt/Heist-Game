@@ -16,7 +16,7 @@ public class CameraHealth : MonoBehaviour
     [SerializeField] private UnityEvent onCameraDisabled;
 
     private int currentHealth;
-    private bool isDisabled;
+    private bool isDisabled = false;
 
     public bool IsDisabled => isDisabled;
     public UnityEvent OnCameraDisabled => onCameraDisabled;
