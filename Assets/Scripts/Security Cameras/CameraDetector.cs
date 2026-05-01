@@ -22,9 +22,9 @@ public class CameraDetector : MonoBehaviour
     [SerializeField] private UnityEvent onSuspicionStarted;
     [SerializeField] private UnityEvent onSuspicionCleared;
 
-    private bool hasDetectedPlayer;
-    private bool hadSuspicionLastFrame;
-    private float suspicion;
+    private bool hasDetectedPlayer = false;
+    private bool hadSuspicionLastFrame = false;
+    private float suspicion = 0f;
 
     public float Suspicion => suspicion;
     public float DetectionRange => detectionRange;
