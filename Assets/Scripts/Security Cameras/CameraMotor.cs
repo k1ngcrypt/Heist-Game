@@ -8,7 +8,7 @@ public class CameraMotor : MonoBehaviour
     [SerializeField] private float maximumAngle = 45f;
     [SerializeField, Min(0f)] private float waitTimeAtExtents = 0.25f;
 
-    private bool isPaused;
+    private bool isPaused = false;
     private int direction = 1;
     private float currentAngle;
     private float minLocalAngle;
