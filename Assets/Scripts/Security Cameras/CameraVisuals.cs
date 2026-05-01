@@ -57,7 +57,7 @@ public class CameraVisuals : MonoBehaviour
 
     private void UpdateColor()
     {
-        float normalizedSuspicion = Mathf.Clamp01(detector.Suspicion / 100f);
+        float normalizedSuspicion = detector.Suspicion * 0.01f;
         Color target;
 
         if (normalizedSuspicion < 0.5f)
