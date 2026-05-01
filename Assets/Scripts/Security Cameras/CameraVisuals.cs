@@ -66,7 +66,7 @@ public class CameraVisuals : MonoBehaviour
         }
         else
         {
-            target = Color.Lerp(suspiciousColor, detectedColor, (normalizedSuspicion - 0.5f) / 0.5f);
+            target = Color.Lerp(suspiciousColor, detectedColor, (normalizedSuspicion - 0.5f) * 2f);
         }
 
         cameraLight.color = target;
