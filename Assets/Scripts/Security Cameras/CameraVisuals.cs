@@ -62,7 +62,7 @@ public class CameraVisuals : MonoBehaviour
 
         if (normalizedSuspicion < 0.5f)
         {
-            target = Color.Lerp(scanningColor, suspiciousColor, normalizedSuspicion / 0.5f);
+            target = Color.Lerp(scanningColor, suspiciousColor, normalizedSuspicion * 2f);
         }
         else
         {
