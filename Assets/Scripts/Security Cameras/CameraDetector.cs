@@ -39,7 +39,7 @@ public class CameraDetector : MonoBehaviour
     {
         if (player == null)
         {
-            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+            GameObject playerObject = GameObject.FindWithTag("Player");
             if (playerObject != null)
             {
                 player = playerObject.transform;
