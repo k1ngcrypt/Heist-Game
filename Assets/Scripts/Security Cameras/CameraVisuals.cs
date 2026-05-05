@@ -42,8 +42,13 @@ public class CameraVisuals : MonoBehaviour
         UpdateColor();
     }
 
-    private void LateUpdate()
+    public void Tick()
     {
+        if (!enabled)
+        {
+            return;
+        }
+
         UpdateLightSettings();
         UpdateColor();
     }

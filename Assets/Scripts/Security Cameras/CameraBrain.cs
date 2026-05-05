@@ -2,12 +2,15 @@ using UnityEngine;
 
 [RequireComponent(typeof(CameraMotor), typeof(CameraDetector), typeof(CameraVisuals))]
 [RequireComponent(typeof(CameraHealth))]
-public class CameraBrain : MonoBehaviour
+public class CameraBrain : MonoBehaviour, ITurnActor
 {
     [SerializeField] private CameraMotor motor;
     [SerializeField] private CameraDetector detector;
     [SerializeField] private CameraVisuals visuals;
     [SerializeField] private CameraHealth health;
+    [SerializeField] private TurnManager turnManager;
+
+    public int TickDebt { get; set; }
 
     private void Awake()
     {
@@ -34,6 +37,11 @@ public class CameraBrain : MonoBehaviour
 
     private void OnEnable()
     {
+        if (turnManager != null)
+        {
+            turnManager.Register(this);
+        }
+
         if (detector != null)
         {
             detector.OnSuspicionStarted.AddListener(HandleSuspicionStarted);
@@ -49,6 +57,11 @@ public class CameraBrain : MonoBehaviour
 
     private void OnDisable()
     {
+        if (turnManager != null)
+        {
+            turnManager.Unregister(this);
+        }
+
         if (detector != null)
         {
             detector.OnSuspicionStarted.RemoveListener(HandleSuspicionStarted);
@@ -97,5 +110,25 @@ public class CameraBrain : MonoBehaviour
         {
             motor.PauseRotation();
         }
+    }
+
+    public Awaitable OnTick()
+    {
+        if (!enabled)
+        {
+            return default;
+        }
+
+        if (health != null && health.IsDisabled)
+        {
+            TickDebt = 0;
+            return default;
+        }
+
+        detector.Tick();
+        visuals.Tick();
+        motor.Tick();//Tick Debt Handled HERE!!!
+        TickDebt--;
+        return default;
     }
 }

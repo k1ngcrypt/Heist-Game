@@ -1,24 +1,24 @@
-using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(ITurnActor))]
 public class CameraMotor : MonoBehaviour
 {
-    [SerializeField, Min(0f)] private float panSpeed = 45f;
+    [SerializeField, Min(0)] private int panDegPerTick = 45;
     [SerializeField] private float minimumAngle = -45f;
     [SerializeField] private float maximumAngle = 45f;
-    [SerializeField, Min(0f)] private float waitTimeAtExtents = 0.25f;
-
+    [SerializeField, Min(0)] private int waitTicksAtExtents = 1;
     private bool isPaused = false;
     private int direction = 1;
     private float currentAngle;
     private float minLocalAngle;
     private float maxLocalAngle;
-    private Coroutine waitCoroutine;
+    private ITurnActor turnActor;
 
     public bool IsPaused => isPaused;
 
     private void Awake()
     {
+        turnActor = GetComponent<ITurnActor>();
         float startAngle = transform.localEulerAngles.z;
         if (startAngle > 180f)
         {
@@ -30,26 +30,33 @@ public class CameraMotor : MonoBehaviour
         currentAngle = startAngle;
     }
 
-    private void Update()
+    public void Tick()
     {
-        if (isPaused || waitCoroutine != null)
+        if (!enabled)
         {
             return;
         }
 
-        currentAngle += direction * panSpeed * Time.deltaTime;
+        if (isPaused)
+        {
+            return;
+        }
+
+        currentAngle += direction * panDegPerTick;
 
         if (currentAngle >= maxLocalAngle)
         {
             currentAngle = maxLocalAngle;
             direction = -1;
-            waitCoroutine = StartCoroutine(WaitAtExtent());
+            turnActor.TickDebt -= waitTicksAtExtents;
+            return;
         }
         else if (currentAngle <= minLocalAngle)
         {
             currentAngle = minLocalAngle;
             direction = 1;
-            waitCoroutine = StartCoroutine(WaitAtExtent());
+            turnActor.TickDebt -= waitTicksAtExtents;
+            return;
         }
 
         transform.localRotation = Quaternion.Euler(0f, 0f, currentAngle);
@@ -63,15 +70,5 @@ public class CameraMotor : MonoBehaviour
     public void ResumeRotation()
     {
         isPaused = false;
-    }
-
-    private IEnumerator WaitAtExtent()
-    {
-        if (waitTimeAtExtents > 0f)
-        {
-            yield return new WaitForSeconds(waitTimeAtExtents);
-        }
-
-        waitCoroutine = null;
     }
 }
