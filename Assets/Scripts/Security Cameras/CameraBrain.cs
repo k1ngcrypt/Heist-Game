@@ -37,10 +37,8 @@ public class CameraBrain : MonoBehaviour, ITurnActor
 
     private void OnEnable()
     {
-        if (turnManager != null)
-        {
-            turnManager.Register(this);
-        }
+
+        turnManager.Register(this);//no null guard, fail loud.
 
         if (detector != null)
         {

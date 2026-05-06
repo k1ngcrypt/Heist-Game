@@ -49,14 +49,12 @@ public class CameraMotor : MonoBehaviour
             currentAngle = maxLocalAngle;
             direction = -1;
             turnActor.TickDebt -= waitTicksAtExtents;
-            return;
         }
         else if (currentAngle <= minLocalAngle)
         {
             currentAngle = minLocalAngle;
             direction = 1;
             turnActor.TickDebt -= waitTicksAtExtents;
-            return;
         }
 
         transform.localRotation = Quaternion.Euler(0f, 0f, currentAngle);

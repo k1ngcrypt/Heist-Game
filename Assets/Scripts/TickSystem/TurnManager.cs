@@ -19,16 +19,21 @@ public class TurnManager : MonoBehaviour
     {
         if (_isProcessing) return;
         _isProcessing = true;
-
-        for (int t = 0; t < ticksToAdvance; t++)
+        try
         {
-            foreach (var actor in _actors)
+            for (int t = 0; t < ticksToAdvance; t++)
             {
-                actor.TickDebt++;
-                await actor.OnTick();
+                foreach (var actor in _actors)
+                {
+                    actor.TickDebt++;
+                    if (actor.TickDebt > 0)
+                    {
+                        await actor.OnTick();//Do not forget to decrement tick debt accordingly.
+                    }
+                    
+                }
             }
         }
-
-        _isProcessing = false;
+        finally { _isProcessing = false; }
     }
 }

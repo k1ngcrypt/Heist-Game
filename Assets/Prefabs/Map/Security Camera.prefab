@@ -158,9 +158,9 @@ MonoBehaviour:
   playerMask:
     serializedVersion: 2
     m_Bits: 0
-  suspicionFillPerTickAtClosest: 0
-  suspicionFillPerTickAtMaxRange: 0
-  suspicionDecayPerTick: 0
+  suspicionFillPerTickAtClosest: 50
+  suspicionFillPerTickAtMaxRange: 10
+  suspicionDecayPerTick: 5
   onPlayerDetected:
     m_PersistentCalls:
       m_Calls: []
@@ -224,6 +224,7 @@ MonoBehaviour:
   detector: {fileID: 9199800801994505234}
   visuals: {fileID: 6148226059852104206}
   health: {fileID: 4802116103603544434}
+  turnManager: {fileID: 0}
 --- !u!1 &3517464285392469852
 GameObject:
   m_ObjectHideFlags: 0
