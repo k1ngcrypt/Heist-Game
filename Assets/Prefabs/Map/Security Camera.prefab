@@ -70,7 +70,7 @@ MonoBehaviour:
   m_LocalBounds:
     m_Center: {x: 0, y: -0.00000011920929, z: 0}
     m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
-  m_PointLightInnerAngle: 120
+  m_PointLightInnerAngle: 96
   m_PointLightOuterAngle: 120
   m_PointLightInnerRadius: 5
   m_PointLightOuterRadius: 30
@@ -133,10 +133,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93574206542737245826596837c75bd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraMotor
-  panSpeed: 45
+  panDegPerTick: 45
   minimumAngle: -45
   maximumAngle: 45
-  waitTimeAtExtents: 0.25
+  waitTicksAtExtents: 1
 --- !u!114 &9199800801994505234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,9 +158,9 @@ MonoBehaviour:
   playerMask:
     serializedVersion: 2
     m_Bits: 0
-  suspicionFillPerSecondAtClosest: 50
-  suspicionFillPerSecondAtMaxRange: 2
-  suspicionDecayPerSecond: 3
+  suspicionFillPerTickAtClosest: 50
+  suspicionFillPerTickAtMaxRange: 10
+  suspicionDecayPerTick: 5
   onPlayerDetected:
     m_PersistentCalls:
       m_Calls: []
@@ -194,7 +194,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2960279451394082099}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1afe367fbb75de4c8db6fc6fcd148f0, type: 3}
   m_Name: 
@@ -224,6 +224,7 @@ MonoBehaviour:
   detector: {fileID: 9199800801994505234}
   visuals: {fileID: 6148226059852104206}
   health: {fileID: 4802116103603544434}
+  turnManager: {fileID: 0}
 --- !u!1 &3517464285392469852
 GameObject:
   m_ObjectHideFlags: 0

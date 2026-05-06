@@ -13,9 +13,9 @@ public class CameraDetector : MonoBehaviour
     [SerializeField] private LayerMask playerMask;
 
     [Header("Suspicion")]
-    [SerializeField, Min(0f)] private float suspicionFillPerSecondAtClosest;
-    [SerializeField, Min(0f)] private float suspicionFillPerSecondAtMaxRange;
-    [SerializeField, Min(0f)] private float suspicionDecayPerSecond;
+    [SerializeField, Min(0f)] private float suspicionFillPerTickAtClosest;
+    [SerializeField, Min(0f)] private float suspicionFillPerTickAtMaxRange;
+    [SerializeField, Min(0f)] private float suspicionDecayPerTick;
 
     [Header("Events")]
     [SerializeField] private UnityEvent onPlayerDetected;
@@ -47,19 +47,24 @@ public class CameraDetector : MonoBehaviour
         }
     }
 
-    private void Update()
+    public void Tick()
     {
+        if (!enabled)
+        {
+            return;
+        }
+
         IsPlayerVisible = PerformDetectionCheck();
 
         if (IsPlayerVisible)
         {
             float normalizedDistance = Mathf.Clamp01(Vector2.Distance(transform.position, player.position) / detectionRange);
-            float fillRate = Mathf.Lerp(suspicionFillPerSecondAtClosest, suspicionFillPerSecondAtMaxRange, normalizedDistance);
-            suspicion = Mathf.Min(100f, suspicion + fillRate * Time.deltaTime);
+            float fillRate = Mathf.Lerp(suspicionFillPerTickAtClosest, suspicionFillPerTickAtMaxRange, normalizedDistance);
+            suspicion = Mathf.Min(100f, suspicion + fillRate);
         }
         else
         {
-            suspicion = Mathf.Max(0f, suspicion - suspicionDecayPerSecond * Time.deltaTime);
+            suspicion = Mathf.Max(0f, suspicion - suspicionDecayPerTick);
         }
 
         bool hasSuspicion = suspicion > 0f;
