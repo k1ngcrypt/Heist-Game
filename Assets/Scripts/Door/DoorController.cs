@@ -1,65 +1,72 @@
 using UnityEngine;
-public class DoorController : MonoBehaviour
+
+namespace HeistGame.Door
 {
-    private IDoorOpenBehavior openBehavior;
-    private IDoorLockBehavior lockBehavior;
-    private IDoorDestroyBehavior destroyBehavior;
-    private AutoCloser autoCloser;
-
-    private void OnEnable()
+    [RequireComponent(typeof(IDoorOpenBehavior))]
+    [RequireComponent(typeof(IDoorLockBehavior))]
+    [RequireComponent(typeof(IDoorDestroyBehavior))]
+    public class DoorController : MonoBehaviour
     {
-        CacheBehaviors();
-    }
+        private IDoorOpenBehavior openBehavior;
+        private IDoorLockBehavior lockBehavior;
+        private IDoorDestroyBehavior destroyBehavior;
+        private AutoCloser autoCloser;
 
-    private void CacheBehaviors()
-    {
-        openBehavior = GetComponent<IDoorOpenBehavior>();
-        lockBehavior = GetComponent<IDoorLockBehavior>();
-        destroyBehavior = GetComponent<IDoorDestroyBehavior>();
-        autoCloser = GetComponent<AutoCloser>();
-    }
-
-    public bool TryOpenDoor()
-    {
-        if (destroyBehavior != null && destroyBehavior.IsDestroyed)
+        private void OnEnable()
         {
-            return false;
+            CacheBehaviors();
         }
 
-        if (lockBehavior != null && lockBehavior.IsLocked && !lockBehavior.TryUnlock())
+        private void CacheBehaviors()
         {
-            return false;
+            openBehavior = GetComponent<IDoorOpenBehavior>();
+            lockBehavior = GetComponent<IDoorLockBehavior>();
+            destroyBehavior = GetComponent<IDoorDestroyBehavior>();
+            autoCloser = GetComponent<AutoCloser>();
         }
 
-        if (openBehavior == null)
+        public bool TryOpenDoor()
         {
-            return false;
+            if (destroyBehavior != null && destroyBehavior.IsDestroyed)
+            {
+                return false;
+            }
+
+            if (lockBehavior != null && lockBehavior.IsLocked && !lockBehavior.TryUnlock())
+            {
+                return false;
+            }
+
+            if (openBehavior == null)
+            {
+                return false;
+            }
+
+            openBehavior.OpenDoor();
+            autoCloser?.NotifyDoorOpened();
+            return true;
         }
 
-        openBehavior.OpenDoor();
-        autoCloser?.NotifyDoorOpened();
-        return true;
-    }
-
-    public bool TryCloseDoor()
-    {
-        if (openBehavior == null)
+        public bool TryCloseDoor()
         {
-            return false;
+            if (openBehavior == null)
+            {
+                return false;
+            }
+
+            openBehavior.CloseDoor();
+            autoCloser?.NotifyDoorClosed();
+            return true;
         }
 
-        openBehavior.CloseDoor();
-        autoCloser?.NotifyDoorClosed();
-        return true;
-    }
-
-    public bool TryDestroyDoor()
-    {
-        if (destroyBehavior == null)
+        public bool TryDestroyDoor()
         {
-            return false;
-        }
+            if (destroyBehavior == null)
+            {
+                return false;
+            }
 
-        return destroyBehavior.TryDestroy();
+            return destroyBehavior.TryDestroy();
+        }
     }
 }
