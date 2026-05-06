@@ -1,14 +1,15 @@
-using System.Collections;
 using UnityEngine;
 
 namespace HeistGame.Door
 {
-    public class AutoCloser : MonoBehaviour
+    public class AutoCloser : MonoBehaviour, ITurnActor
     {
-        [SerializeField] private float closeDelaySeconds = 3f;
+        [SerializeField, Min(0)] private int closeDelayTicks = 3;
+        [SerializeField] TurnManager turnManager;
 
         private DoorController doorController;
-        private Coroutine closeRoutine;
+        private int waitTicks = 0;
+        public int TickDebt { get; set; }
 
         private void Awake()
         {
@@ -17,28 +18,26 @@ namespace HeistGame.Door
 
         public void NotifyDoorOpened()
         {
-            if (closeRoutine != null)
-            {
-                StopCoroutine(closeRoutine);
-            }
-
-            closeRoutine = StartCoroutine(CloseAfterDelay());
+            waitTicks = closeDelayTicks;
         }
 
         public void NotifyDoorClosed()
         {
-            if (closeRoutine != null)
-            {
-                StopCoroutine(closeRoutine);
-                closeRoutine = null;
-            }
+            waitTicks = 0;
         }
 
-        private IEnumerator CloseAfterDelay()
+        public Awaitable OnTick()
         {
-            yield return new WaitForSeconds(closeDelaySeconds);
-            doorController?.TryCloseDoor();
-            closeRoutine = null;
+            if (waitTicks > 0)
+            {
+                waitTicks--;
+                TickDebt = 0;
+                if (waitTicks == 0)
+                {
+                    doorController.TryCloseDoor();
+                }
+            }
+            return default;
         }
     }
 }
