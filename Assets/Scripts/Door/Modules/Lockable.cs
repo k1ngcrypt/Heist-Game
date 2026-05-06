@@ -1,5 +1,5 @@
 using UnityEngine;
-
+//UNIMPLEMENTED!! Player inventory is not yet handled
 namespace HeistGame.Door
 {
     public class Lockable : MonoBehaviour, IDoorLockBehavior
