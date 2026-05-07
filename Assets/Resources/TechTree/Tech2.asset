@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de0eb52a46625d54bbee615a1341f6d1, type: 3}
+  m_Name: Tech2
+  m_EditorClassIdentifier: Assembly-CSharp::TechNodeSO
+  techID: Tech2
+  techName: Technology 2
+  description: 'Describe Me!
+
+    Describe Me!
+
+    Describe Me!'
+  techIcon: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
+  tier: 2
+  category: Technology
+  resourceCost: 2
+  prerequisiteMode: 0
+  prerequisites:
+  - {fileID: 11400000, guid: 3b8eab1086c1dea4daace8169ddc54bf, type: 2}
+  - {fileID: 11400000, guid: 87e51b4127833384e8ab9c0a11349987, type: 2}
+  editorPosition: {x: 200, y: 200}
