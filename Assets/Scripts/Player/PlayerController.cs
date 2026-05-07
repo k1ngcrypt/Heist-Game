@@ -14,14 +14,27 @@ public class PlayerController : MonoBehaviour
 
     void Update() {
         if (!isMoving && Keyboard.current != null) {
-            System.Func<Key, bool> inputFunction = (key) => Keyboard.current[key].wasPressedThisFrame;
+            System.Func<Key, bool> inputFunction = (key) => Keyboard.current[key].isPressed;
 
             // Check each direction
-            if (inputFunction(Key.W)) AttemptMove(Vector2.up);
-            else if (inputFunction(Key.A)) AttemptMove(Vector2.left);
-            else if (inputFunction(Key.S)) AttemptMove(Vector2.down);
-            else if (inputFunction(Key.D)) AttemptMove(Vector2.right);
+            if (inputFunction(Key.W) || inputFunction(Key.UpArrow)) AttemptMove(Vector2.up);
+            else if (inputFunction(Key.A) || inputFunction(Key.LeftArrow)) AttemptMove(Vector2.left);
+            else if (inputFunction(Key.S) || inputFunction(Key.DownArrow)) AttemptMove(Vector2.down);
+            else if (inputFunction(Key.D) || inputFunction(Key.RightArrow)) AttemptMove(Vector2.right);
+            else if (inputFunction(Key.Z)) StartCoroutine(Rest());
         }
+    }
+
+    private IEnumerator Rest() {
+        isMoving = true;
+        Debug.Log("Resting...");
+        float elapsedTime = 0f;
+        if (turnManager != null) _ = turnManager.ProcessTicks(1);
+        while (elapsedTime < 0.1f) {
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        isMoving = false;
     }
 
     private void AttemptMove(Vector2 direction) {
@@ -44,10 +57,7 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.position = endPosition;
-        if (turnManager != null)
-        {
-            _ = turnManager.ProcessTicks(1);
-        }
+        if (turnManager != null) _ = turnManager.ProcessTicks(1);
         isMoving = false;
 
     }
