@@ -55,7 +55,7 @@ public class CameraVisuals : MonoBehaviour
 
     private void UpdateLightSettings()
     {
-        cameraLight.pointLightOuterRadius = detector.DetectionRange;
+        cameraLight.pointLightOuterRadius = Mathf.Max(cameraLight.pointLightInnerRadius, detector.DetectionRange);
         cameraLight.pointLightOuterAngle = detector.ViewAngle;
         cameraLight.pointLightInnerAngle = detector.ViewAngle * 0.8f;
     }

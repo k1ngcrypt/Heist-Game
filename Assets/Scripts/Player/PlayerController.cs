@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveDuration = 0.1f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer; // Assign "Unwalkable" layer here in Inspector
+    [SerializeField, Tooltip("Assign the TurnManager in the scene to advance ticks after moves.")]
+    private TurnManager turnManager;
     
     private bool isMoving = false;
 
@@ -42,7 +44,10 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.position = endPosition;
-        //TurnManager.Instance.ProcessTicks(1); // Process 1 tick after moving
+        if (turnManager != null)
+        {
+            _ = turnManager.ProcessTicks(1);
+        }
         isMoving = false;
 
     }
