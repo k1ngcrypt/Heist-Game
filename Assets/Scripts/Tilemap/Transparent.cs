@@ -17,7 +17,7 @@ public class MainMarker : MonoBehaviour
         }
 
         // Initialize the Map system
-        Map.SetWall(_tilemap);
+        Map.SetTransparent(_tilemap);
 
         Debug.Log($"[MainMarker] Map system initialized with tilemap: {gameObject.name}", this);
     }
