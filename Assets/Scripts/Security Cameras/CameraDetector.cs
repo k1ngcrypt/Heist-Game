@@ -4,13 +4,12 @@ using UnityEngine.Events;
 public class CameraDetector : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Transform player;//Looks for player tag if not assigned, but can be set directly for better performance
+    private Transform player;
 
     [Header("Detection")]
     [SerializeField, Min(0f)] private float detectionRange;
     [SerializeField, Range(1f, 360f)] private float viewAngle;
     [SerializeField] private LayerMask environmentMask;
-    [SerializeField] private LayerMask playerMask;
 
     [Header("Suspicion")]
     [SerializeField, Min(0f)] private float suspicionFillPerTickAtClosest;
@@ -25,6 +24,8 @@ public class CameraDetector : MonoBehaviour
     private bool hasDetectedPlayer = false;
     private bool hadSuspicionLastFrame = false;
     private float suspicion = 0f;
+    private ContactFilter2D losFilter;
+    private readonly RaycastHit2D[] losHits = new RaycastHit2D[4];
 
     public float Suspicion => suspicion;
     public float DetectionRange => detectionRange;
@@ -37,14 +38,13 @@ public class CameraDetector : MonoBehaviour
 
     private void Awake()
     {
-        if (player == null)
+        GameObject playerObject = GameObject.FindWithTag("Player");
+        if (playerObject != null)
         {
-            GameObject playerObject = GameObject.FindWithTag("Player");
-            if (playerObject != null)
-            {
-                player = playerObject.transform;
-            }
+            player = playerObject.transform;
         }
+
+        InitializeLineOfSightFilter();
     }
 
     public void Tick()
@@ -58,6 +58,7 @@ public class CameraDetector : MonoBehaviour
 
         if (IsPlayerVisible)
         {
+            Debug.Log($"Player detected by {name} at distance {Vector2.Distance(transform.position, player.position):F2}");
             float normalizedDistance = Mathf.Clamp01(Vector2.Distance(transform.position, player.position) / detectionRange);
             float fillRate = Mathf.Lerp(suspicionFillPerTickAtClosest, suspicionFillPerTickAtMaxRange, normalizedDistance);
             suspicion = Mathf.Min(100f, suspicion + fillRate);
@@ -95,37 +96,53 @@ public class CameraDetector : MonoBehaviour
 
     private bool PerformDetectionCheck()
     {
-        if (player == null)
-        {
-            return false;
-        }
-
         Vector2 origin = transform.position;
         Vector2 toPlayer = (Vector2)(player.position - transform.position);
         float sqrDistance = toPlayer.sqrMagnitude;
 
         if (sqrDistance > detectionRange * detectionRange)
         {
+            Debug.Log($"Player out of range for {name} (distance: {Mathf.Sqrt(sqrDistance):F2})");
             return false;//distance cheap compute check
         }
 
         float angleToPlayer = Vector2.Angle(-transform.up, toPlayer);
         if (angleToPlayer > viewAngle * 0.5f)
         {
+            Debug.Log($"Player out of FOV for {name} (angle: {angleToPlayer:F2})");
             return false;//out of FOV
         }
 
         Vector2 direction = toPlayer.normalized;
         float distance = Mathf.Sqrt(sqrDistance);
-        LayerMask losMask = environmentMask | playerMask;
-        RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, losMask);
+        int hitCount = Physics2D.Raycast(origin, direction, losFilter, losHits, distance);
 
-        if (hit.collider == null)
+        if (hitCount > 0)
         {
+            Debug.Log($"Line of sight blocked for {name} by {losHits[0].collider.name} (distance: {distance:F2})");
             return false;
         }
 
-        return ((1 << hit.collider.gameObject.layer) & playerMask) != 0;
+        return true;
+    }
+
+    private void InitializeLineOfSightFilter()
+    {
+        losFilter = new ContactFilter2D
+        {
+            useLayerMask = true,
+            useTriggers = true
+        };
+        UpdateLineOfSightMask();
+    }
+    private void UpdateLineOfSightMask()
+    {
+        if (player == null)
+        {
+            return;
+        }
+
+        losFilter.layerMask = environmentMask;
     }
 
     private void OnDrawGizmos()
