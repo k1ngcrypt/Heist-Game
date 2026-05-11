@@ -8,7 +8,7 @@ public static class Map
 {
     private static Tilemap _wall;
     private static Tilemap _transparent;
-    private static Bounds _bounds = null;
+    private static BoundsInt _bounds;
 
     /// <summary>
     /// Current tilemap reference. Null if not initialized.
@@ -25,7 +25,7 @@ public static class Map
     /// <summary>
     /// Checks if both tilemaps are initialized.
     /// </summary>
-    public static bool Bounds  => _bounds;
+    public static BoundsInt Bounds  => _bounds;
     public static void SetWall(Tilemap tilemap) {
         if (tilemap == null) {
             Debug.LogError("[Map] Cannot initialize with null tilemap reference.");
@@ -48,20 +48,24 @@ public static class Map
 
     private static void FixBounds() {
         if (!IsInitialized) return;
-        _bounds = new Bounds {
-            xMin = (int)mathf.min(_wall.bounds.xMin,_transparent.bounds.xMin),
-            xMax = (int)mathf.max(_wall.bounds.xMax,_transparent.bounds.xMax),
-            yMin = (int)mathf.min(_wall.bounds.yMin,_transparent.bounds.yMin),
-            yMax = (int)mathf.max(_wall.bounds.yMin,_transparent.bounds.yMin)
+        _bounds = new BoundsInt {
+            xMin = (int)Mathf.Min(_wall.cellBounds.xMin,_transparent.cellBounds.xMin),
+            xMax = (int)Mathf.Max(_wall.cellBounds.xMax,_transparent.cellBounds.xMax),
+            yMin = (int)Mathf.Min(_wall.cellBounds.yMin,_transparent.cellBounds.yMin),
+            yMax = (int)Mathf.Max(_wall.cellBounds.yMin,_transparent.cellBounds.yMin)
         };
     }
 
-    public static bool IsTile(Vector2Int v, BaseTile tile) {
+    public static bool IsTile(Vector3Int v, TileBase tile) {
         if (!IsInitialized) return false;
-        return potato;
+        return _wall.GetTile(v)==tile||_transparent.GetTile(v)==tile;
+    }
+
+    public static bool IsTile(Vector2Int v, TileBase tile) {
+        return IsTile(new Vector3Int(v.x, v.y, 0), tile);
     }
     
-    public static bool IsTile(int x, int y, BaseTile tile) {
-        return IsTile(Vector2Int(x,y),tile);
+    public static bool IsTile(int x, int y, TileBase tile) {
+        return IsTile(new Vector3Int(x,y,0),tile);
     }
 }

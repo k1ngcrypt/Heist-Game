@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(Tilemap))]
-public class MainMarker : MonoBehaviour
+public class Transparent : MonoBehaviour
 {
     private Tilemap _tilemap;
     private void Awake()
@@ -12,13 +12,13 @@ public class MainMarker : MonoBehaviour
 
         if (_tilemap == null)
         {
-            Debug.LogError("[MainMarker] No Tilemap component found on this GameObject!", this);
+            Debug.LogError("[Transparent] No Tilemap component found on this GameObject!", this);
             return;
         }
 
         // Initialize the Map system
         Map.SetTransparent(_tilemap);
 
-        Debug.Log($"[MainMarker] Map system initialized with tilemap: {gameObject.name}", this);
+        Debug.Log($"[Transparent] Map system initialized with tilemap: {gameObject.name}", this);
     }
 }
