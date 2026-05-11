@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 lastInputDirection;
     
     private bool isMoving = false;
+    private bool inVent = false;
 
     void Update() {
         if (!isMoving && Keyboard.current != null) {
@@ -47,7 +48,7 @@ public class PlayerController : MonoBehaviour
         Vector2 endPosition = startPosition + (direction * gridSize);
         float elapsedTime = 0f;
 
-        while (elapsedTime < moveDuration) {
+        while (elapsedTime < moveDuration * (inVent ? 2 : 1)) {
             elapsedTime += Time.deltaTime;
             float percent = elapsedTime / moveDuration;
             transform.position = Vector2.Lerp(startPosition, endPosition, percent);
@@ -55,7 +56,7 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.position = endPosition;
-        if (TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks(1);
+        if (TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks(inVent ? 2 : 1);
 
         yield return new WaitForSeconds(0.05f);
         isMoving = false;
@@ -71,6 +72,7 @@ public class PlayerController : MonoBehaviour
 
             if (hit != null) { //When there are more objects to interact with, more conditions will be added
                 if (hit.CompareTag("Door")) StartCoroutine(InteractWithDoor(hit));
+                else if (hit.CompareTag("Vent")) StartCoroutine(InteractWithVent(hit, targetPos));
             } 
         }
         yield return new WaitForSeconds(0.1f);
@@ -92,6 +94,20 @@ public class PlayerController : MonoBehaviour
             }
 
             if (success) if (TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks(1);
+        }
+        yield return new WaitForSeconds(0f);
+        isMoving = false;
+    }
+
+    private IEnumerator InteractWithVent(Collider2D vent, Vector2 ventLocation) {
+        isMoving = true;
+        DoorController ventScript = vent.GetComponent<DoorController>();
+        var openBehavior = vent.GetComponent<IDoorOpenBehavior>();
+        
+        if (openBehavior != null) {
+            inVent = !inVent;
+            Debug.Log(inVent ? "Entered vent!" : "Exited vent!");
+            if (TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks(3);
         }
         yield return new WaitForSeconds(0f);
         isMoving = false;
