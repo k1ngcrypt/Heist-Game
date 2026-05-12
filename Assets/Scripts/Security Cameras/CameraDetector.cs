@@ -54,7 +54,15 @@ public class CameraDetector : MonoBehaviour
             return;
         }
 
-        IsPlayerVisible = PerformDetectionCheck();
+        IsPlayerVisible = DetectionUtils.IsDetected(
+            transform.position,
+            -transform.up,
+            player,
+            detectionRange,
+            viewAngle,
+            losFilter,
+            losHits
+        );
 
         if (IsPlayerVisible)
         {
@@ -92,38 +100,6 @@ public class CameraDetector : MonoBehaviour
         suspicion = 0f;
         hasDetectedPlayer = false;
         hadSuspicionLastFrame = false;
-    }
-
-    private bool PerformDetectionCheck()
-    {
-        Vector2 origin = transform.position;
-        Vector2 toPlayer = (Vector2)(player.position - transform.position);
-        float sqrDistance = toPlayer.sqrMagnitude;
-
-        if (sqrDistance > detectionRange * detectionRange)
-        {
-            Debug.Log($"Player out of range for {name} (distance: {Mathf.Sqrt(sqrDistance):F2})");
-            return false;//distance cheap compute check
-        }
-
-        float angleToPlayer = Vector2.Angle(-transform.up, toPlayer);
-        if (angleToPlayer > viewAngle * 0.5f)
-        {
-            Debug.Log($"Player out of FOV for {name} (angle: {angleToPlayer:F2})");
-            return false;//out of FOV
-        }
-
-        Vector2 direction = toPlayer.normalized;
-        float distance = Mathf.Sqrt(sqrDistance);
-        int hitCount = Physics2D.Raycast(origin, direction, losFilter, losHits, distance);
-
-        if (hitCount > 0)
-        {
-            Debug.Log($"Line of sight blocked for {name} by {losHits[0].collider.name} (distance: {distance:F2})");
-            return false;
-        }
-
-        return true;
     }
 
     private void InitializeLineOfSightFilter()
