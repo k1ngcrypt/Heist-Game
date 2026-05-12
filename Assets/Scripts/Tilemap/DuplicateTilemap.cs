@@ -42,7 +42,7 @@ public class DuplicateTilemap : MonoBehaviour
                 for (int y = bounds.yMin; y < bounds.yMax + 1; y++)
                 {
                     positions.Add(new Vector3Int(x, y, 0));
-                    tiles.Add(Map.Wall.GetTile(new Vector3Int(x,y)));
+                    tiles.Add(Map.GetTile(new Vector3Int(x,y)));
                 }
         else
             for (int x = bounds.xMin; x < bounds.xMax; x++)

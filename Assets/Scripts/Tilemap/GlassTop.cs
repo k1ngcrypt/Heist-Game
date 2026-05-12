@@ -37,9 +37,12 @@ public class GlassTop : MonoBehaviour
         var bounds = Map.Bounds;
         var positions = new System.Collections.Generic.List<Vector3Int>();
         var tiles = new System.Collections.Generic.List<TileBase>();
+        Debug.Log(bounds.xMin+" -> "+bounds.xMax+" || "+bounds.yMin+" -> "+bounds.yMax);
 
         for (int x = bounds.xMin; x < bounds.xMax; x++)
             for (int y = bounds.yMin; y < bounds.yMax + 1; y++) {
+                //if (Map.IsTile(x, y - 1, WallTile) && !Map.IsTile(x, y, WallTile) && !Map.IsTile(x, y, null) && !Map.IsTile(x, y-2, null)) Debug.Log("HUHUHUHUHUHU");
+                if (!Map.IsTile(x, y-2, null)) Debug.Log("HUHUHUHUHUHU");
                 positions.Add(new Vector3Int(x, y, 0));
                 tiles.Add(Map.IsTile(x, y - 1, WallTile) && !Map.IsTile(x, y, WallTile) && !Map.IsTile(x, y, null) && !Map.IsTile(x, y-2, null) ? TopTile : null);
             }
