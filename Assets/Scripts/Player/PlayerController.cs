@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private IEnumerator InteractWithObject() {
-        Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
+        Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right, Vector2.zero };
 
         for (int i = 0; i < directions.Length; i++) {
             Vector2 targetPos = (Vector2)transform.position + (directions[i] * gridSize);
@@ -71,20 +71,22 @@ public class PlayerController : MonoBehaviour
             Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
             if (hit != null) { //When there are more objects to interact with, more conditions will be added
-                if (hit.CompareTag("Door")) StartCoroutine(InteractWithDoor(hit));
-                else if (hit.CompareTag("Vent")) StartCoroutine(InteractWithVent(hit, targetPos));
+                if (hit.CompareTag("Door")) {StartCoroutine(InteractWithDoor(hit, 0)); break;}
+                else if (hit.CompareTag("Vent")) {StartCoroutine(InteractWithDoor(hit, 1)); break;}
+                else if (hit.CompareTag("Stair")) {StartCoroutine(InteractWithDoor(hit, 2)); break;}
             } 
         }
         yield return new WaitForSeconds(0.1f);
     }
 
-    private IEnumerator InteractWithDoor(Collider2D door) {
+    private IEnumerator InteractWithDoor(Collider2D door, short doorType) {
         isMoving = true;
         DoorController doorScript = door.GetComponent<DoorController>();
         var openBehavior = door.GetComponent<IDoorOpenBehavior>();
         
         if (openBehavior != null) {
             bool success;
+            if (doorType == 1) inVent = !inVent;
             if (openBehavior.IsOpen) {
                 success = doorScript.TryCloseDoor();
                 if (success) Debug.Log("Door closed!");
@@ -93,21 +95,7 @@ public class PlayerController : MonoBehaviour
                 if (success) Debug.Log("Door opened!");
             }
 
-            if (success) if (TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks(1);
-        }
-        yield return new WaitForSeconds(0f);
-        isMoving = false;
-    }
-
-    private IEnumerator InteractWithVent(Collider2D vent, Vector2 ventLocation) {
-        isMoving = true;
-        DoorController ventScript = vent.GetComponent<DoorController>();
-        var openBehavior = vent.GetComponent<IDoorOpenBehavior>();
-        
-        if (openBehavior != null) {
-            inVent = !inVent;
-            Debug.Log(inVent ? "Entered vent!" : "Exited vent!");
-            if (TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks(3);
+            if (success && TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks((doorType == 0) ? 1 : (doorType == 1) ? 3 : 4);
         }
         yield return new WaitForSeconds(0f);
         isMoving = false;

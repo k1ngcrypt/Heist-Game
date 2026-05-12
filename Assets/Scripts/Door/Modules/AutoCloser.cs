@@ -16,6 +16,16 @@ namespace HeistGame.Door
             doorController = GetComponent<DoorController>();
         }
 
+        private void OnEnable()
+        {
+            turnManager.Register(this);
+        }
+
+        private void OnDisable()
+        {
+            turnManager.Unregister(this);
+        }
+
         public void NotifyDoorOpened()
         {
             waitTicks = closeDelayTicks;
