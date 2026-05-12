@@ -51,10 +51,10 @@ public static class Map
         _wall.CompressBounds();
         _transparent.CompressBounds();
         _bounds = new BoundsInt {
-            xMin = (int)Mathf.Min(_wall.cellBounds.xMin,_transparent.cellBounds.xMin),
-            xMax = (int)Mathf.Max(_wall.cellBounds.xMax,_transparent.cellBounds.xMax),
-            yMin = (int)Mathf.Min(_wall.cellBounds.yMin,_transparent.cellBounds.yMin),
-            yMax = (int)Mathf.Max(_wall.cellBounds.yMax,_transparent.cellBounds.yMax)
+            xMin = Mathf.Min(_wall.cellBounds.xMin,_transparent.cellBounds.xMin),
+            xMax = Mathf.Max(_wall.cellBounds.xMax,_transparent.cellBounds.xMax),
+            yMin = Mathf.Min(_wall.cellBounds.yMin,_transparent.cellBounds.yMin),
+            yMax = Mathf.Max(_wall.cellBounds.yMax,_transparent.cellBounds.yMax)
         };
     }
 
@@ -69,6 +69,18 @@ public static class Map
     
     public static bool IsTile(int x, int y, TileBase tile) {
         return IsTile(new Vector3Int(x,y,0),tile);
+    }
+    public static bool IsNull(Vector3Int v) {
+        if (!IsInitialized) return false;
+        return !(_wall.GetTile(v)||_transparent.GetTile(v));
+    }
+
+    public static bool IsNull(Vector2Int v) {
+        return IsNull(new Vector3Int(v.x, v.y, 0));
+    }
+    
+    public static bool IsNull(int x, int y) {
+        return IsNull(new Vector3Int(x,y,0));
     }
     public static TileBase GetTile(Vector3Int v) {
         if (!IsInitialized) return null;

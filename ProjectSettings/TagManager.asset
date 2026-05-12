@@ -41,17 +41,8 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Subfloor 1
-    uniqueID: 2395007373
-    locked: 0
   - name: Floor 1
     uniqueID: 3904508005
-    locked: 0
-  - name: Floor 2
-    uniqueID: 4139022179
-    locked: 0
-  - name: Floor 3
-    uniqueID: 1634688159
     locked: 0
   - name: UI
     uniqueID: 2615062855
