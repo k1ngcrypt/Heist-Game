@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 public class Transparent : MonoBehaviour
 {
     private Tilemap _tilemap;
-    private void Awake()
+    private void OnValidate()
     {
         // Get required component
         _tilemap = GetComponent<Tilemap>();

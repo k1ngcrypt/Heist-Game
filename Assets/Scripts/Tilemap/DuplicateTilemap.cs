@@ -8,7 +8,7 @@ public class DuplicateTilemap : MonoBehaviour
     public RuleTile NewTile;
     private Tilemap _thisTilemap;
 
-    void Start()
+    void OnValidate()
     {
         _thisTilemap = GetComponent<Tilemap>();
         if (_thisTilemap == null) return;
