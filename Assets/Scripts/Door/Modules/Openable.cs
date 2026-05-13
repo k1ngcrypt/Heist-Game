@@ -16,13 +16,12 @@ namespace HeistGame.Door
         private void OnValidate()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
-            if (openSprite != null)
-            {
-                spriteRenderer.sprite = openSprite;
-            }
-            else if (closeSprite != null)
+            if (closeSprite != null)
             {
                 spriteRenderer.sprite = closeSprite;
+            }else if (openSprite != null)
+            {
+                spriteRenderer.sprite = openSprite;
             }
         }
 
@@ -41,6 +40,7 @@ namespace HeistGame.Door
 
             isOpen = true;
             spriteRenderer.sprite = openSprite;
+            gameObject.layer = LayerMask.NameToLayer("Default");
         }
 
         public void CloseDoor()
@@ -52,6 +52,7 @@ namespace HeistGame.Door
 
             isOpen = false;
             spriteRenderer.sprite = closeSprite;
+            gameObject.layer = LayerMask.NameToLayer("Obstacle");
         }
     }
 }

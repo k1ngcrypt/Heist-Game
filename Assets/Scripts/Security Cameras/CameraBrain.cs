@@ -110,23 +110,23 @@ public class CameraBrain : MonoBehaviour, ITurnActor
         }
     }
 
-    public Awaitable OnTick()
+    public async Awaitable OnTick()
     {
         if (!enabled)
         {
-            return default;
+            return;
         }
 
         if (health != null && health.IsDisabled)
         {
             TickDebt = 0;
-            return default;
+            return;
         }
 
         detector.Tick();
         visuals.Tick();
         motor.Tick();//Tick Debt Handled HERE!!!
         TickDebt--;
-        return default;
+        return;
     }
 }
