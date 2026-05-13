@@ -8,7 +8,6 @@ namespace HeistGame.Door
         [SerializeField] TurnManager turnManager;
 
         private DoorController doorController;
-        private int waitTicks = 0;
         public int TickDebt { get; set; }
 
         private void Awake()
@@ -18,26 +17,23 @@ namespace HeistGame.Door
 
         public void NotifyDoorOpened()
         {
-            waitTicks = closeDelayTicks;
+            TickDebt = -closeDelayTicks;
+            turnManager.Register(this);
+            
         }
 
         public void NotifyDoorClosed()
         {
-            waitTicks = 0;
+            turnManager.Unregister(this);
+            TickDebt = 0;
         }
 
-        public Awaitable OnTick()
+        public async Awaitable OnTick()
         {
-            if (waitTicks > 0)
-            {
-                waitTicks--;
-                TickDebt = 0;
-                if (waitTicks == 0)
-                {
-                    doorController.TryCloseDoor();
-                }
-            }
-            return default;
+            TickDebt = 0;
+            doorController.TryCloseDoor();
+            turnManager.Unregister(this);
+            return;
         }
     }
 }
