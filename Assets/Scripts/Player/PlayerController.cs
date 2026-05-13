@@ -59,7 +59,7 @@ public class PlayerController : MonoBehaviour
 
         transform.position = endPosition;
         
-        if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(inVent ? 2 : 1);
+        await TurnManager.Instance.ProcessTicks(inVent ? 2 : 1);
         await Awaitable.WaitForSecondsAsync(0.1f);
         isMoving = false;
     }
