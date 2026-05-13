@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40531711bb6b4184998f9a37d619b7bf, type: 3}
   m_Name: MarbleWallTop
   m_EditorClassIdentifier: Unity.2D.Tilemap.Extras::UnityEngine.RuleTile
-  m_DefaultSprite: {fileID: -2004327275, guid: 745ed85ec11133a409cd3394989d25c9, type: 3}
+  m_DefaultSprite: {fileID: 631317798, guid: 818ab9f7cbcb6f54a84abb66470ba7f2, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules:
   - m_Id: 0
     m_Sprites:
-    - {fileID: 292354704, guid: 745ed85ec11133a409cd3394989d25c9, type: 3}
+    - {fileID: 628198854, guid: 818ab9f7cbcb6f54a84abb66470ba7f2, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -33,7 +33,7 @@ MonoBehaviour:
     m_RuleTransform: 0
   - m_Id: 1
     m_Sprites:
-    - {fileID: -1140212251, guid: 745ed85ec11133a409cd3394989d25c9, type: 3}
+    - {fileID: 1949406619, guid: 818ab9f7cbcb6f54a84abb66470ba7f2, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
     m_RuleTransform: 0
   - m_Id: 2
     m_Sprites:
-    - {fileID: 5846554423748666233, guid: 745ed85ec11133a409cd3394989d25c9, type: 3}
+    - {fileID: -4392528117998570653, guid: 818ab9f7cbcb6f54a84abb66470ba7f2, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
