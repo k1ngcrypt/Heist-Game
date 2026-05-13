@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using HeistGame.Door;
@@ -8,65 +7,65 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer; 
-    private Vector2 lastInputDirection;
     
     private bool isMoving = false;
     private bool inVent = false;
 
-    void Update() {
+    async void Update() {
+        // Prevent starting new actions while one is in progress
         if (!isMoving && Keyboard.current != null) {
-            System.Func<Key, bool> inputFunction = (key) => Keyboard.current[key].isPressed;
-            if (inputFunction(Key.W) || inputFunction(Key.UpArrow)) AttemptMove(Vector2.up);
-            else if (inputFunction(Key.A) || inputFunction(Key.LeftArrow)) AttemptMove(Vector2.left);
-            else if (inputFunction(Key.S) || inputFunction(Key.DownArrow)) AttemptMove(Vector2.down);
-            else if (inputFunction(Key.D) || inputFunction(Key.RightArrow)) AttemptMove(Vector2.right);
+            System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
+
+            if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
+            else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow)) await AttemptMove(Vector2.left);
+            else if (inputHeld(Key.S) || inputHeld(Key.DownArrow)) await AttemptMove(Vector2.down);
+            else if (inputHeld(Key.D) || inputHeld(Key.RightArrow)) await AttemptMove(Vector2.right);
             
-            
-            else if (inputFunction(Key.Z)) StartCoroutine(Rest());
-            else if (Keyboard.current.eKey.wasPressedThisFrame) StartCoroutine(InteractWithObject());
-            }
+            else if (inputHeld(Key.Z)) await Rest();
+            else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
+        }
     }
 
-    private IEnumerator Rest() {
+    private async Awaitable Rest() {
         isMoving = true;
         Debug.Log("Resting...");
-        if (TurnManager.Instance != null) {
-            yield return TurnManager.Instance.ProcessTicks(1);
-        }
-
-        yield return new WaitForSeconds(0.1f);
+        if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(1);
+        
+        await Awaitable.WaitForSecondsAsync(0.1f);
         isMoving = false;
     }
 
-    private void AttemptMove(Vector2 direction) {
+    private async Awaitable AttemptMove(Vector2 direction) {
         Vector2 targetPos = (Vector2)transform.position + (direction * gridSize);
-        if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) StartCoroutine(Move(direction));
+        if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
         else Debug.Log("Wall in the way!");
     }
 
-    private IEnumerator Move(Vector2 direction) {
+    private async Awaitable Move(Vector2 direction) {
         isMoving = true;
         Vector2 startPosition = transform.position;
         Vector2 endPosition = startPosition + (direction * gridSize);
         float elapsedTime = 0f;
+        
+        // Vents take twice as long to physically move through
+        float currentMoveDuration = moveDuration * (inVent ? 1.5f : 1);
 
-        while (elapsedTime < moveDuration * (inVent ? 2 : 1)) {
+        while (elapsedTime < currentMoveDuration) {
             elapsedTime += Time.deltaTime;
-            float percent = elapsedTime / moveDuration;
+            float percent = elapsedTime / currentMoveDuration;
             transform.position = Vector2.Lerp(startPosition, endPosition, percent);
-            yield return null;
+            await Awaitable.EndOfFrameAsync(); 
         }
 
         transform.position = endPosition;
-        if (TurnManager.Instance != null) {
-            yield return TurnManager.Instance.ProcessTicks(inVent ? 2 : 1);
-        }
-
-        yield return new WaitForSeconds(0.05f);
+        
+        if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(inVent ? 2 : 1);
+        await Awaitable.WaitForSecondsAsync(0.1f);
         isMoving = false;
     }
 
-    private IEnumerator InteractWithObject() {
+    private async Awaitable InteractWithObject() {
+        // Directions check including current tile (Vector2.zero)
         Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right, Vector2.zero };
 
         for (int i = 0; i < directions.Length; i++) {
@@ -74,36 +73,43 @@ public class PlayerController : MonoBehaviour
             int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
             Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
-            if (hit != null) { //When there are more objects to interact with, more conditions will be added
-                if (hit.CompareTag("Door")) {StartCoroutine(InteractWithDoor(hit, 0)); break;}
-                else if (hit.CompareTag("Vent")) {StartCoroutine(InteractWithDoor(hit, 1)); break;}
-                else if (hit.CompareTag("Stair")) {StartCoroutine(InteractWithDoor(hit, 2)); break;}
+            if (hit != null) {
+                if (hit.CompareTag("Door")) { await ProcessInteraction(hit, 0); break; }
+                else if (hit.CompareTag("Vent")) { await ProcessInteraction(hit, 1); break; }
+                else if (hit.CompareTag("Stair")) { await ProcessInteraction(hit, 2); break; }
             } 
         }
-        yield return new WaitForSeconds(0.1f);
     }
 
-    private IEnumerator InteractWithDoor(Collider2D door, short doorType) {
+    private async Awaitable ProcessInteraction(Collider2D obj, short doorType) {
         isMoving = true;
-        DoorController doorScript = door.GetComponent<DoorController>();
-        var openBehavior = door.GetComponent<IDoorOpenBehavior>();
+        DoorController doorScript = obj.GetComponent<DoorController>();
+        var openBehavior = obj.GetComponent<IDoorOpenBehavior>();
         
-        if (openBehavior != null) {
+        if (openBehavior != null && doorScript != null) {
             bool success;
-            if (doorType == 1) inVent = !inVent;
+
+            if (doorType == 1) inVent = !inVent; 
+            else if (doorType == 2) {
+                doorScript.TryOpenDoor();
+                if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(4);
+                isMoving = false;
+                return;
+            }
             if (openBehavior.IsOpen) {
                 success = doorScript.TryCloseDoor();
-                if (success) Debug.Log("Door closed!");
+                if (success) Debug.Log("Object closed!");
             } else {
                 success = doorScript.TryOpenDoor();
-                if (success) Debug.Log("Door opened!");
+                if (success) Debug.Log("Object opened!");
             }
 
             if (success && TurnManager.Instance != null) {
-                yield return TurnManager.Instance.ProcessTicks((doorType == 0) ? 1 : (doorType == 1) ? 3 : 4);
+                int ticks = (doorType == 0) ? 1 : 3; // Doors take 1 tick, Vents take 3 ticks, Stairs take 4 ticks
+                await TurnManager.Instance.ProcessTicks(ticks);
             }
         }
-        yield return new WaitForSeconds(0f);
+        
         isMoving = false;
     }
 }
