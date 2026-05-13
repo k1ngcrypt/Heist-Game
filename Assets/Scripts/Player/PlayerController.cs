@@ -30,8 +30,10 @@ public class PlayerController : MonoBehaviour
     private IEnumerator Rest() {
         isMoving = true;
         Debug.Log("Resting...");
-        if (TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks(1);
-        
+        if (TurnManager.Instance != null) {
+            yield return TurnManager.Instance.ProcessTicks(1);
+        }
+
         yield return new WaitForSeconds(0.1f);
         isMoving = false;
     }
@@ -56,7 +58,9 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.position = endPosition;
-        if (TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks(inVent ? 2 : 1);
+        if (TurnManager.Instance != null) {
+            yield return TurnManager.Instance.ProcessTicks(inVent ? 2 : 1);
+        }
 
         yield return new WaitForSeconds(0.05f);
         isMoving = false;
@@ -95,7 +99,9 @@ public class PlayerController : MonoBehaviour
                 if (success) Debug.Log("Door opened!");
             }
 
-            if (success && TurnManager.Instance != null) _ = TurnManager.Instance.ProcessTicks((doorType == 0) ? 1 : (doorType == 1) ? 3 : 4);
+            if (success && TurnManager.Instance != null) {
+                yield return TurnManager.Instance.ProcessTicks((doorType == 0) ? 1 : (doorType == 1) ? 3 : 4);
+            }
         }
         yield return new WaitForSeconds(0f);
         isMoving = false;

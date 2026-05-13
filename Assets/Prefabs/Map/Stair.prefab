@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 5035279943388518000}
   - component: {fileID: 8163306881876995471}
   - component: {fileID: 8035896566059632399}
-  - component: {fileID: 5130345016207854178}
   - component: {fileID: 7338890773585423274}
+  - component: {fileID: 4546273610257818086}
   m_Layer: 3
   m_Name: StairController
   m_TagString: Stair
@@ -167,19 +167,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68ab691e74cd50c43bec230280cd0206, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.NoLock
---- !u!114 &5130345016207854178
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2241356906965014540}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 543c89729b9fdd945bba4c91c3c764c3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Destructible
-  isDestroyed: 0
 --- !u!114 &7338890773585423274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,6 +179,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff81cae7384143b48bc1ba741a2cec50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.DoorController
+--- !u!114 &4546273610257818086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2241356906965014540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7a0d20bf2d50e34281d068e940660d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Indestructible
 --- !u!1 &3955941703509644022
 GameObject:
   m_ObjectHideFlags: 0
