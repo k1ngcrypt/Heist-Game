@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
   m_Name: LimeGlass
   m_EditorClassIdentifier: Unity.2D.Tilemap.Extras::UnityEngine.RuleTile
-  m_DefaultSprite: {fileID: 1693903347, guid: 97577451e52619b4bb017a01c356675f, type: 3}
+  m_DefaultSprite: {fileID: 196585637, guid: 39d8628cf98153849bebdcb71e337aed, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules:
   - m_Id: 0
     m_Sprites:
-    - {fileID: -109599132, guid: 97577451e52619b4bb017a01c356675f, type: 3}
+    - {fileID: 1506895786, guid: 39d8628cf98153849bebdcb71e337aed, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -35,7 +35,7 @@ MonoBehaviour:
     m_RuleTransform: 0
   - m_Id: 1
     m_Sprites:
-    - {fileID: 928631170, guid: 97577451e52619b4bb017a01c356675f, type: 3}
+    - {fileID: 1238358900, guid: 39d8628cf98153849bebdcb71e337aed, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -52,7 +52,7 @@ MonoBehaviour:
     m_RuleTransform: 0
   - m_Id: 2
     m_Sprites:
-    - {fileID: -525604388, guid: 97577451e52619b4bb017a01c356675f, type: 3}
+    - {fileID: 96344735, guid: 39d8628cf98153849bebdcb71e337aed, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -69,7 +69,7 @@ MonoBehaviour:
     m_RuleTransform: 0
   - m_Id: 3
     m_Sprites:
-    - {fileID: 197368885, guid: 97577451e52619b4bb017a01c356675f, type: 3}
+    - {fileID: 831075511, guid: 39d8628cf98153849bebdcb71e337aed, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
