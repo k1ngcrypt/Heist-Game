@@ -6,10 +6,13 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
-    [SerializeField] private LayerMask wallLayer; 
+    [SerializeField] private LayerMask wallLayer;
     
     private bool isMoving = false;
     private bool inVent = false;
+
+    private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
+    private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
     async void Update() {
         // Prevent starting new actions while one is in progress
@@ -31,7 +34,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Resting...");
         if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(1);
         
-        await Awaitable.WaitForSecondsAsync(0.1f);
+        await Awaitable.WaitForSecondsAsync(restDuration);
         isMoving = false;
     }
 
@@ -48,7 +51,7 @@ public class PlayerController : MonoBehaviour
         float elapsedTime = 0f;
         
         // Vents take twice as long to physically move through
-        float currentMoveDuration = moveDuration * (inVent ? 1.5f : 1);
+        float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
 
         while (elapsedTime < currentMoveDuration) {
             elapsedTime += Time.deltaTime;
@@ -59,8 +62,8 @@ public class PlayerController : MonoBehaviour
 
         transform.position = endPosition;
         
-        await TurnManager.Instance.ProcessTicks(inVent ? 2 : 1);
-        await Awaitable.WaitForSecondsAsync(0.1f);
+        await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
+        await Awaitable.WaitForSecondsAsync(interactionDuration);
         isMoving = false;
     }
 
@@ -74,14 +77,14 @@ public class PlayerController : MonoBehaviour
             Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
             if (hit != null) {
-                if (hit.CompareTag("Door")) { await ProcessInteraction(hit, 0); break; }
-                else if (hit.CompareTag("Vent")) { await ProcessInteraction(hit, 1); break; }
-                else if (hit.CompareTag("Stair")) { await ProcessInteraction(hit, 2); break; }
+                if (hit.CompareTag("Door")) { await DoorInteraction(hit, 0); break; }
+                else if (hit.CompareTag("Vent")) { await DoorInteraction(hit, 1); break; }
+                else if (hit.CompareTag("Stair")) { await DoorInteraction(hit, 2); break; }
             } 
         }
     }
 
-    private async Awaitable ProcessInteraction(Collider2D obj, short doorType) {
+    private async Awaitable DoorInteraction(Collider2D obj, short doorType) {
         isMoving = true;
         DoorController doorScript = obj.GetComponent<DoorController>();
         var openBehavior = obj.GetComponent<IDoorOpenBehavior>();
@@ -92,7 +95,7 @@ public class PlayerController : MonoBehaviour
             if (doorType == 1) inVent = !inVent; 
             else if (doorType == 2) {
                 doorScript.TryOpenDoor();
-                if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(4);
+                if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(stairWaitTicks);
                 isMoving = false;
                 return;
             }
@@ -105,7 +108,7 @@ public class PlayerController : MonoBehaviour
             }
 
             if (success && TurnManager.Instance != null) {
-                int ticks = (doorType == 0) ? 1 : 3; // Doors take 1 tick, Vents take 3 ticks, Stairs take 4 ticks
+                int ticks = (doorType == 0) ? doorWaitTicks : ventWaitTicks; 
                 await TurnManager.Instance.ProcessTicks(ticks);
             }
         }
