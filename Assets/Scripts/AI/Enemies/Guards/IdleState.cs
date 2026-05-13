@@ -4,17 +4,25 @@
     {
         public override void EnterState()
         {
-            //TODO: play idle animation
+            Manager?.Navigator?.ClearDestination();
         }
 
         public override void TickState()
         {
-            //TODO PlayFrame
+            if (Manager == null)
+            {
+                return;
+            }
+
+            if (Manager.IsPlayerDetected())
+            {
+                Manager.UpdateLastKnownPlayerPosition();
+                Manager.UpdateState(Manager.ChasingState);
+            }
         }
 
         public override void ExitState()
         {
-            //TODO: stop idle animation
         }
     }
 }

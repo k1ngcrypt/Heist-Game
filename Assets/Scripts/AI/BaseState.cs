@@ -1,5 +1,15 @@
-﻿public abstract class BaseState
+﻿using Guards;
+using UnityEngine;
+
+public abstract class BaseState : MonoBehaviour
 {
+    protected GuardStateManager Manager { get; private set; }
+
+    protected virtual void Awake()
+    {
+        Manager = GetComponent<GuardStateManager>();
+    }
+
     // Logic to run when first entering the state
     public abstract void EnterState();
 

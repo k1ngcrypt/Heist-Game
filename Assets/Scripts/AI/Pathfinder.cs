@@ -19,6 +19,9 @@ public class Pathfinder : MonoBehaviour
     [SerializeField]
     private int clusterSize = 4;
 
+    [SerializeField]
+    private LayerMask specialTileMask;
+
     private float nodeDiameter;
     private int gridSizeX;
     private int gridSizeY;
@@ -58,6 +61,12 @@ public class Pathfinder : MonoBehaviour
 
     public List<Vector2> FindPath(Vector2 startPos, Vector2 targetPos)
     {
+        List<int> pathIndices = FindPathIndices(startPos, targetPos);
+        return ConvertPathToWorldPositions(pathIndices);
+    }
+
+    public List<int> FindPathIndices(Vector2 startPos, Vector2 targetPos)
+    {
         if (nodes == null || nodes.Length == 0)
         {
             CreateGrid();
@@ -68,12 +77,12 @@ public class Pathfinder : MonoBehaviour
 
         if (startIndex < 0 || targetIndex < 0)
         {
-            return new List<Vector2>();
+            return new List<int>();
         }
 
         if (!nodes[startIndex].IsTraversable() || !nodes[targetIndex].IsTraversable())
         {
-            return new List<Vector2>();
+            return new List<int>();
         }
 
         int startCluster = nodes[startIndex].ClusterId;
@@ -81,14 +90,13 @@ public class Pathfinder : MonoBehaviour
 
         if (startCluster == endCluster)
         {
-            List<int> directPath = FindLowLevelPathIndices(startIndex, targetIndex);
-            return ConvertPathToWorldPositions(directPath);
+            return FindLowLevelPathIndices(startIndex, targetIndex);
         }
 
         List<int> abstractPath = FindAbstractPath(startIndex, targetIndex);
         if (abstractPath.Count == 0)
         {
-            return new List<Vector2>();
+            return new List<int>();
         }
 
         List<int> finalPath = new();
@@ -98,7 +106,7 @@ public class Pathfinder : MonoBehaviour
             List<int> segment = FindLowLevelPathIndices(waypointNodes[i], waypointNodes[i + 1]);
             if (segment.Count == 0)
             {
-                return new List<Vector2>();
+                return new List<int>();
             }
 
             if (finalPath.Count > 0)
@@ -109,7 +117,39 @@ public class Pathfinder : MonoBehaviour
             finalPath.AddRange(segment);
         }
 
-        return ConvertPathToWorldPositions(finalPath);
+        return finalPath;
+    }
+
+    public int GetNodeIndexFromWorld(Vector2 worldPosition)
+    {
+        if (nodes == null || nodes.Length == 0)
+        {
+            CreateGrid();
+        }
+
+        return NodeIndexFromWorldPoint(worldPosition);
+    }
+
+    public Vector2 GetNodeWorldPosition(int index)
+    {
+        if (nodes == null || index < 0 || index >= nodes.Length)
+        {
+            return Vector2.zero;
+        }
+
+        return nodes[index].WorldPosition;
+    }
+
+    public bool TryGetNodeInteraction(int index, out ISpecialTile interaction)
+    {
+        interaction = null;
+        if (nodes == null || index < 0 || index >= nodes.Length)
+        {
+            return false;
+        }
+
+        interaction = nodes[index].Interaction;
+        return interaction != null;
     }
 
     private void CreateGrid()
@@ -124,6 +164,21 @@ public class Pathfinder : MonoBehaviour
                 Vector2 worldPoint = worldBottomLeft + Vector2.right * (x * nodeDiameter + nodeRadius)
                                                    + Vector2.up * (y * nodeDiameter + nodeRadius);
                 bool walkable = !Physics2D.OverlapCircle(worldPoint, nodeRadius, Obstacles);
+                ISpecialTile interaction = null;
+                if (specialTileMask != 0)
+                {
+                    Collider2D specialCollider = Physics2D.OverlapCircle(worldPoint, nodeRadius, specialTileMask);
+                    if (specialCollider != null)
+                    {
+                        interaction = specialCollider.GetComponentInParent<ISpecialTile>() ?? specialCollider.GetComponent<ISpecialTile>();
+                    }
+                }
+
+                if (interaction != null)
+                {
+                    walkable = true;
+                }
+
                 int index = GetIndex(x, y);
                 nodes[index] = new HaNode
                 {
@@ -136,7 +191,7 @@ public class Pathfinder : MonoBehaviour
                     Neighbors = Array.Empty<int>(),
                     ClusterId = 0,
                     Flags = walkable ? HaNodeFlags.Walkable : HaNodeFlags.None,
-                    Interaction = null
+                    Interaction = interaction
                 };
             }
         }
