@@ -16,17 +16,35 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] private GameObject shadowCam;
 
     [SerializeField] private TurnManager turnManager;
+    [SerializeField] private List<BoundsInt> layerBounds;
     private List<RenderTexture> eRT = new List<RenderTexture>();
     private Vector3 velocity = Vector3.zero;
     private Camera mainCamera;
     private List<Camera> cameras = new List<Camera>();
     private const float camSpeed = 0.9f;
+    private bool queued = false;
     [HideInInspector] public Vector3 pos = Vector3.zero;
     public int TickDebt { get; set; }
+    void OnValidate() {
+        if (!Map.IsInitialized||queued) return;
+        queued = true;
+        EditorApplication.delayCall += () => {
+            queued = false;
+            List<Vector2> locations = new List<Vector2> {Vector2.zero};
+            foreach (Vector2 i in lLocations) locations.Add(i);
+            Map.layerLocations = locations;
+            Map.ReloadLayerBounds();
+            layerBounds = Map.LayerBounds;
+        };
+    }
     void Awake() {
         if (this == null) return;
         mainCamera = GetComponent<Camera>();
-        Map.layerLocations = lLocations;
+        List<Vector2> locations = new List<Vector2> {Vector2.zero};
+        foreach (Vector2 i in lLocations) locations.Add(i);
+        Map.layerLocations = locations;
+        Map.SetLayerBounds(layerBounds);
+        Debug.Log(Map.layerLocations.Count);
         if (lLocations.Count==0||cam==null||mainCamera == null) return;
         var cameraData = mainCamera.GetUniversalAdditionalCameraData();
         if (cameraData == null) return;
@@ -48,16 +66,18 @@ public class CameraManager : MonoBehaviour, ITurnActor
         Debug.Log("[CameraManager] Camera stack updated with " + cameras.Count + " cameras.");
         if (vRT.Count<Map.LayerBounds.Count) Debug.LogError("[Fogs] Not enough render textures set!");
         for (int i = 0; i<vRT.Count; i++) {
+            Debug.Log(i);
+            Debug.Log(Map.LayerBounds.Count);
             var bounds = Map.LayerBounds[i];
             if (vRT[i] != null) vRT[i].Release();
-            vRT[i] = new RenderTexture(bounds.size.x*15+30, bounds.size.y*15+30, 0, RenderTextureFormat.a8);
-            vRT[i].create();
-            eRT.add(new RenderTexture(bounds.size.x*15+30, bounds.size.y*15+30, 0, RenderTextureFormat.a8));
-            eRT[i].create();
+            vRT[i] = new RenderTexture(bounds.size.x*15+30, bounds.size.y*15+30, 0, RenderTextureFormat.R8_UNORM);
+            vRT[i].Create();
+            eRT.Add(new RenderTexture(bounds.size.x*15+30, bounds.size.y*15+30, 0, RenderTextureFormat.R8));
+            eRT[i].Create();
             GameObject coolCamera = Instantiate(shadowCam, transform.parent);
             coolCamera.transform.position = bounds.center;
             Camera cool = coolCamera.GetComponent<Camera>();
-            cool.size = bounds.size.y+2;
+            cool.orthographicSize = bounds.size.y+2;
             cool.targetTexture = vRT[i];
             cool.cullingMask = -1;
             //Have Camera Blit Alpha of floor Onto eRT, then set culling layers to Shadow
@@ -80,9 +100,11 @@ public class CameraManager : MonoBehaviour, ITurnActor
     
     public async Awaitable OnTick()
     {
+        TickDebt = 0;
         Debug.Log("[CameraManager] OnTick called.");
         if (!enabled) return;
         int l = Map.currentLayer();
+        Debug.Log(vRT.Count+"    "+eRT.Count);
         pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(lLocations[l-1].x, lLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;

@@ -11,8 +11,8 @@ public static class Map
     private static Tilemap _transparent;
     private static BoundsInt _bounds;
     private static GameObject _player;
-    public static List<Vector2> layerLocations = new List<Vector2>();
-    private static List<BoundsInt> _layerBounds = new List<BoundsInt>();
+    public static List<Vector2> layerLocations;
+    private static List<BoundsInt> _layerBounds;
 
     /// <summary>
     /// Current tilemap reference. Null if not initialized.
@@ -131,7 +131,27 @@ public static class Map
     }
     
     public static void ReloadLayerBounds() {
+        //Debug.Log("SCREAAAAAAAAAAAAAAAAAAMSSSSSSS");
         if (layerLocations.Count==0||!IsInitialized) return;
-        LayerBounds.Clear();
+        _layerBounds = new List<BoundsInt>();
+        for (int i = 0; i<layerLocations.Count; i++) {
+            BoundsInt bounds = new BoundsInt();
+            Vector2 location = layerLocations[i];
+            for (int x = -100; x<101; x++) for (int y = -100; y<101; y++) {
+                    int xx = x+(int)location.x, yy = y+(int)location.y;
+                    if (!IsNull(xx,yy)) {
+                        bounds.xMin = Mathf.Min(bounds.xMin, xx);
+                        bounds.xMax = Mathf.Max(bounds.xMax, xx);
+                        bounds.yMin = Mathf.Min(bounds.yMin, y);
+                        bounds.yMax = Mathf.Max(bounds.yMax, y);
+                    }
+            }
+            _layerBounds.Add(bounds);
+            //Debug.Log("AHAHAHAAAAAAAAAAAA");
+        }
+        Debug.Log("SCREAAAAAAAAMED "+_layerBounds.Count + " " + layerLocations.Count + " " + LayerBounds.Count);
+    }
+    public static void SetLayerBounds(List<BoundsInt> l) {
+        _layerBounds = l;
     }
 }
