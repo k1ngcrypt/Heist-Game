@@ -12,6 +12,7 @@ public static class Map
     private static BoundsInt _bounds;
     private static GameObject _player;
     public static List<Vector2> layerLocations = new List<Vector2>();
+    private static List<BoundsInt> _layerBounds = new List<BoundsInt>();
 
     /// <summary>
     /// Current tilemap reference. Null if not initialized.
@@ -33,6 +34,10 @@ public static class Map
     /// The current player reference. Null if not initialized.
     /// </summary>
     public static GameObject Player => _player;
+    /// <summary>
+    /// 
+    /// </summary>
+    public static List<BoundsInt> LayerBounds => _layerBounds;
     public static void SetWall(Tilemap tilemap) {
         if (tilemap == null) {
             Debug.LogError("[Map] Cannot initialize with null tilemap reference.");
@@ -123,5 +128,10 @@ public static class Map
             }
         }
         return l;
+    }
+    
+    public static void ReloadLayerBounds() {
+        if (layerLocations.Count==0||!IsInitialized) return;
+        LayerBounds.Clear();
     }
 }

@@ -10,7 +10,13 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] private List<Vector2> lLocations;
     [SerializeField] private float smoothTime = 0.3f;
     [SerializeField] private GameObject cam;
+    [Header("Property")]
+    [SerializeField] private Material addingMaterial;
+    [SerializeField] private List<RenderTexture> vRT;
+    [SerializeField] private GameObject shadowCam;
+
     [SerializeField] private TurnManager turnManager;
+    private List<RenderTexture> eRT = new List<RenderTexture>();
     private Vector3 velocity = Vector3.zero;
     private Camera mainCamera;
     private List<Camera> cameras = new List<Camera>();
@@ -40,6 +46,24 @@ public class CameraManager : MonoBehaviour, ITurnActor
             cameraData.cameraStack.Add(c);
         }
         Debug.Log("[CameraManager] Camera stack updated with " + cameras.Count + " cameras.");
+        if (vRT.Count<Map.LayerBounds.Count) Debug.LogError("[Fogs] Not enough render textures set!");
+        for (int i = 0; i<vRT.Count; i++) {
+            var bounds = Map.LayerBounds[i];
+            if (vRT[i] != null) vRT[i].Release();
+            vRT[i] = new RenderTexture(bounds.size.x*15+30, bounds.size.y*15+30, 0, RenderTextureFormat.a8);
+            vRT[i].create();
+            eRT.add(new RenderTexture(bounds.size.x*15+30, bounds.size.y*15+30, 0, RenderTextureFormat.a8));
+            eRT[i].create();
+            GameObject coolCamera = Instantiate(shadowCam, transform.parent);
+            coolCamera.transform.position = bounds.center;
+            Camera cool = coolCamera.GetComponent<Camera>();
+            cool.size = bounds.size.y+2;
+            cool.targetTexture = vRT[i];
+            cool.cullingMask = -1;
+            //Have Camera Blit Alpha of floor Onto eRT, then set culling layers to Shadow
+            cool.cullingMask = 1 << LayerMask.NameToLayer("ShadowLayer");
+        }
+        Debug.Log("[CameraManager] Shadow Cameras Created.");
     }
 
     private void OnEnable()
@@ -62,10 +86,19 @@ public class CameraManager : MonoBehaviour, ITurnActor
         pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(lLocations[l-1].x, lLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
+        Graphics.Blit(vRT[l], eRT[l], addingMaterial);
         return;
     }
     void LateUpdate()
     {
        transform.position = Vector3.SmoothDamp(transform.position, pos, ref velocity, smoothTime);
     }
+
+    void OnDestroy() {
+        while (eRT.Count>0) {
+            eRT[0].Release();
+            eRT.RemoveAt(0);
+        }
+    }
+
 }
