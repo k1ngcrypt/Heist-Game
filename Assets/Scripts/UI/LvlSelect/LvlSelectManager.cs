@@ -13,6 +13,7 @@ public class LvlSelectManager : MonoBehaviour
     [Header("References")]
     public LvlBtnUI btnPrefab;
     public Canvas canvas;
+    public Transform lvlScroll;
     public Transform contents;
     public Transform scrollbar;
     public Transform sltLvl;
@@ -30,9 +31,9 @@ public class LvlSelectManager : MonoBehaviour
     }
     public void GenerateLvlSelect()
     {
-        if (canvas == null || btnPrefab == null || contents == null || sltLvl == null || unsltLvl == null || titleText == null || descriptionText == null)
+        if (canvas == null || btnPrefab == null || lvlScroll == null || contents == null || scrollbar == null || sltLvl == null || unsltLvl == null || titleText == null || descriptionText == null)
         {
-            Debug.LogWarning("LvlSelectManager is missing references (Canvas, BtnPrefab, Contents, SelectedLevel, UnselectedLevel, TitleText, DescriptionText).", this);
+            Debug.LogWarning("LvlSelectManager is missing references (Canvas, BtnPrefab, LvlScroll, Contents, Scrollbar, SelectedLevel, UnselectedLevel, TitleText, DescriptionText).", this);
             return;
         }
 
@@ -63,10 +64,13 @@ public class LvlSelectManager : MonoBehaviour
         min -= new Vector2(20, 0); // Padding
         max += new Vector2(20, 0); // Padding
         contents.GetComponent<RectTransform>().sizeDelta = max - min;
+        scrollbar.GetComponent<Scrollbar>().numberOfSteps = allLvls.Count;
     }
 
     public void SelectedLvl(LvlOrganizer lvl)
     {
+        //implement lock/unlock logic here
+
         if (!sltLvl.gameObject.activeSelf || unsltLvl.gameObject.activeSelf)
         {
             sltLvl.gameObject.SetActive(true);
@@ -75,6 +79,22 @@ public class LvlSelectManager : MonoBehaviour
         currentLvl = lvl;
         titleText.text = string.IsNullOrWhiteSpace(currentLvl.lvlTitle) ? currentLvl.sceneName : currentLvl.lvlTitle;
         descriptionText.text = currentLvl.lvlDescription;
+    }
+
+    public void OpenLvlSelect()
+    {
+        canvas.gameObject.SetActive(true);
+        sltLvl.gameObject.SetActive(false);
+        unsltLvl.gameObject.SetActive(true);
+        lvlScroll.GetComponent<ScrollRect>().horizontalNormalizedPosition = 0;
+    }
+
+    public void CloseLvlSelect()
+    {
+        sltLvl.gameObject.SetActive(false);
+        unsltLvl.gameObject.SetActive(true);
+        canvas.gameObject.SetActive(false);
+        lvlScroll.GetComponent<ScrollRect>().horizontalNormalizedPosition = 0;
     }
 
     public void PlayLvl()

@@ -754,6 +754,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fc049113bc6f10048b20781e41e03d96, type: 2}
   btnPrefab: {fileID: 4443438914977263618, guid: 113d6308aa9be7640956f742536029b1, type: 3}
   canvas: {fileID: 1142689723}
+  lvlScroll: {fileID: 386391890}
   contents: {fileID: 1935393369}
   scrollbar: {fileID: 479748682}
   sltLvl: {fileID: 50062653}
@@ -949,7 +950,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1142689720}
+      - m_Target: {fileID: 1674286628}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
@@ -959,12 +960,12 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 1
-      - m_Target: {fileID: 1674286628}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 243103246}
+        m_TargetAssemblyTypeName: LvlSelectManager, Assembly-CSharp
+        m_MethodName: CloseLvlSelect
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2145,10 +2146,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
-      - m_Target: {fileID: 1142689720}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 243103246}
+        m_TargetAssemblyTypeName: LvlSelectManager, Assembly-CSharp
+        m_MethodName: OpenLvlSelect
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2531,6 +2532,7 @@ MonoBehaviour:
   startingUnlockedLvls: []
   btnPrefab: {fileID: 0}
   canvas: {fileID: 0}
+  lvlScroll: {fileID: 0}
   contents: {fileID: 0}
   scrollbar: {fileID: 0}
   sltLvl: {fileID: 0}
@@ -3240,10 +3242,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1142689720}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 243103246}
+        m_TargetAssemblyTypeName: LvlSelectManager, Assembly-CSharp
+        m_MethodName: CloseLvlSelect
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3794,10 +3796,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 1
-      - m_Target: {fileID: 1142689720}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 243103246}
+        m_TargetAssemblyTypeName: LvlSelectManager, Assembly-CSharp
+        m_MethodName: OpenLvlSelect
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
