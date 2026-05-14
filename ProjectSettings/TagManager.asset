@@ -14,7 +14,7 @@ TagManager:
   - Obstacle
   - Water
   - UI
-  - 
+  - ShadowLayer
   - 
   - 
   - 
@@ -44,8 +44,17 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Floor 1
+  - name: Shadow
+    uniqueID: 3707534203
+    locked: 0
+  - name: Floor
+    uniqueID: 1574547705
+    locked: 0
+  - name: Walls 1
     uniqueID: 3904508005
+    locked: 0
+  - name: Uppys
+    uniqueID: 953603869
     locked: 0
   - name: UI
     uniqueID: 2615062855

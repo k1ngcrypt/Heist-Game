@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 
 public static class Map
@@ -9,6 +10,8 @@ public static class Map
     private static Tilemap _wall;
     private static Tilemap _transparent;
     private static BoundsInt _bounds;
+    private static GameObject _player;
+    public static List<Vector2> layerLocations = new List<Vector2>();
 
     /// <summary>
     /// Current tilemap reference. Null if not initialized.
@@ -26,6 +29,10 @@ public static class Map
     /// Checks if both tilemaps are initialized.
     /// </summary>
     public static BoundsInt Bounds  => _bounds;
+    /// <summary>
+    /// The current player reference. Null if not initialized.
+    /// </summary>
+    public static GameObject Player => _player;
     public static void SetWall(Tilemap tilemap) {
         if (tilemap == null) {
             Debug.LogError("[Map] Cannot initialize with null tilemap reference.");
@@ -92,5 +99,29 @@ public static class Map
     }
     public static TileBase GetTile(int x, int y) {
         return GetTile(new Vector3Int(x, y, 0));
+    }
+    
+
+    public static void SetPlayer(GameObject player) {
+        if (player == null) {
+            Debug.LogError("[Map] Cannot set player to null reference.");
+            return;
+        }
+        _player = player;
+    }
+    public static int currentLayer()
+    {
+        if (!IsInitialized||_player == null||layerLocations.Count==0) return 0;
+        Vector2 pos = (Vector2) _player.transform.position;
+        int l = 0;
+        float d = float.MaxValue;
+        for (int i = 1; i < layerLocations.Count; i++) {
+            float distance = Vector2.Distance(layerLocations[i], pos);
+            if (distance < d) {
+                d = distance;
+                l = i;
+            }
+        }
+        return l;
     }
 }
