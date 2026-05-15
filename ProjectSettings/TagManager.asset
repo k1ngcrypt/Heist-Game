@@ -56,6 +56,9 @@ TagManager:
   - name: Uppys
     uniqueID: 953603869
     locked: 0
+  - name: Shade
+    uniqueID: 3507788513
+    locked: 0
   - name: UI
     uniqueID: 2615062855
     locked: 0

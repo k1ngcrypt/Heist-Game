@@ -7,12 +7,12 @@ using UnityEngine.Tilemaps;
 
 public static class Map
 {
-    private static Tilemap _wall;
-    private static Tilemap _transparent;
-    private static BoundsInt _bounds;
-    private static GameObject _player;
-    public static List<Vector2> layerLocations;
-    private static List<BoundsInt> _layerBounds;
+    [SerializeField] private static Tilemap _wall;
+    [SerializeField] private static Tilemap _transparent;
+    [SerializeField] private static BoundsInt _bounds;
+    [SerializeField] private static GameObject _player;
+    [SerializeField] public static List<Vector2> layerLocations;
+    [SerializeField] private static List<BoundsInt> _layerBounds;
 
     /// <summary>
     /// Current tilemap reference. Null if not initialized.
@@ -35,7 +35,7 @@ public static class Map
     /// </summary>
     public static GameObject Player => _player;
     /// <summary>
-    /// 
+    /// The bounds for each layer.
     /// </summary>
     public static List<BoundsInt> LayerBounds => _layerBounds;
     public static void SetWall(Tilemap tilemap) {
@@ -119,7 +119,7 @@ public static class Map
         if (!IsInitialized||_player == null||layerLocations.Count==0) return 0;
         Vector2 pos = (Vector2) _player.transform.position;
         int l = 0;
-        float d = float.MaxValue;
+        float d = Vector2.Distance(layerLocations[0], pos);
         for (int i = 1; i < layerLocations.Count; i++) {
             float distance = Vector2.Distance(layerLocations[i], pos);
             if (distance < d) {
@@ -136,20 +136,28 @@ public static class Map
         _layerBounds = new List<BoundsInt>();
         for (int i = 0; i<layerLocations.Count; i++) {
             BoundsInt bounds = new BoundsInt();
+            bool b = true;
             Vector2 location = layerLocations[i];
             for (int x = -100; x<101; x++) for (int y = -100; y<101; y++) {
-                    int xx = x+(int)location.x, yy = y+(int)location.y;
+                    int xx = (int)(x+location.x), yy = (int)(y+location.y);
                     if (!IsNull(xx,yy)) {
+                        if (b) {
+                            b=false;
+                            bounds.xMin = xx;
+                            bounds.xMax = xx;
+                            bounds.yMin = yy;
+                            bounds.yMax = yy; 
+                        }
                         bounds.xMin = Mathf.Min(bounds.xMin, xx);
                         bounds.xMax = Mathf.Max(bounds.xMax, xx);
-                        bounds.yMin = Mathf.Min(bounds.yMin, y);
-                        bounds.yMax = Mathf.Max(bounds.yMax, y);
+                        bounds.yMin = Mathf.Min(bounds.yMin, yy);
+                        bounds.yMax = Mathf.Max(bounds.yMax, yy);
                     }
             }
             _layerBounds.Add(bounds);
             //Debug.Log("AHAHAHAAAAAAAAAAAA");
         }
-        Debug.Log("SCREAAAAAAAAMED "+_layerBounds.Count + " " + layerLocations.Count + " " + LayerBounds.Count);
+        //Debug.Log("SCREAAAAAAAAMED "+_layerBounds.Count + " " + layerLocations.Count + " " + LayerBounds.Count);
     }
     public static void SetLayerBounds(List<BoundsInt> l) {
         _layerBounds = l;

@@ -2,26 +2,31 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 public class CameraManager : MonoBehaviour, ITurnActor
 {
     [Header("Locations")]
     [SerializeField] private List<Vector2> lLocations;
-    [SerializeField] private float smoothTime = 0.3f;
-    [SerializeField] private GameObject cam;
     [Header("Property")]
-    [SerializeField] private Material addingMaterial;
     [SerializeField] private List<RenderTexture> vRT;
+    [Header("Cameras")]
+    [SerializeField] private float smoothTime = 0.3f;
+    [SerializeField] private Material addingMaterial;
+    [Header("References")]
     [SerializeField] private GameObject shadowCam;
-
+    [SerializeField] private GameObject cam;
+    [SerializeField] private GameObject SPOTLIGHT;
     [SerializeField] private TurnManager turnManager;
-    [SerializeField] private List<BoundsInt> layerBounds;
+    [HideInInspector] [SerializeField] private List<BoundsInt> layerBounds;
     private List<RenderTexture> eRT = new List<RenderTexture>();
     private Vector3 velocity = Vector3.zero;
     private Camera mainCamera;
     private List<Camera> cameras = new List<Camera>();
-    private const float camSpeed = 0.9f;
+    private const float camFixer = 0.7f;
     private bool queued = false;
     [HideInInspector] public Vector3 pos = Vector3.zero;
     public int TickDebt { get; set; }
@@ -44,7 +49,6 @@ public class CameraManager : MonoBehaviour, ITurnActor
         foreach (Vector2 i in lLocations) locations.Add(i);
         Map.layerLocations = locations;
         Map.SetLayerBounds(layerBounds);
-        Debug.Log(Map.layerLocations.Count);
         if (lLocations.Count==0||cam==null||mainCamera == null) return;
         var cameraData = mainCamera.GetUniversalAdditionalCameraData();
         if (cameraData == null) return;
@@ -64,24 +68,84 @@ public class CameraManager : MonoBehaviour, ITurnActor
             cameraData.cameraStack.Add(c);
         }
         Debug.Log("[CameraManager] Camera stack updated with " + cameras.Count + " cameras.");
-        if (vRT.Count<Map.LayerBounds.Count) Debug.LogError("[Fogs] Not enough render textures set!");
+        Debug.Log(vRT.Count);
+        if (vRT.Count<Map.LayerBounds.Count) {
+            Debug.LogError("[CameraManager] Not enough render textures set!");
+            return;
+        }
+        GraphicsFormat format = GraphicsFormat.R8_UNorm;
+        if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+            Debug.LogWarning("[CameraManager] R8_UNorm not supported, trying next format...");
+            format = GraphicsFormat.R8_SNorm;
+            if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+            format = GraphicsFormat.R8_UInt;
+            if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+            format = GraphicsFormat.R8_SInt;
+            if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+            format = GraphicsFormat.R8_SRGB;
+            if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                Debug.LogWarning("[CameraManager] R8_SRGB not supported, trying next format...");
+                format = GraphicsFormat.R16_UNorm;
+                if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                format = GraphicsFormat.R16_UInt;
+                if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                format = GraphicsFormat.R16_SNorm;
+                if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                format = GraphicsFormat.R16_SInt;
+                if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                format = GraphicsFormat.R16_SFloat;
+                if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                    format = GraphicsFormat.R4G4B4A4_UNormPack16;
+                    if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                    Debug.LogWarning("[CameraManager] R4G4B4A4_UNormPack16 not supported, trying next format...");
+                    format = GraphicsFormat.R8G8_UNorm;
+                    if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                    format = GraphicsFormat.R8G8B8_UNorm;
+                    if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                    format = GraphicsFormat.R8G8B8_SNorm;
+                    if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                    format = GraphicsFormat.R8G8B8_SInt;
+                    if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                    format = GraphicsFormat.R8G8B8_SRGB;
+                    if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                        Debug.LogWarning("[CameraManager] R8G8B8_SRGB not supported, trying next format...");
+                        format = GraphicsFormat.R8G8B8A8_UNorm;
+                        if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                        format = GraphicsFormat.R8G8B8A8_SNorm;
+                        if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                        format = GraphicsFormat.R8G8B8A8_SNorm;
+                        if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                        format = GraphicsFormat.R8G8B8A8_SInt;
+                        if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                        format = GraphicsFormat.R8G8B8A8_SRGB;
+                        if (!SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.Render)) {
+                            Debug.LogError("[CameraManager] No suitable RenderTexture format found!");
+                            return;
+        }}}}}}}}}}}}}}}}}}}}}
+        Debug.Log("[CameraManager] Using RenderTexture format: " + format);
         for (int i = 0; i<vRT.Count; i++) {
-            Debug.Log(i);
-            Debug.Log(Map.LayerBounds.Count);
+            Debug.Log(Map.LayerBounds[i]);
             var bounds = Map.LayerBounds[i];
             if (vRT[i] != null) vRT[i].Release();
-            vRT[i] = new RenderTexture(bounds.size.x*15+30, bounds.size.y*15+30, 0, RenderTextureFormat.R8_UNORM);
+            vRT[i].width = bounds.size.x*15+30;
+            vRT[i].height = bounds.size.y*15+30;
+            vRT[i].depth = 8;
+            vRT[i].graphicsFormat = format;
             vRT[i].Create();
-            eRT.Add(new RenderTexture(bounds.size.x*15+30, bounds.size.y*15+30, 0, RenderTextureFormat.R8));
+            eRT.Add(new RenderTexture(bounds.size.x*30+60, bounds.size.y*30+60, 8, format));
             eRT[i].Create();
-            GameObject coolCamera = Instantiate(shadowCam, transform.parent);
-            coolCamera.transform.position = bounds.center;
+            GameObject coolCamera = Instantiate(shadowCam, Vector3.zero, Quaternion.identity);
+            coolCamera.transform.position = new Vector3(bounds.center.x, bounds.center.y, -10);
             Camera cool = coolCamera.GetComponent<Camera>();
             cool.orthographicSize = bounds.size.y+2;
             cool.targetTexture = vRT[i];
             cool.cullingMask = -1;
             //Have Camera Blit Alpha of floor Onto eRT, then set culling layers to Shadow
             cool.cullingMask = 1 << LayerMask.NameToLayer("ShadowLayer");
+            GameObject light = Instantiate(SPOTLIGHT, transform.position, Quaternion.identity);
+            light.transform.position = new Vector3(bounds.center.x, bounds.center.y, 0);
+            light.transform.GetChild(0).GetComponent<RawImage>().texture = vRT[i];
+            light.GetComponent<RectTransform>().localScale = new Vector3((bounds.size.x+2)*2, (bounds.size.y+2)*2, 1);
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
     }
@@ -93,6 +157,15 @@ public class CameraManager : MonoBehaviour, ITurnActor
         if (turnManager != null) turnManager.Register(this);
     }
 
+    void Start() {
+        int l = Map.currentLayer();
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-lLocations[l-1].x, -lLocations[l-1].y, -10));
+        for (int i = 0; i < cameras.Count; i++) 
+            cameras[i].enabled = i < l;
+        Graphics.Blit(vRT[l], eRT[l], addingMaterial);
+        transform.position = pos;
+    }
+
     private void OnDisable()
     {
         if (turnManager != null) turnManager.Unregister(this);
@@ -101,11 +174,9 @@ public class CameraManager : MonoBehaviour, ITurnActor
     public async Awaitable OnTick()
     {
         TickDebt = 0;
-        Debug.Log("[CameraManager] OnTick called.");
         if (!enabled) return;
         int l = Map.currentLayer();
-        Debug.Log(vRT.Count+"    "+eRT.Count);
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(lLocations[l-1].x, lLocations[l-1].y, -10));
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-lLocations[l-1].x, -lLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
         Graphics.Blit(vRT[l], eRT[l], addingMaterial);
@@ -113,7 +184,13 @@ public class CameraManager : MonoBehaviour, ITurnActor
     }
     void LateUpdate()
     {
-       transform.position = Vector3.SmoothDamp(transform.position, pos, ref velocity, smoothTime);
+        float camFix = Mathf.Pow(camFixer, Time.deltaTime);
+        if (Vector3.Distance(transform.position, pos) > 100) {
+            transform.position = pos;
+            Debug.LogWarning("[CameraManager] Teleported camera to " + pos + " due to large distance.");
+        }
+        else transform.position = Vector3.SmoothDamp(transform.position, pos, ref velocity, smoothTime)*camFix + pos*(1-camFix);
+        //Debug.Log("Camera position: " + transform.position + ", Target position: " + pos);
     }
 
     void OnDestroy() {
