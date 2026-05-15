@@ -13,6 +13,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] private List<Vector2> lLocations;
     [Header("Property")]
     [SerializeField] private List<RenderTexture> vRT;
+    [SerializeField] private List<RenderTexture> eRT;
     [Header("Cameras")]
     [SerializeField] private float smoothTime = 0.3f;
     [SerializeField] private Material addingMaterial;
@@ -22,7 +23,6 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] private GameObject SPOTLIGHT;
     [SerializeField] private TurnManager turnManager;
     [HideInInspector] [SerializeField] private List<BoundsInt> layerBounds;
-    private List<RenderTexture> eRT = new List<RenderTexture>();
     private Vector3 velocity = Vector3.zero;
     private Camera mainCamera;
     private List<Camera> cameras = new List<Camera>();
@@ -69,7 +69,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
         }
         Debug.Log("[CameraManager] Camera stack updated with " + cameras.Count + " cameras.");
         Debug.Log(vRT.Count);
-        if (vRT.Count<Map.LayerBounds.Count) {
+        if (vRT.Count<Map.LayerBounds.Count||eRT.Count<Map.LayerBounds.Count) {
             Debug.LogError("[CameraManager] Not enough render textures set!");
             return;
         }
@@ -129,23 +129,31 @@ public class CameraManager : MonoBehaviour, ITurnActor
             if (vRT[i] != null) vRT[i].Release();
             vRT[i].width = bounds.size.x*15+30;
             vRT[i].height = bounds.size.y*15+30;
-            vRT[i].depth = 8;
+            vRT[i].depth = 1;
             vRT[i].graphicsFormat = format;
             vRT[i].Create();
-            eRT.Add(new RenderTexture(bounds.size.x*30+60, bounds.size.y*30+60, 8, format));
+            if (eRT[i] != null) eRT[i].Release();
+            eRT[i].width = bounds.size.x*15+30;
+            eRT[i].height = bounds.size.y*15+30;
+            eRT[i].depth = 1;
+            eRT[i].graphicsFormat = format;
             eRT[i].Create();
             GameObject coolCamera = Instantiate(shadowCam, Vector3.zero, Quaternion.identity);
             coolCamera.transform.position = new Vector3(bounds.center.x, bounds.center.y, -10);
             Camera cool = coolCamera.GetComponent<Camera>();
-            cool.orthographicSize = bounds.size.y+2;
+            cool.orthographicSize = (bounds.size.y+2)/2.0f;
             cool.targetTexture = vRT[i];
             cool.cullingMask = -1;
+            Graphics.Blit(Texture2D.blackTexture, eRT[i]);
+            RenderTexture.active = eRT[i];
+            //GL.Clear(true, true, Color.black);
+            //RenderTexture.active = null;
             //Have Camera Blit Alpha of floor Onto eRT, then set culling layers to Shadow
             cool.cullingMask = 1 << LayerMask.NameToLayer("ShadowLayer");
             GameObject light = Instantiate(SPOTLIGHT, transform.position, Quaternion.identity);
             light.transform.position = new Vector3(bounds.center.x, bounds.center.y, 0);
-            light.transform.GetChild(0).GetComponent<RawImage>().texture = vRT[i];
-            light.GetComponent<RectTransform>().localScale = new Vector3((bounds.size.x+2)*2, (bounds.size.y+2)*2, 1);
+            light.transform.GetChild(0).GetComponent<RawImage>().texture = eRT[i];
+            light.GetComponent<RectTransform>().localScale = new Vector3(bounds.size.x+2, bounds.size.y+2, 1);
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
     }
@@ -162,7 +170,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
         pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-lLocations[l-1].x, -lLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
-        Graphics.Blit(vRT[l], eRT[l], addingMaterial);
+        //Graphics.Blit(vRT[l], eRT[l], addingMaterial);
         transform.position = pos;
     }
 
