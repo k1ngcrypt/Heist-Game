@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
 using UnityEditor.Experimental.GraphView;
+using UnityEngine.SceneManagement;
 
 public class LvlSelectManager : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class LvlSelectManager : MonoBehaviour
     public Transform unsltLvl;
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI descriptionText;
+    public TextMeshProUGUI objectiveText;
 
     private LvlOrganizer currentLvl = null;
 
@@ -31,9 +33,9 @@ public class LvlSelectManager : MonoBehaviour
     }
     public void GenerateLvlSelect()
     {
-        if (canvas == null || btnPrefab == null || lvlScroll == null || contents == null || scrollbar == null || sltLvl == null || unsltLvl == null || titleText == null || descriptionText == null)
+        if (canvas == null || btnPrefab == null || lvlScroll == null || contents == null || scrollbar == null || sltLvl == null || unsltLvl == null || titleText == null || descriptionText == null || objectiveText == null)
         {
-            Debug.LogWarning("LvlSelectManager is missing references (Canvas, BtnPrefab, LvlScroll, Contents, Scrollbar, SelectedLevel, UnselectedLevel, TitleText, DescriptionText).", this);
+            Debug.LogWarning("LvlSelectManager is missing references (Canvas, BtnPrefab, LvlScroll, Contents, Scrollbar, SelectedLevel, UnselectedLevel, TitleText, DescriptionText, ObjectiveText).", this);
             return;
         }
 
@@ -79,6 +81,18 @@ public class LvlSelectManager : MonoBehaviour
         currentLvl = lvl;
         titleText.text = string.IsNullOrWhiteSpace(currentLvl.lvlTitle) ? currentLvl.sceneName : currentLvl.lvlTitle;
         descriptionText.text = currentLvl.lvlDescription;
+        string objList = "";
+        if (currentLvl.objectiveText == null || currentLvl.objectiveText.Count == 0)
+        {
+            objList = "    - No objectives listed. Good Luck Soldier.";
+        } else
+        {
+            foreach (string s in currentLvl.objectiveText)
+            {
+                objList += "    - " + s + "\n";
+            }
+        }
+        objectiveText.text = objList;
     }
 
     public void OpenLvlSelect()
@@ -100,5 +114,7 @@ public class LvlSelectManager : MonoBehaviour
     public void PlayLvl()
     {
         // Show loadout canvas, then load correct scene when player clicks the button
+        //DontDestroyOnLoad(gameObject);
+        SceneManager.LoadScene(currentLvl.sceneName);
     }
 }

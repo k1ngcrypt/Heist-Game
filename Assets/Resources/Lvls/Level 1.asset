@@ -21,4 +21,7 @@ MonoBehaviour:
 
     Have Fun'
   lvlIcon: {fileID: 0}
+  objectiveText:
+  - Rob Bank
+  - Escape
   prerequisites: []

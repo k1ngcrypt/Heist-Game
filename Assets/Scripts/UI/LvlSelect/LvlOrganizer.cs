@@ -18,6 +18,7 @@ public class LvlOrganizer : ScriptableObject
     public string lvlTitle;
     [TextArea(2, 5)] public string lvlDescription;
     public Sprite lvlIcon;
+    public List<string> objectiveText = new();
 
     [Header("Requirements")]
     public List<LvlOrganizer> prerequisites = new();
@@ -32,6 +33,11 @@ public class LvlOrganizer : ScriptableObject
         if (sceneAsset != null)
         {
             sceneName = sceneAsset.name;
+        }
+
+        if (objectiveText == null) 
+        {
+            objectiveText = new List<string>();
         }
 
         if (prerequisites == null)

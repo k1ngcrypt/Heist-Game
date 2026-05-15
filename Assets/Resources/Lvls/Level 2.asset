@@ -21,5 +21,9 @@ MonoBehaviour:
 
     No die'
   lvlIcon: {fileID: 0}
+  objectiveText:
+  - Rob Bank
+  - Stealthy
+  - Escape
   prerequisites:
   - {fileID: 11400000, guid: fc049113bc6f10048b20781e41e03d96, type: 2}
