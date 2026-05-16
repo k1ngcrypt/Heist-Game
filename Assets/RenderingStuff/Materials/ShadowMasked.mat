@@ -82,6 +82,7 @@ Material:
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
+    - _StencilRef: 78
     - _StencilWriteMask: 255
     - _Surface: 1
     - _UseUIAlphaClip: 0
