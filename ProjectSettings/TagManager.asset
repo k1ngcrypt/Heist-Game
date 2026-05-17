@@ -47,6 +47,9 @@ TagManager:
   - name: Shadow
     uniqueID: 3707534203
     locked: 0
+  - name: WallShadow
+    uniqueID: 3776428983
+    locked: 0
   - name: Floor
     uniqueID: 1574547705
     locked: 0

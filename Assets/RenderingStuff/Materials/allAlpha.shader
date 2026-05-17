@@ -1,10 +1,9 @@
-Shader "Custom/ShadowChanger"
+Shader "Custom/allAlpha"
 {
     Properties
     {
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         [MainTexture] _MainTex("Base Map", 2D) = "white" {}
-        _OtherTex("FasterShadow", 2D) = "white" {}
     }
 
     SubShader
@@ -39,9 +38,7 @@ Shader "Custom/ShadowChanger"
             };
 
             TEXTURE2D(_MainTex);
-            TEXTURE2D(_OtherTex);
             SAMPLER(sampler_MainTex);
-            SAMPLER(sampler_OtherTex);
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
@@ -58,8 +55,7 @@ Shader "Custom/ShadowChanger"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                half m = max(0.6f*SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv).r, SAMPLE_TEXTURE2D(_OtherTex, sampler_OtherTex, IN.uv).r);
-                half4 color = half4(0.8f*m*(0.2f-4*m), 0.2f*m*(0.2f-5*m), 2*m*(0.2f-2*m), 1-(12-m)*m);
+                half4 color = half4(((SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv*_BaseColor)).r<0.001f?0.4f:0),0,0,1);
                 return color;
             }
             ENDHLSL
