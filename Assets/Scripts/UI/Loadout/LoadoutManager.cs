@@ -208,7 +208,7 @@ public class LoadoutManager : MonoBehaviour
             {
                 area.GetComponent<ScrollRect>().verticalNormalizedPosition = 1f - (i / (float)(tempBtns.Count - 1));
                 scrollbar.value = 1f - (i / (float)(tempBtns.Count - 1));
-                tempBtns[i].GetComponent<Image>().color = Color.green;
+                tempBtns[i].GetComponent<Image>().color = new Color(215f, 255f, 187f, 207f)/255f;
                 break;
             }
         }
