@@ -1,9 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
-using Mono.Cecil.Cil;
 using UnityEngine.UI;
-using Unity.VisualScripting;
+using UnityEngine.EventSystems;
+
+[System.Serializable]
+public class AreaList
+{
+    public Transform cont;
+    public Transform area;
+    public Scrollbar scrollBar;
+}
 
 public class LoadoutManager : MonoBehaviour
 {
@@ -19,6 +26,8 @@ public class LoadoutManager : MonoBehaviour
 
     [Header("References")]
     public LoadoutBtnUI itemPrefab;
+    public ItemOverlay itemOverlayPrefab;
+    public Transform itemList;    
     public Transform itemScroll;
     public Transform contents;
     public TextMeshProUGUI itemTitleText1;
@@ -27,10 +36,7 @@ public class LoadoutManager : MonoBehaviour
     public TextMeshProUGUI itemTitleText4;
     public Button leftBtn;
     public Button rightBtn;
-    public Transform contentsA1;
-    public Transform contentsA2;
-    public Transform contentsA3;
-    public Transform contentsA4;
+    [SerializeField] private List<AreaList> ContentAreas = new(4); 
 
     private List<LoadoutBtnUI> PlayerLoadout = new();
     float width;
@@ -38,6 +44,7 @@ public class LoadoutManager : MonoBehaviour
     float spacing;
     int leftMostIndex;
     int firstGadgetIndex;
+    ItemOverlay currentOverlay;
 
     void Start()
     {
@@ -45,6 +52,12 @@ public class LoadoutManager : MonoBehaviour
         height = itemPrefab.GetComponent<RectTransform>().rect.height;
         spacing = contents.GetComponent<HorizontalLayoutGroup>().spacing;
         leftMostIndex = 0;
+        currentOverlay = null;
+
+        foreach (AreaList box in ContentAreas)
+        {
+            box.area.gameObject.SetActive(false);
+        }
 
         GenerateItemList();
     }
@@ -53,7 +66,7 @@ public class LoadoutManager : MonoBehaviour
     {
         if (itemPrefab == null || itemScroll == null || contents == null || itemTitleText1 == null || itemTitleText2 == null || itemTitleText3 == null || itemTitleText4 == null || leftBtn == null || rightBtn == null)
         {
-            Debug.LogWarning("LoadoutManager is missing references (ItemPrefab, ItemScroll, Contents, ItemTitleTexts, LeftBtn, RightBtn, ContentAreas).", this);
+            Debug.LogWarning("LoadoutManager is missing references (ItemPrefab, ItemScroll, Contents, ItemTitleTexts, LeftBtn, RightBtn, ContentAreas, Areas).", this);
             return;
         }
 
@@ -135,41 +148,30 @@ public class LoadoutManager : MonoBehaviour
 
     public void ItemPressed(int idx, LoadoutItems item)
     {
-        TextMeshProUGUI text = null;
-        Transform cont = null;
-        if (leftMostIndex == idx) {
-            text = itemTitleText1;
-            cont = contentsA1;
-        } else if (leftMostIndex + 1 == idx) {
-            text = itemTitleText2;
-            cont = contentsA2;
-        } else if (leftMostIndex + 2 == idx) {
-            text = itemTitleText3;
-            cont = contentsA3;
-        } else if (leftMostIndex + 3 == idx) {
-            text = itemTitleText4;
-            cont = contentsA4;
-        } else {
-            Debug.LogWarning("Invalid item index pressed: " + idx);
-            return;
-        }
+        DestroyOverlay();
+        TextMeshProUGUI text = returnText(idx - leftMostIndex);
+        Transform cont = ContentAreas[idx - leftMostIndex].cont;
+        Transform area = ContentAreas[idx - leftMostIndex].area;
+        Scrollbar scrollbar = ContentAreas[idx - leftMostIndex].scrollBar;
 
-        if (!cont.gameObject.activeSelf && text.gameObject.activeSelf)
+        if (!area.gameObject.activeSelf && text.gameObject.activeSelf)
         {
-            //make that invisible
             text.gameObject.SetActive(false);
-            cont.gameObject.SetActive(true);
-            ShowItemList(idx, item, cont);
-        } else if (cont.gameObject.activeSelf && !text.gameObject.activeSelf)
+            area.gameObject.SetActive(true);
+            ShowItemList(idx, item, area, cont, scrollbar);
+        } else 
         {
             text.gameObject.SetActive(true);
-            cont.gameObject.SetActive(false);
-            SelectedItem(idx, item, cont);
+            area.gameObject.SetActive(false);
+            SelectedItem(idx, item, area, cont, scrollbar);
         }
     }
 
-    private void ShowItemList(int idx, LoadoutItems item, Transform cont)
+    private void ShowItemList(int idx, LoadoutItems item, Transform area, Transform cont, Scrollbar scrollbar)
     {
+        var content = cont.GetComponent<RectTransform>();
+        PlayerLoadout[idx].makeInvisible();
+
         ItemType type = item.itemType;
         List<LoadoutItems> itemsToShow = new();
         if (type == ItemType.Armour) {
@@ -188,46 +190,111 @@ public class LoadoutManager : MonoBehaviour
             btn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
             tempBtns.Add(btn);
         }
+        float padding = area.GetComponent<RectTransform>().rect.height - height;
 
-        LayoutRebuilder.ForceRebuildLayoutImmediate(
-            cont.GetComponent<RectTransform>()
-        );
+        var layout = cont.GetComponent<VerticalLayoutGroup>();
+        layout.padding.top = Mathf.RoundToInt(padding/2f);
+        layout.padding.bottom = Mathf.RoundToInt(padding/2f);
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(content);
         var lastBtn = tempBtns[tempBtns.Count - 1];
         float pos = lastBtn.GetComponent<RectTransform>().anchoredPosition.y;
 
-        cont.GetComponent<RectTransform>().sizeDelta = new Vector2(cont.GetComponent<RectTransform>().sizeDelta.x, -(pos - (height/2f)));
+        content.sizeDelta = new Vector2(content.sizeDelta.x, -(pos - (height/2f) - padding/2f));
 
         for (int i = 0; i < tempBtns.Count; i++)
         {
-            if (tempBtns[i].myItem != item)
+            if (tempBtns[i].myItem == item)
             {
-                cont.GetComponent<RectTransform>().anchoredPosition += new Vector2(0, spacing + height);
-            } else {
+                area.GetComponent<ScrollRect>().verticalNormalizedPosition = 1f - (i / (float)(tempBtns.Count - 1));
+                scrollbar.value = 1f - (i / (float)(tempBtns.Count - 1));
                 tempBtns[i].GetComponent<Image>().color = Color.green;
                 break;
             }
         }
+        scrollbar.numberOfSteps = tempBtns.Count;
         leftBtn.interactable = false;
         rightBtn.interactable = false;
     }
 
-    private void SelectedItem(int idx, LoadoutItems item, Transform cont)
+    private void SelectedItem(int idx, LoadoutItems item, Transform area, Transform cont, Scrollbar scrollbar)
     {
-        bool meet = false;
+        var content = cont.GetComponent<RectTransform>();
+
         foreach (Transform child in cont)
         {
-            if (!meet && child.GetComponent<LoadoutBtnUI>().myItem != PlayerLoadout[idx].myItem)
-            {
-                cont.GetComponent<RectTransform>().anchoredPosition -= new Vector2(0, spacing + height);
-            } else if (!meet) {
-                meet = true;
-            }
             Destroy(child.gameObject);
         }
-        cont.GetComponent<RectTransform>().sizeDelta = new Vector2(cont.GetComponent<RectTransform>().sizeDelta.x, height); 
+        content.sizeDelta = new Vector2(content.sizeDelta.x, height); 
         
-        PlayerLoadout[idx].Initialize(idx, item, this);
+        PlayerLoadout[idx].UpdateItem(item);
         PlayerLoadout[idx].name = item.name;
         checkBtns();
+    }
+
+    private TextMeshProUGUI returnText(int num)
+    {
+        if (num == 0) {
+            return itemTitleText1;
+        } else if (num == 1) {
+            return itemTitleText2;
+        } else if (num == 2) {
+            return itemTitleText3;
+        } else if (num == 3) {
+            return itemTitleText4;
+        } else {
+            Debug.LogWarning("Invalid text number: " + num);
+            return null;
+        }
+    }
+
+    public List<LoadoutItems> GetCurrentLoadout()
+    {
+        List<LoadoutItems> currentLoadout = new();
+        foreach (var item in PlayerLoadout)
+        {
+            currentLoadout.Add(item.myItem);
+        }
+        return currentLoadout;
+    }
+
+    public void CreateOverlay(LoadoutBtnUI btnOrigin)
+    {
+        DestroyOverlay();
+        currentOverlay = Instantiate(itemOverlayPrefab, itemList);
+        currentOverlay.Initialize(btnOrigin.myItem);
+
+        Vector3 worldPos = btnOrigin.GetComponent<RectTransform>().position;
+        Vector3 localPos = itemList.InverseTransformPoint(worldPos);
+
+        currentOverlay.GetComponent<RectTransform>().localPosition = localPos - new Vector3(width/2f + btnOrigin.GetComponent<RectTransform>().rect.width/2f + 10, 0, 0);
+    }
+
+    public void DestroyOverlay()
+    {
+        if (currentOverlay != null)
+        {
+            Destroy(currentOverlay.gameObject);
+            currentOverlay = null;
+        }
+    }
+
+    public void OnDisable()
+    {
+        for (int i = 0; i < ContentAreas.Count; i++)
+        {
+            AreaList box = ContentAreas[i];
+            if (box.area.gameObject.activeSelf)
+            {
+                foreach (Transform child in box.cont)
+                {
+                    Destroy(child.gameObject);
+                }
+                box.cont.GetComponent<RectTransform>().sizeDelta = new Vector2(box.cont.GetComponent<RectTransform>().sizeDelta.x, height);
+                box.area.gameObject.SetActive(false);
+                PlayerLoadout[i+leftMostIndex].UpdateItem(PlayerLoadout[i+leftMostIndex].myItem);
+                returnText(i).gameObject.SetActive(true);
+            }
+        }
     }
 }
