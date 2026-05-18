@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine.SceneManagement;
 
 public class LvlSelectManager : MonoBehaviour
@@ -84,7 +83,7 @@ public class LvlSelectManager : MonoBehaviour
         string objList = "";
         if (currentLvl.objectiveText == null || currentLvl.objectiveText.Count == 0)
         {
-            objList = "    - No objectives listed. Good Luck Soldier.";
+            objList = "    - Objectives Unknown. Good Luck Soldier.";
         } else
         {
             foreach (string s in currentLvl.objectiveText)
