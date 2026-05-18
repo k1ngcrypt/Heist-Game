@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Xml.Schema;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -38,6 +36,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [HideInInspector] public Vector3 pos = Vector3.zero;
     public int TickDebt { get; set; }
     void OnValidate() {
+        //Setup Locations
         if (!Map.IsInitialized||queued) return;
         queued = true;
         EditorApplication.delayCall += () => {
@@ -62,10 +61,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
         cameraData.cameraStack.Clear();
         cameras.Clear();
         transform.position = new Vector3(0,0,-10);
-        //List<Transform> children = new List<Transform>();
-        //foreach (Transform child in transform) children.Add(child);
-        //foreach (Transform child in children) DestroyImmediate(child.gameObject);
-        //for (int i = transform.childCount - 1; i >= 0; i--) Destroy(transform.GetChild(i).gameObject);
+
+        //Setup Map Layer Cameras
         foreach (Vector2 v in lLocations) {
             GameObject camm = Instantiate(cam,transform);
             camm.transform.parent = transform;
@@ -80,6 +77,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
             Debug.LogError("[CameraManager] Failed to find shader");
             return;
         }
+
+        //Setup Formats
         List<GraphicsFormat> supportedFormats = new List<GraphicsFormat>() {
             GraphicsFormat.R8_UNorm,
             GraphicsFormat.R8_SNorm,
@@ -123,10 +122,12 @@ public class CameraManager : MonoBehaviour, ITurnActor
             Debug.LogError("[CameraManager] No suitable DepthStencilFormat found!");
             return;
         }
+
         Debug.Log("[CameraManager] Using RenderTexture format: " + format);
         for (int i = 0; i<Map.layerLocations.Count; i++) {
             var bounds = Map.LayerBounds[i];
 
+            //Create render Textures
             vRT.Add(new RenderTexture((bounds.size.x+SHADOWEXTRA)*shadowRenderTextureScale,(bounds.size.y+SHADOWEXTRA)*shadowRenderTextureScale, 0, format));
             vRT[i].depthStencilFormat = dFormat;
             vRT[i].Create();
@@ -134,6 +135,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
             eRT[i].depthStencilFormat = dFormat;
             eRT[i].Create();
 
+            //Create the shadow input
             GameObject coolCamera = Instantiate(shadowCam, Vector3.zero, Quaternion.identity);
             coolCamera.transform.position = new Vector3(bounds.center.x, bounds.center.y-0.69f, -10);
             Camera cool = coolCamera.GetComponent<Camera>();
@@ -143,19 +145,21 @@ public class CameraManager : MonoBehaviour, ITurnActor
             Graphics.Blit(Texture2D.blackTexture, eRT[i]);
             Graphics.Blit(Texture2D.blackTexture, vRT[i]);
 
+            //Create the shadow output
             shadowMaterials.Add(new Material(shader));
             shadowMaterials[i].SetTexture("_OtherTex", vRT[i]);
-            GameObject permalight = Instantiate(SPOTLIGHT, transform.position, Quaternion.identity);
-            permalight.transform.position = new Vector3(bounds.center.x, bounds.center.y, 0);
-            permalight.transform.GetChild(0).GetComponent<RawImage>().texture = eRT[i];
-            permalight.transform.GetChild(0).GetComponent<RawImage>().material = shadowMaterials[i];
-            permalight.GetComponent<RectTransform>().localScale = new Vector3(bounds.size.x+SHADOWEXTRA, bounds.size.y+SHADOWEXTRA, 1);
+            GameObject permalightOutput = Instantiate(SPOTLIGHT, transform.position, Quaternion.identity);
+            permalightOutput.transform.position = new Vector3(bounds.center.x, bounds.center.y, 0);
+            permalightOutput.transform.GetChild(0).GetComponent<RawImage>().texture = eRT[i];
+            permalightOutput.transform.GetChild(0).GetComponent<RawImage>().material = shadowMaterials[i];
+            permalightOutput.GetComponent<RectTransform>().localScale = new Vector3(bounds.size.x+SHADOWEXTRA, bounds.size.y+SHADOWEXTRA, 1);
             coolCameras.Add(cool);
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
     }
 
     private void OnEnable() {
+        //Setup Turn Manager
         if (turnManager == null) turnManager = TurnManager.Instance;
         if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
         if (turnManager != null) turnManager.Register(this);
@@ -168,6 +172,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
 
+        //Have Camera Blit Alpha of the Floor Onto shadow render texture, then set culling layers to ShadowLayer
         Material m = new Material(Shader.Find("Custom/allAlpha"));
         for (int i = 0; i < vRT.Count; i++) {
             coolCameras[i].Render();
@@ -183,16 +188,18 @@ public class CameraManager : MonoBehaviour, ITurnActor
             addingMaterial.SetTexture("_OtherTex", temppp);
             Graphics.Blit(tempp, eRT[i], addingMaterial);
 
-            //Have Camera Blit Alpha of floor Onto eRT, then set culling layers to Shadow
             coolCameras[i].cullingMask = 1 << LayerMask.NameToLayer("ShadowLayer");
             var cameraData = coolCameras[i].GetUniversalAdditionalCameraData();
             cameraData.renderPostProcessing = enabled;
         }
+
+        //Setup Blit
         Destroy(radiance);
-        
         transform.position = pos;
         coolCameras[l].Render();
         coolCameras.Clear();
+
+        //First Blit
         RenderTexture temp = new RenderTexture(eRT[l].width, eRT[l].height, 1, eRT[l].graphicsFormat);
         Graphics.CopyTexture(eRT[l], temp);
         addingMaterial.SetTexture("_OtherTex", temp);
@@ -201,22 +208,23 @@ public class CameraManager : MonoBehaviour, ITurnActor
         Destroy(otherRadiance);
     }
 
-    private void OnDisable()
-    {
+    private void OnDisable() {
+        //No more Turn Manager
         if (turnManager != null) turnManager.Unregister(this);
     }
     
-    public async Awaitable OnTick()
-    {
+    public async Awaitable OnTick() {
         TickDebt = 0;
         if (!enabled) return;
 
+        //Set Locations
         int l = Map.currentLayer();
         pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-lLocations[l-1].x, -lLocations[l-1].y, -10));
         tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(lLocations[l-1].x, lLocations[l-1].y, 10);
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
         
+        //Blit Shadows
         RenderTexture temp = new RenderTexture(eRT[l].width, eRT[l].height, 1, eRT[l].graphicsFormat);
         Graphics.CopyTexture(eRT[l], temp);
         addingMaterial.SetTexture("_OtherTex", temp);
@@ -224,14 +232,17 @@ public class CameraManager : MonoBehaviour, ITurnActor
         temp.Release();
         return;
     }
+
     void LateUpdate()
     {
+        //Set Camera Position
         float camFix = Mathf.Pow(camFixer, Time.deltaTime);
         if (Vector3.Distance(transform.position, pos) > 100) transform.position = pos;
         else transform.position = Vector3.SmoothDamp(transform.position, pos, ref velocity, smoothTime)*camFix + pos*(1-camFix);
     }
 
     void OnDestroy() {
+        //Destroy All of the Render Textures
         while (eRT.Count>0) {
             eRT[0].Release();
             eRT.RemoveAt(0);
