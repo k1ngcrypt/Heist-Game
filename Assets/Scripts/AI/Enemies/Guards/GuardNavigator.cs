@@ -14,14 +14,6 @@ namespace Guards
         private Vector2 destination;
         private bool hasDestination;
 
-        private void Awake()
-        {
-            if (pathfinder == null)
-            {
-                pathfinder = FindObjectOfType<Pathfinder>();
-            }
-        }
-
         public bool HasDestination => hasDestination;
 
         public bool HasPath => currentPath.Count > 0 && pathIndex < currentPath.Count;

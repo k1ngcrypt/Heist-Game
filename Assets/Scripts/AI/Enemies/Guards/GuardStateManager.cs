@@ -5,13 +5,14 @@ namespace Guards
     public class GuardStateManager : MonoBehaviour, ITurnActor
     {
         [SerializeField] private TurnManager turnManager;
-        [SerializeField] private GuardNavigator navigator;
         [SerializeField] private Transform playerTarget;
         [SerializeField] private float detectionRange = 6f;
         [SerializeField] private float fieldOfView = 90f;
         [SerializeField] private ContactFilter2D lineOfSightFilter;
         [SerializeField] private int lineOfSightBufferSize = 4;
         [SerializeField] private Transform[] patrolPoints;
+        [SerializeField] private float suspicionPerTick = 10f;
+        [SerializeField] private float maxSuspicion = 100f;
 
         BaseState currentState;
 
@@ -25,8 +26,9 @@ namespace Guards
         private int patrolIndex;
 
         public Vector2 LastKnownPlayerPosition { get; private set; }
+        public float Suspicion { get; private set; }
+        public float MaxSuspicion => maxSuspicion;
 
-        public GuardNavigator Navigator => navigator;
         public Transform PlayerTarget => playerTarget;
         public IdleState IdleState => idleState;
         public PatrollingState PatrollingState => patrollingState;
@@ -34,6 +36,7 @@ namespace Guards
         public ChasingState ChasingState => chasingState;
         public SearchingState SearchingState => searchingState;
 
+        public GuardNavigator Navigator;
         public int TickDebt { get; set; }
 
         private void OnEnable()
@@ -43,7 +46,7 @@ namespace Guards
             suspiciousState = GetComponent<SuspiciousState>();
             chasingState = GetComponent<ChasingState>();
             searchingState = GetComponent<SearchingState>();
-            navigator = navigator == null ? GetComponent<GuardNavigator>() : navigator;
+            Navigator = GetComponent<GuardNavigator>();
 
             hitBuffer = new RaycastHit2D[Mathf.Max(1, lineOfSightBufferSize)];
 
@@ -58,15 +61,14 @@ namespace Guards
             turnManager.Unregister(this);
         }
 
-        public Awaitable OnTick()
+        public async Awaitable OnTick()
         {
-            currentState.TickState();
-            if (TickDebt > 0)
+            while (TickDebt > 0)
             {
+                currentState.TickState();
                 TickDebt--;
             }
-
-            return default;
+            return;
         }
 
         public void UpdateState(BaseState newState)
@@ -101,6 +103,17 @@ namespace Guards
             }
 
             LastKnownPlayerPosition = playerTarget.position;
+        }
+
+        public void ResetSuspicion()
+        {
+            Suspicion = 0f;
+        }
+
+        public bool IncreaseSuspicion()
+        {
+            Suspicion = Mathf.Min(maxSuspicion, Suspicion + suspicionPerTick);
+            return Suspicion >= maxSuspicion;
         }
 
         public Transform GetCurrentPatrolPoint()

@@ -4,6 +4,7 @@
     {
         public override void EnterState()
         {
+            Manager?.ResetSuspicion();
             Manager?.Navigator?.ClearDestination();
         }
 
@@ -17,7 +18,8 @@
             if (Manager.IsPlayerDetected())
             {
                 Manager.UpdateLastKnownPlayerPosition();
-                Manager.UpdateState(Manager.ChasingState);
+                Manager.ResetSuspicion();
+                Manager.UpdateState(Manager.SuspiciousState);
             }
         }
 

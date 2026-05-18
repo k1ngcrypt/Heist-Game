@@ -11,6 +11,8 @@ namespace Guards
                 return;
             }
 
+            Manager.ResetSuspicion();
+
             Transform patrolPoint = Manager.GetCurrentPatrolPoint();
             if (patrolPoint != null)
             {
@@ -28,7 +30,8 @@ namespace Guards
             if (Manager.IsPlayerDetected())
             {
                 Manager.UpdateLastKnownPlayerPosition();
-                Manager.UpdateState(Manager.ChasingState);
+                Manager.ResetSuspicion();
+                Manager.UpdateState(Manager.SuspiciousState);
                 return;
             }
 

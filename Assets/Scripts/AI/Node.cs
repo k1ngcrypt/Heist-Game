@@ -18,7 +18,7 @@ public struct HaNode
     public int HCost;
     public int ParentIndex;
     public int[] Neighbors;
-    public int ClusterId;
+    public int RoomId;
     public HaNodeFlags Flags;
     public ISpecialTile Interaction;
 
@@ -52,17 +52,28 @@ public struct HaNode
     }
 }
 
+[Serializable]
 public struct HaPortal
 {
     public int FromNodeIndex;
     public int ToNodeIndex;
+    public int RoomA;
+    public int RoomB;
     public int Cost;
+    public HaPortalType Type;
 }
 
+public enum HaPortalType : byte
+{
+    Border = 0,
+    SpecialLink = 1
+}
+
+[Serializable]
 public struct HaAbstractNode
 {
     public int PortalIndex;
-    public int ClusterId;
+    public int RoomId;
     public int GCost;
     public int HCost;
     public int ParentIndex;
@@ -71,13 +82,18 @@ public struct HaAbstractNode
     public int FCost => GCost + HCost;
 }
 
-public sealed class HaCluster
+[Serializable]
+public sealed class HaRoom
 {
-    public int Id { get; }
-    public List<int> NodeIndices { get; }
-    public List<int> PortalIndices { get; }
+    public int Id;
+    public List<int> NodeIndices = new();
+    public List<int> PortalIndices = new();
 
-    public HaCluster(int id, int initialNodeCapacity = 0, int initialPortalCapacity = 0)
+    public HaRoom()
+    {
+    }
+
+    public HaRoom(int id, int initialNodeCapacity = 0, int initialPortalCapacity = 0)
     {
         Id = id;
         NodeIndices = initialNodeCapacity > 0 ? new List<int>(initialNodeCapacity) : new List<int>();

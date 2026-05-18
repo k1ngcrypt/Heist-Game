@@ -9,6 +9,13 @@
                 return;
             }
 
+            if (Manager.IsPlayerDetected() && Manager.PlayerTarget != null)
+            {
+                Manager.UpdateLastKnownPlayerPosition();
+                Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
+                return;
+            }
+
             Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
         }
 
@@ -19,16 +26,27 @@
                 return;
             }
 
-            if (Manager.IsPlayerDetected())
-            {
-                Manager.UpdateLastKnownPlayerPosition();
-                Manager.UpdateState(Manager.ChasingState);
-                return;
-            }
-
             GuardNavigator navigator = Manager.Navigator;
             if (navigator == null)
             {
+                return;
+            }
+
+            if (Manager.IsPlayerDetected())
+            {
+                Manager.UpdateLastKnownPlayerPosition();
+                if (Manager.PlayerTarget != null)
+                {
+                    navigator.SetDestination(Manager.PlayerTarget.position, true);
+                }
+
+                if (Manager.IncreaseSuspicion())
+                {
+                    Manager.UpdateState(Manager.ChasingState);
+                    return;
+                }
+
+                navigator.TickAdvance();
                 return;
             }
 
