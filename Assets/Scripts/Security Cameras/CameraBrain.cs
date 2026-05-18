@@ -1,0 +1,132 @@
+using UnityEngine;
+
+[RequireComponent(typeof(CameraMotor), typeof(CameraDetector), typeof(CameraVisuals))]
+[RequireComponent(typeof(CameraHealth))]
+public class CameraBrain : MonoBehaviour, ITurnActor
+{
+    [SerializeField] private CameraMotor motor;
+    [SerializeField] private CameraDetector detector;
+    [SerializeField] private CameraVisuals visuals;
+    [SerializeField] private CameraHealth health;
+    [SerializeField] private TurnManager turnManager;
+
+    public int TickDebt { get; set; }
+
+    private void Awake()
+    {
+        if (motor == null)
+        {
+            motor = GetComponent<CameraMotor>();
+        }
+
+        if (detector == null)
+        {
+            detector = GetComponent<CameraDetector>();
+        }
+
+        if (visuals == null)
+        {
+            visuals = GetComponent<CameraVisuals>();
+        }
+
+        if (health == null)
+        {
+            health = GetComponent<CameraHealth>();
+        }
+    }
+
+    private void OnEnable()
+    {
+
+        turnManager.Register(this);//no null guard, fail loud.
+
+        if (detector != null)
+        {
+            detector.OnSuspicionStarted.AddListener(HandleSuspicionStarted);
+            detector.OnSuspicionCleared.AddListener(HandleSuspicionCleared);
+            detector.OnPlayerDetected.AddListener(HandlePlayerDetected);
+        }
+
+        if (health != null)
+        {
+            health.OnCameraDisabled.AddListener(HandleCameraDisabled);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (turnManager != null)
+        {
+            turnManager.Unregister(this);
+        }
+
+        if (detector != null)
+        {
+            detector.OnSuspicionStarted.RemoveListener(HandleSuspicionStarted);
+            detector.OnSuspicionCleared.RemoveListener(HandleSuspicionCleared);
+            detector.OnPlayerDetected.RemoveListener(HandlePlayerDetected);
+        }
+
+        if (health != null)
+        {
+            health.OnCameraDisabled.RemoveListener(HandleCameraDisabled);
+        }
+    }
+
+    private void HandleSuspicionStarted()
+    {
+        if (motor != null && motor.enabled)
+        {
+            motor.PauseRotation();
+        }
+    }
+
+    private void HandleSuspicionCleared()
+    {
+        if (health != null && health.IsDisabled)
+        {
+            return;
+        }
+
+        if (motor != null && motor.enabled)
+        {
+            motor.ResumeRotation();
+        }
+    }
+
+    private void HandlePlayerDetected()
+    {
+        if (motor != null && motor.enabled)
+        {
+            motor.PauseRotation();
+        }
+    }
+
+    private void HandleCameraDisabled()
+    {
+        if (motor != null)
+        {
+            motor.PauseRotation();
+        }
+    }
+
+    public async Awaitable OnTick()
+    {
+        if (!enabled)
+        {
+            return;
+        }
+
+        if (health != null && health.IsDisabled)
+        {
+            TickDebt = 0;
+            return;
+        }
+
+        detector.Tick();
+        visuals.Tick();
+        motor.Tick();//Tick Debt Handled HERE!!!
+        TickDebt--;
+        return;
+    }
+}

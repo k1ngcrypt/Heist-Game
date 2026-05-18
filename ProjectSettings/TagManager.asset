@@ -3,12 +3,15 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Door
+  - Vent
+  - Stair
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Obstacle
   - Water
   - UI
   - 
@@ -41,5 +44,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Floor 1
+    uniqueID: 3904508005
+    locked: 0
+  - name: UI
+    uniqueID: 2615062855
+    locked: 0
   m_RenderingLayers:
   - Default
+  m_MigratedRenderPipelines: []
