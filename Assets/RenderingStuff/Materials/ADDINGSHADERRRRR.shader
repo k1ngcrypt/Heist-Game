@@ -1,4 +1,4 @@
-Shader "Custom/SHADERRRRR"
+Shader "Custom/ADDINGSHADERRRRR"
 {
     Properties
     {

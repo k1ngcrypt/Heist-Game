@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+[RequireComponent(typeof(Tilemap))]
 public class DuplicateTilemap : MonoBehaviour
 {
     [Header("Tile References")]

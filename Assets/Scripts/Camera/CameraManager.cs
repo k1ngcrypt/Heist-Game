@@ -6,31 +6,32 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(Camera))]
 public class CameraManager : MonoBehaviour, ITurnActor
 {
     [Header("Locations")]
-    [SerializeField] private List<Vector2> lLocations;
+    [SerializeField] private List<Vector2> layerLocations;
     [Header("Cameras")]
     [SerializeField] private float smoothTime = 0.3f;
     [SerializeField] private int shadowRenderTextureScale = 15;
     [Header("References")]
     [SerializeField] private GameObject shadowCam;
     [SerializeField] private GameObject cam;
-    [SerializeField] private GameObject SPOTLIGHT;
-    [SerializeField] private GameObject radiance;
-    [SerializeField] private GameObject otherRadiance;
+    [SerializeField] private GameObject shadowSpotlight;
+    [SerializeField] private GameObject globalRadiance;
+    [SerializeField] private GameObject sinRadiance;
     [SerializeField] private GameObject tinyCarrotLight;
     [SerializeField] private TurnManager turnManager;
     [HideInInspector] [SerializeField] private List<BoundsInt> layerBounds;
-    private readonly List<RenderTexture> vRT = new List<RenderTexture>();
-    private readonly List<RenderTexture> eRT = new List<RenderTexture>();
+    private readonly List<RenderTexture> inputRT = new();
+    private readonly List<RenderTexture> outputRT = new();
     private Material addingMaterial;
-    private readonly List<Material> shadowMaterials = new List<Material>();
+    private readonly List<Material> shadowMaterials = new();
     private Vector3 velocity = Vector3.zero;
     private Camera mainCamera;
     private Shader shader;
-    private const int SHADOWEXTRA = 4;
-    private readonly List<Camera> cameras = new List<Camera>(), coolCameras = new List<Camera>();
+    private const int SHADOWEXTRASIDESIZES = 4;
+    private readonly List<Camera> cameras = new(), coolCameras = new();
     private const float camFixer = 0.7f;
     private bool queued = false;
     [HideInInspector] public Vector3 pos = Vector3.zero;
@@ -41,8 +42,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
         queued = true;
         EditorApplication.delayCall += () => {
             queued = false;
-            List<Vector2> locations = new List<Vector2> {Vector2.zero};
-            foreach (Vector2 i in lLocations) locations.Add(i);
+            List<Vector2> locations = new() { Vector2.zero};
+            foreach (Vector2 i in layerLocations) locations.Add(i);
             Map.layerLocations = locations;
             Map.ReloadLayerBounds();
             layerBounds = Map.LayerBounds;
@@ -51,11 +52,11 @@ public class CameraManager : MonoBehaviour, ITurnActor
     void Awake() {
         if (this == null) return;
         mainCamera = GetComponent<Camera>();
-        List<Vector2> locations = new List<Vector2> {Vector2.zero};
-        foreach (Vector2 ii in lLocations) locations.Add(ii);
+        List<Vector2> locations = new() { Vector2.zero};
+        foreach (Vector2 v in layerLocations) locations.Add(v);
         Map.layerLocations = locations;
         Map.SetLayerBounds(layerBounds);
-        if (lLocations.Count==0||cam==null||mainCamera == null) return;
+        if (layerLocations.Count==0||cam==null||mainCamera == null) return;
         var cameraData = mainCamera.GetUniversalAdditionalCameraData();
         if (cameraData == null) return;
         cameraData.cameraStack.Clear();
@@ -63,11 +64,11 @@ public class CameraManager : MonoBehaviour, ITurnActor
         transform.position = new Vector3(0,0,-10);
 
         //Setup Map Layer Cameras
-        foreach (Vector2 v in lLocations) {
-            GameObject camm = Instantiate(cam,transform);
-            camm.transform.parent = transform;
-            camm.transform.position = new Vector3(v.x, v.y, -10);
-            Camera c = camm.GetComponent<Camera>();
+        foreach (Vector2 v in layerLocations) {
+            GameObject camObject = Instantiate(cam,transform);
+            camObject.transform.parent = transform;
+            camObject.transform.position = new Vector3(v.x, v.y, -10);
+            Camera c = camObject.GetComponent<Camera>();
             cameras.Add(c);
             cameraData.cameraStack.Add(c);
         }
@@ -79,7 +80,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
         }
 
         //Setup Formats
-        List<GraphicsFormat> supportedFormats = new List<GraphicsFormat>() {
+        List<GraphicsFormat> supportedFormats = new() {
             GraphicsFormat.R8_UNorm,
             GraphicsFormat.R8_SNorm,
             GraphicsFormat.R8_UInt,
@@ -101,7 +102,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
             GraphicsFormat.R8G8B8A8_SNorm,
             GraphicsFormat.R8G8B8A8_SInt,
             GraphicsFormat.R8G8B8A8_SRGB
-        }, depthFormats = new List<GraphicsFormat> {
+        }, depthFormats = new() {
             GraphicsFormat.D16_UNorm,
             GraphicsFormat.D16_UNorm_S8_UInt,
             GraphicsFormat.D24_UNorm,
@@ -128,31 +129,31 @@ public class CameraManager : MonoBehaviour, ITurnActor
             var bounds = Map.LayerBounds[i];
 
             //Create render Textures
-            vRT.Add(new RenderTexture((bounds.size.x+SHADOWEXTRA)*shadowRenderTextureScale,(bounds.size.y+SHADOWEXTRA)*shadowRenderTextureScale, 0, format));
-            vRT[i].depthStencilFormat = dFormat;
-            vRT[i].Create();
-            eRT.Add(new RenderTexture((bounds.size.x+SHADOWEXTRA)*shadowRenderTextureScale,(bounds.size.y+SHADOWEXTRA)*shadowRenderTextureScale, 0, format));
-            eRT[i].depthStencilFormat = dFormat;
-            eRT[i].Create();
+            inputRT.Add(new RenderTexture((bounds.size.x+SHADOWEXTRASIDESIZES)*shadowRenderTextureScale,(bounds.size.y+SHADOWEXTRASIDESIZES)*shadowRenderTextureScale, 0, format));
+            inputRT[i].depthStencilFormat = dFormat;
+            inputRT[i].Create();
+            outputRT.Add(new RenderTexture((bounds.size.x+SHADOWEXTRASIDESIZES)*shadowRenderTextureScale,(bounds.size.y+SHADOWEXTRASIDESIZES)*shadowRenderTextureScale, 0, format));
+            outputRT[i].depthStencilFormat = dFormat;
+            outputRT[i].Create();
 
             //Create the shadow input
             GameObject coolCamera = Instantiate(shadowCam, Vector3.zero, Quaternion.identity);
             coolCamera.transform.position = new Vector3(bounds.center.x, bounds.center.y-0.69f, -10);
             Camera cool = coolCamera.GetComponent<Camera>();
-            cool.orthographicSize = (bounds.size.y+SHADOWEXTRA)/2.0f;
-            cool.targetTexture = vRT[i];
-            cool.cullingMask = (~(1 << LayerMask.NameToLayer("ShadowLayer")))&(~(1 << LayerMask.NameToLayer("UI")));
-            Graphics.Blit(Texture2D.blackTexture, eRT[i]);
-            Graphics.Blit(Texture2D.blackTexture, vRT[i]);
+            cool.orthographicSize = (bounds.size.y+SHADOWEXTRASIDESIZES)*0.5f;
+            cool.targetTexture = inputRT[i];
+            cool.cullingMask = ~((1 << LayerMask.NameToLayer("ShadowLayer"))|(1 << LayerMask.NameToLayer("UI")));
+            Graphics.Blit(Texture2D.blackTexture, outputRT[i]);
+            Graphics.Blit(Texture2D.blackTexture, inputRT[i]);
 
             //Create the shadow output
             shadowMaterials.Add(new Material(shader));
-            shadowMaterials[i].SetTexture("_OtherTex", vRT[i]);
-            GameObject permalightOutput = Instantiate(SPOTLIGHT, transform.position, Quaternion.identity);
+            shadowMaterials[i].SetTexture("_OtherTex", inputRT[i]);
+            GameObject permalightOutput = Instantiate(shadowSpotlight, transform.position, Quaternion.identity);
             permalightOutput.transform.position = new Vector3(bounds.center.x, bounds.center.y, 0);
-            permalightOutput.transform.GetChild(0).GetComponent<RawImage>().texture = eRT[i];
+            permalightOutput.transform.GetChild(0).GetComponent<RawImage>().texture = outputRT[i];
             permalightOutput.transform.GetChild(0).GetComponent<RawImage>().material = shadowMaterials[i];
-            permalightOutput.GetComponent<RectTransform>().localScale = new Vector3(bounds.size.x+SHADOWEXTRA, bounds.size.y+SHADOWEXTRA, 1);
+            permalightOutput.GetComponent<RectTransform>().localScale = new Vector3(bounds.size.x+SHADOWEXTRASIDESIZES, bounds.size.y+SHADOWEXTRASIDESIZES, 1);
             coolCameras.Add(cool);
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
@@ -166,27 +167,27 @@ public class CameraManager : MonoBehaviour, ITurnActor
     }
 
     void Start() {
-        addingMaterial = new Material(Shader.Find("Custom/SHADERRRRR"));
+        addingMaterial = new Material(Shader.Find("Custom/ADDINGSHADERRRRR"));
         int l = Map.currentLayer();
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-lLocations[l-1].x, -lLocations[l-1].y, -10));
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
 
         //Have Camera Blit Alpha of the Floor Onto shadow render texture, then set culling layers to ShadowLayer
-        Material m = new Material(Shader.Find("Custom/allAlpha"));
-        for (int i = 0; i < vRT.Count; i++) {
+        Material m = new(Shader.Find("Custom/allAlpha"));
+        for (int i = 0; i < inputRT.Count; i++) {
             coolCameras[i].Render();
-            Graphics.Blit(vRT[i], eRT[i], m);
+            Graphics.Blit(inputRT[i], outputRT[i], m);
 
             coolCameras[i].gameObject.transform.position += new Vector3(0,0.69f,0);
-            RenderTexture tempp = new RenderTexture(eRT[i].width, eRT[i].height, 1, eRT[i].graphicsFormat);
+            RenderTexture tempp = new(outputRT[i].width, outputRT[i].height, 1, outputRT[i].graphicsFormat);
             tempp.Create();
-            RenderTexture temppp = new RenderTexture(eRT[i].width, eRT[i].height, 1, eRT[i].graphicsFormat);
-            Graphics.CopyTexture(eRT[i], temppp);
+            RenderTexture temppp = new(outputRT[i].width, outputRT[i].height, 1, outputRT[i].graphicsFormat);
+            Graphics.CopyTexture(outputRT[i], temppp);
             coolCameras[i].Render();
-            Graphics.Blit(vRT[i], tempp, m);
+            Graphics.Blit(inputRT[i], tempp, m);
             addingMaterial.SetTexture("_OtherTex", temppp);
-            Graphics.Blit(tempp, eRT[i], addingMaterial);
+            Graphics.Blit(tempp, outputRT[i], addingMaterial);
 
             coolCameras[i].cullingMask = 1 << LayerMask.NameToLayer("ShadowLayer");
             var cameraData = coolCameras[i].GetUniversalAdditionalCameraData();
@@ -194,18 +195,18 @@ public class CameraManager : MonoBehaviour, ITurnActor
         }
 
         //Setup Blit
-        Destroy(radiance);
+        if (globalRadiance) Destroy(globalRadiance);
         transform.position = pos;
         coolCameras[l].Render();
         coolCameras.Clear();
 
         //First Blit
-        RenderTexture temp = new RenderTexture(eRT[l].width, eRT[l].height, 1, eRT[l].graphicsFormat);
-        Graphics.CopyTexture(eRT[l], temp);
+        RenderTexture temp = new(outputRT[l].width, outputRT[l].height, 1, outputRT[l].graphicsFormat);
+        Graphics.CopyTexture(outputRT[l], temp);
         addingMaterial.SetTexture("_OtherTex", temp);
-        Graphics.Blit(vRT[l], eRT[l], addingMaterial);
+        Graphics.Blit(inputRT[l], outputRT[l], addingMaterial);
         temp.Release();
-        Destroy(otherRadiance);
+        if (sinRadiance) Destroy(sinRadiance);
     }
 
     private void OnDisable() {
@@ -219,16 +220,16 @@ public class CameraManager : MonoBehaviour, ITurnActor
 
         //Set Locations
         int l = Map.currentLayer();
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-lLocations[l-1].x, -lLocations[l-1].y, -10));
-        tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(lLocations[l-1].x, lLocations[l-1].y, 10);
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y, -10));
+        tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(layerLocations[l-1].x, layerLocations[l-1].y, 10);
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
         
         //Blit Shadows
-        RenderTexture temp = new RenderTexture(eRT[l].width, eRT[l].height, 1, eRT[l].graphicsFormat);
-        Graphics.CopyTexture(eRT[l], temp);
+        RenderTexture temp = new(outputRT[l].width, outputRT[l].height, 1, outputRT[l].graphicsFormat);
+        Graphics.CopyTexture(outputRT[l], temp);
         addingMaterial.SetTexture("_OtherTex", temp);
-        Graphics.Blit(vRT[l], eRT[l], addingMaterial);
+        Graphics.Blit(inputRT[l], outputRT[l], addingMaterial);
         temp.Release();
         return;
     }
@@ -243,13 +244,13 @@ public class CameraManager : MonoBehaviour, ITurnActor
 
     void OnDestroy() {
         //Destroy All of the Render Textures
-        while (eRT.Count>0) {
-            eRT[0].Release();
-            eRT.RemoveAt(0);
+        while (outputRT.Count>0) {
+            outputRT[0].Release();
+            outputRT.RemoveAt(0);
         }
-        while (vRT.Count>0) {
-            vRT[0].Release();
-            vRT.RemoveAt(0);
+        while (inputRT.Count>0) {
+            inputRT[0].Release();
+            inputRT.RemoveAt(0);
         }
     }
 }
