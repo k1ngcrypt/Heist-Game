@@ -7,6 +7,12 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Vector3 offset = new Vector3(0, 0, -10); // Keep camera at a distance
 
     private Vector3 velocity = Vector3.zero;
+    void Start() {
+        if (target == null) {
+            if (Map.Player != null) target = Map.Player.transform;
+            else target = GameObject.FindWithTag("Player").transform;
+        }
+    }
 
     // LateUpdate is better for cameras because it runs after the player has moved
     void LateUpdate()

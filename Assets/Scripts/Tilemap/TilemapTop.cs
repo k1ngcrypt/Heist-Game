@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 /// Generates top/corner tiles for walls based on the main tilemap layout.
 /// Optimized to work with the new Map system.
 /// </summary>
+[RequireComponent(typeof(Tilemap))]
 public class TilemapTop : MonoBehaviour
 {
     [Header("Tile References")]

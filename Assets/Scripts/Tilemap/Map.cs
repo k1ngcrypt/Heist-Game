@@ -2,13 +2,17 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 
 public static class Map
 {
-    private static Tilemap _wall;
-    private static Tilemap _transparent;
-    private static BoundsInt _bounds;
+    [SerializeField] private static Tilemap _wall;
+    [SerializeField] private static Tilemap _transparent;
+    [SerializeField] private static BoundsInt _bounds;
+    [SerializeField] private static GameObject _player;
+    [SerializeField] public static List<Vector2> layerLocations;
+    [SerializeField] private static List<BoundsInt> _layerBounds;
 
     /// <summary>
     /// Current tilemap reference. Null if not initialized.
@@ -26,6 +30,14 @@ public static class Map
     /// Checks if both tilemaps are initialized.
     /// </summary>
     public static BoundsInt Bounds  => _bounds;
+    /// <summary>
+    /// The current player reference. Null if not initialized.
+    /// </summary>
+    public static GameObject Player => _player;
+    /// <summary>
+    /// The bounds for each layer.
+    /// </summary>
+    public static List<BoundsInt> LayerBounds => _layerBounds;
     public static void SetWall(Tilemap tilemap) {
         if (tilemap == null) {
             Debug.LogError("[Map] Cannot initialize with null tilemap reference.");
@@ -92,5 +104,62 @@ public static class Map
     }
     public static TileBase GetTile(int x, int y) {
         return GetTile(new Vector3Int(x, y, 0));
+    }
+    
+
+    public static void SetPlayer(GameObject player) {
+        if (player == null) {
+            Debug.LogError("[Map] Cannot set player to null reference.");
+            return;
+        }
+        _player = player;
+    }
+    public static int currentLayer()
+    {
+        if (!IsInitialized||_player == null||layerLocations.Count==0) return 0;
+        Vector2 pos = (Vector2) _player.transform.position;
+        int l = 0;
+        float d = Vector2.Distance(layerLocations[0], pos);
+        for (int i = 1; i < layerLocations.Count; i++) {
+            float distance = Vector2.Distance(layerLocations[i], pos);
+            if (distance < d) {
+                d = distance;
+                l = i;
+            }
+        }
+        return l;
+    }
+    
+    public static void ReloadLayerBounds() {
+        //Debug.Log("SCREAAAAAAAAAAAAAAAAAAMSSSSSSS");
+        if (layerLocations.Count==0||!IsInitialized) return;
+        _layerBounds = new List<BoundsInt>();
+        for (int i = 0; i<layerLocations.Count; i++) {
+            BoundsInt bounds = new BoundsInt();
+            bool b = true;
+            Vector2 location = layerLocations[i];
+            for (int x = -100; x<101; x++) for (int y = -100; y<101; y++) {
+                    int xx = (int)(x+location.x), yy = (int)(y+location.y);
+                    if (!IsNull(xx,yy)) {
+                        if (b) {
+                            b=false;
+                            bounds.xMin = xx;
+                            bounds.xMax = xx;
+                            bounds.yMin = yy;
+                            bounds.yMax = yy; 
+                        }
+                        bounds.xMin = Mathf.Min(bounds.xMin, xx);
+                        bounds.xMax = Mathf.Max(bounds.xMax, xx);
+                        bounds.yMin = Mathf.Min(bounds.yMin, yy);
+                        bounds.yMax = Mathf.Max(bounds.yMax, yy);
+                    }
+            }
+            _layerBounds.Add(bounds);
+            //Debug.Log("AHAHAHAAAAAAAAAAAA");
+        }
+        //Debug.Log("SCREAAAAAAAAMED "+_layerBounds.Count + " " + layerLocations.Count + " " + LayerBounds.Count);
+    }
+    public static void SetLayerBounds(List<BoundsInt> l) {
+        _layerBounds = l;
     }
 }
