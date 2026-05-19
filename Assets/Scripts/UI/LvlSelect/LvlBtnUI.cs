@@ -6,11 +6,11 @@ using TMPro;
 public class LvlBtnUI : MonoBehaviour
 {
     [Header("UI References")]
-    public TextMeshProUGUI titleText;
-    public Image iconImage;
+    [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private Image iconImage;
 
     private LvlOrganizer myBtn;
-    LvlSelectManager lvlManager;
+    private LvlSelectManager lvlManager;
     
     public void Initialize(LvlOrganizer btn, LvlSelectManager lvlMgr)
     {

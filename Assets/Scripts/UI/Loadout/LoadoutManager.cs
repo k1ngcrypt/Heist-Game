@@ -2,49 +2,53 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 [System.Serializable]
 public class AreaList
 {
-    public Transform cont;
-    public Transform area;
-    public Scrollbar scrollBar;
+    [SerializeField] public Transform cont;
+    [SerializeField] public Transform area;
+    [SerializeField] public Scrollbar scrollBar;
 }
 
 public class LoadoutManager : MonoBehaviour
 {
     [Header("Items")]
-    public List<LoadoutItems> allArmours = new();
-    public List<LoadoutItems> allWeapons = new();
-    public List<LoadoutItems> allGadgets = new();
-    public LoadoutItems emptyArmour;
-    public LoadoutItems emptyWeapon;
-    public LoadoutItems emptyGadget;
-    public int startingGadgetsCount = 3;
+    [SerializeField] private List<LoadoutItems> allArmours = new();
+    [SerializeField] private List<LoadoutItems> allWeapons = new();
+    [SerializeField] private List<LoadoutItems> allGadgets = new();
+    [SerializeField] private LoadoutItems emptyArmour;
+    [SerializeField] private LoadoutItems emptyWeapon;
+    [SerializeField] private LoadoutItems emptyGadget;
+    [SerializeField] private int startingGadgetsCount = 3;
 
 
     [Header("References")]
-    public LoadoutBtnUI itemPrefab;
-    public ItemOverlay itemOverlayPrefab;
-    public Transform itemList;    
-    public Transform itemScroll;
-    public Transform contents;
-    public TextMeshProUGUI itemTitleText1;
-    public TextMeshProUGUI itemTitleText2;
-    public TextMeshProUGUI itemTitleText3;
-    public TextMeshProUGUI itemTitleText4;
-    public Button leftBtn;
-    public Button rightBtn;
+    [SerializeField] private LoadoutBtnUI itemPrefab;
+    [SerializeField] private ItemOverlay itemOverlayPrefab;
+    [SerializeField] private Transform itemList;    
+    [SerializeField] private Transform itemScroll;
+    [SerializeField] private Transform contents;
+    [SerializeField] private TextMeshProUGUI itemTitleText1;
+    [SerializeField] private TextMeshProUGUI itemTitleText2;
+    [SerializeField] private TextMeshProUGUI itemTitleText3;
+    [SerializeField] private TextMeshProUGUI itemTitleText4;
+    [SerializeField] private Button leftBtn;
+    [SerializeField] private Button rightBtn;
     [SerializeField] private List<AreaList> ContentAreas = new(4); 
 
-    private List<LoadoutBtnUI> PlayerLoadout = new();
-    float width;
-    float height;
-    float spacing;
-    int leftMostIndex;
-    int firstGadgetIndex;
-    ItemOverlay currentOverlay;
+    private readonly List<LoadoutBtnUI> PlayerLoadout = new();
+    private float width;
+    private float height;
+    private float spacing;
+    private int leftMostIndex;
+    private int firstGadgetIndex;
+    private ItemOverlay currentOverlay;
+    private List<TextMeshProUGUI> returnText = new();
+    private Color selectedColour = new Color(215f/255f, 255f/255f, 187f/255f, 207f/255f); //color can't be declared const
+
+    //Get Component Variables
+    private RectTransform contentsRT;
 
     void Start()
     {
@@ -53,6 +57,8 @@ public class LoadoutManager : MonoBehaviour
         spacing = contents.GetComponent<HorizontalLayoutGroup>().spacing;
         leftMostIndex = 0;
         currentOverlay = null;
+        returnText = new List<TextMeshProUGUI> { itemTitleText1, itemTitleText2, itemTitleText3, itemTitleText4 };
+        contentsRT = contents.GetComponent<RectTransform>();
 
         foreach (AreaList box in ContentAreas)
         {
@@ -64,13 +70,13 @@ public class LoadoutManager : MonoBehaviour
 
     void GenerateItemList()
     {
-        if (itemPrefab == null || itemScroll == null || contents == null || itemTitleText1 == null || itemTitleText2 == null || itemTitleText3 == null || itemTitleText4 == null || leftBtn == null || rightBtn == null)
+         if (!itemPrefab || !itemScroll || !contents || !itemTitleText1 || !itemTitleText2 || !itemTitleText3 || !itemTitleText4 || !leftBtn || !rightBtn)
         {
             Debug.LogWarning("LoadoutManager is missing references (ItemPrefab, ItemScroll, Contents, ItemTitleTexts, LeftBtn, RightBtn, ContentAreas, Areas).", this);
             return;
         }
 
-        for (int i = 0; i < 2+startingGadgetsCount; i++)
+        for (int i = 0; i < 2+startingGadgetsCount; i++) //two is armour and weapons, + starting gadgets
         {
             LoadoutItems item;
             if (i == 0) {
@@ -90,11 +96,13 @@ public class LoadoutManager : MonoBehaviour
 
         SetText();
         ResizeContent();
-        checkBtns();
+        CheckBtns();
     }
 
     private void SetText()
     {
+        //code below sets the text for the 4 visible items
+        // text = item type + number (if gadget)
         itemTitleText1.text = PlayerLoadout[leftMostIndex].myItem.itemType + " " + ((leftMostIndex) - firstGadgetIndex >= 0 ? (leftMostIndex) - firstGadgetIndex + 1 : " ");
         itemTitleText2.text = PlayerLoadout[leftMostIndex + 1].myItem.itemType + " " + ((leftMostIndex+1) - firstGadgetIndex >= 0 ? (leftMostIndex+1) - firstGadgetIndex + 1 : " ");
         itemTitleText3.text = PlayerLoadout[leftMostIndex + 2].myItem.itemType + " " + ((leftMostIndex+2) - firstGadgetIndex >= 0 ? (leftMostIndex+2) - firstGadgetIndex + 1 : " ");
@@ -103,35 +111,33 @@ public class LoadoutManager : MonoBehaviour
 
     private void ResizeContent()
     {
-        LayoutRebuilder.ForceRebuildLayoutImmediate(
-            contents.GetComponent<RectTransform>()
-        );
-        var btn = PlayerLoadout[PlayerLoadout.Count - 1];
+        LayoutRebuilder.ForceRebuildLayoutImmediate(contentsRT);
+        var btn = PlayerLoadout[^1];
         float pos = btn.GetComponent<RectTransform>().anchoredPosition.x;
 
-        contents.GetComponent<RectTransform>().sizeDelta = new Vector2(pos + (width/2f), contents.GetComponent<RectTransform>().sizeDelta.y);
+        contentsRT.sizeDelta = new Vector2(pos + (width*0.5f), contentsRT.sizeDelta.y);
     }
 
     public void ScrollLeft()
     {
         if (leftMostIndex == 0) return;
-        contents.GetComponent<RectTransform>().anchoredPosition += new Vector2(width + spacing, 0);
+        contentsRT.anchoredPosition += new Vector2(width + spacing, 0);
         leftMostIndex--;
         SetText();
-        checkBtns();
+        CheckBtns();
     }
 
     public void ScrollRight()
     {
         if (leftMostIndex + 4 >= PlayerLoadout.Count) return;
         //move contents
-        contents.GetComponent<RectTransform>().anchoredPosition -= new Vector2(width + spacing, 0);
+        contentsRT.anchoredPosition -= new Vector2(width + spacing, 0);
         leftMostIndex++;
         SetText();
-        checkBtns();
+        CheckBtns();
     }
 
-    private void checkBtns()
+    private void CheckBtns()
     {
         if (leftMostIndex == 0) {
             leftBtn.interactable = false;
@@ -139,7 +145,7 @@ public class LoadoutManager : MonoBehaviour
             leftBtn.interactable = true;
         }
 
-        if (leftMostIndex + 4 >= PlayerLoadout.Count) {
+        if (leftMostIndex + 4 >= PlayerLoadout.Count) { //leftMostIndex + four is the right most visible item
             rightBtn.interactable = false;
         } else {
             rightBtn.interactable = true;
@@ -149,7 +155,7 @@ public class LoadoutManager : MonoBehaviour
     public void ItemPressed(int idx, LoadoutItems item)
     {
         DestroyOverlay();
-        TextMeshProUGUI text = returnText(idx - leftMostIndex);
+        TextMeshProUGUI text = returnText[idx - leftMostIndex];
         Transform cont = ContentAreas[idx - leftMostIndex].cont;
         Transform area = ContentAreas[idx - leftMostIndex].area;
         Scrollbar scrollbar = ContentAreas[idx - leftMostIndex].scrollBar;
@@ -163,14 +169,14 @@ public class LoadoutManager : MonoBehaviour
         {
             text.gameObject.SetActive(true);
             area.gameObject.SetActive(false);
-            SelectedItem(idx, item, area, cont, scrollbar);
+            SelectedItem(idx, item, cont);
         }
     }
 
     private void ShowItemList(int idx, LoadoutItems item, Transform area, Transform cont, Scrollbar scrollbar)
     {
         var content = cont.GetComponent<RectTransform>();
-        PlayerLoadout[idx].makeInvisible();
+        PlayerLoadout[idx].MakeInvisible();
 
         ItemType type = item.itemType;
         List<LoadoutItems> itemsToShow = new();
@@ -193,14 +199,14 @@ public class LoadoutManager : MonoBehaviour
         float padding = area.GetComponent<RectTransform>().rect.height - height;
 
         var layout = cont.GetComponent<VerticalLayoutGroup>();
-        layout.padding.top = Mathf.RoundToInt(padding/2f);
-        layout.padding.bottom = Mathf.RoundToInt(padding/2f);
+        layout.padding.top = Mathf.RoundToInt(padding*0.5f);
+        layout.padding.bottom = Mathf.RoundToInt(padding*0.5f);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-        var lastBtn = tempBtns[tempBtns.Count - 1];
+        var lastBtn = tempBtns[^1];
         float pos = lastBtn.GetComponent<RectTransform>().anchoredPosition.y;
 
-        content.sizeDelta = new Vector2(content.sizeDelta.x, -(pos - (height/2f) - padding/2f));
+        content.sizeDelta = new Vector2(content.sizeDelta.x, -(pos - (height*0.5f) - padding*0.5f));
 
         for (int i = 0; i < tempBtns.Count; i++)
         {
@@ -208,7 +214,7 @@ public class LoadoutManager : MonoBehaviour
             {
                 area.GetComponent<ScrollRect>().verticalNormalizedPosition = 1f - (i / (float)(tempBtns.Count - 1));
                 scrollbar.value = 1f - (i / (float)(tempBtns.Count - 1));
-                tempBtns[i].GetComponent<Image>().color = new Color(215f, 255f, 187f, 207f)/255f;
+                tempBtns[i].GetComponent<Image>().color = selectedColour;
                 break;
             }
         }
@@ -217,7 +223,7 @@ public class LoadoutManager : MonoBehaviour
         rightBtn.interactable = false;
     }
 
-    private void SelectedItem(int idx, LoadoutItems item, Transform area, Transform cont, Scrollbar scrollbar)
+    private void SelectedItem(int idx, LoadoutItems item, Transform cont)
     {
         var content = cont.GetComponent<RectTransform>();
 
@@ -229,23 +235,7 @@ public class LoadoutManager : MonoBehaviour
         
         PlayerLoadout[idx].UpdateItem(item);
         PlayerLoadout[idx].name = item.name;
-        checkBtns();
-    }
-
-    private TextMeshProUGUI returnText(int num)
-    {
-        if (num == 0) {
-            return itemTitleText1;
-        } else if (num == 1) {
-            return itemTitleText2;
-        } else if (num == 2) {
-            return itemTitleText3;
-        } else if (num == 3) {
-            return itemTitleText4;
-        } else {
-            Debug.LogWarning("Invalid text number: " + num);
-            return null;
-        }
+        CheckBtns();
     }
 
     public List<LoadoutItems> GetCurrentLoadout()
@@ -266,8 +256,9 @@ public class LoadoutManager : MonoBehaviour
 
         Vector3 worldPos = btnOrigin.GetComponent<RectTransform>().position;
         Vector3 localPos = itemList.InverseTransformPoint(worldPos);
+        float offset = 10f;
 
-        currentOverlay.GetComponent<RectTransform>().localPosition = localPos - new Vector3(width/2f + btnOrigin.GetComponent<RectTransform>().rect.width/2f + 10, 0, 0);
+        currentOverlay.GetComponent<RectTransform>().localPosition = localPos - new Vector3(width*0.5f + btnOrigin.GetComponent<RectTransform>().rect.width*0.5f + offset, 0, 0);
     }
 
     public void DestroyOverlay()
@@ -293,7 +284,7 @@ public class LoadoutManager : MonoBehaviour
                 box.cont.GetComponent<RectTransform>().sizeDelta = new Vector2(box.cont.GetComponent<RectTransform>().sizeDelta.x, height);
                 box.area.gameObject.SetActive(false);
                 PlayerLoadout[i+leftMostIndex].UpdateItem(PlayerLoadout[i+leftMostIndex].myItem);
-                returnText(i).gameObject.SetActive(true);
+                returnText[i].gameObject.SetActive(true);
             }
         }
     }

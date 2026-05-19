@@ -7,24 +7,24 @@ using UnityEngine.SceneManagement;
 public class LvlSelectManager : MonoBehaviour
 {
     [Header("Levels")]
-    public List<LvlOrganizer> allLvls = new();
-    public List<LvlOrganizer> startingUnlockedLvls = new();
+    [SerializeField] private List<LvlOrganizer> allLvls = new();
+    [SerializeField] private List<LvlOrganizer> startingUnlockedLvls = new();
 
     [Header("References")]
-    public LvlBtnUI btnPrefab;
-    public Canvas canvas;
-    public Transform lvlScroll;
-    public Transform contents;
-    public Transform scrollbar;
-    public Transform sltLvl;
-    public Transform unsltLvl;
-    public TextMeshProUGUI titleText;
-    public TextMeshProUGUI descriptionText;
-    public TextMeshProUGUI objectiveText;
+    [SerializeField] private LvlBtnUI btnPrefab;
+    [SerializeField] private Canvas canvas;
+    [SerializeField] private Transform lvlScroll;
+    [SerializeField] private Transform contents;
+    [SerializeField] private Transform scrollbar;
+    [SerializeField] private Transform sltLvl;
+    [SerializeField] private Transform unsltLvl;
+    [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private TextMeshProUGUI descriptionText;
+    [SerializeField] private TextMeshProUGUI objectiveText;
 
     private LvlOrganizer currentLvl = null;
 
-    List<LvlBtnUI> allBtns = new();
+    private List<LvlBtnUI> allBtns = new();
 
     private void Start()
     {
@@ -32,7 +32,7 @@ public class LvlSelectManager : MonoBehaviour
     }
     public void GenerateLvlSelect()
     {
-        if (canvas == null || btnPrefab == null || lvlScroll == null || contents == null || scrollbar == null || sltLvl == null || unsltLvl == null || titleText == null || descriptionText == null || objectiveText == null)
+        if (!canvas || !btnPrefab || !lvlScroll || !contents || !scrollbar || !sltLvl || !unsltLvl || !titleText || !descriptionText || !objectiveText)
         {
             Debug.LogWarning("LvlSelectManager is missing references (Canvas, BtnPrefab, LvlScroll, Contents, Scrollbar, SelectedLevel, UnselectedLevel, TitleText, DescriptionText, ObjectiveText).", this);
             return;
@@ -55,15 +55,15 @@ public class LvlSelectManager : MonoBehaviour
         Vector2 max = new Vector2(float.MinValue, float.MinValue);
         float width = btnPrefab.GetComponent<RectTransform>().rect.width;
         float height = btnPrefab.GetComponent<RectTransform>().rect.height;
-        Vector2 corner = new Vector2(width/2f, height/2f);
+        Vector2 corner = new Vector2(width*0.5f, height*0.5f);
         foreach (var btn in allBtns)
         {
             Vector2 pos = btn.GetComponent<RectTransform>().anchoredPosition;
             min = Vector2.Min(min, pos - corner);
             max = Vector2.Max(max, pos + corner);
         }
-        min -= new Vector2(20, 0); // Padding
-        max += new Vector2(20, 0); // Padding
+        min -= new Vector2(contents.GetComponent<HorizontalLayoutGroup>().padding.left, 0);
+        max += new Vector2(contents.GetComponent<HorizontalLayoutGroup>().padding.right, 0);
         contents.GetComponent<RectTransform>().sizeDelta = max - min;
         scrollbar.GetComponent<Scrollbar>().numberOfSteps = allLvls.Count;
     }
@@ -99,7 +99,7 @@ public class LvlSelectManager : MonoBehaviour
         canvas.gameObject.SetActive(true);
         sltLvl.gameObject.SetActive(false);
         unsltLvl.gameObject.SetActive(true);
-        lvlScroll.GetComponent<ScrollRect>().horizontalNormalizedPosition = 0;
+        lvlScroll.GetComponent<ScrollRect>().horizontalNormalizedPosition = 0; //set to the leftmost position
     }
 
     public void CloseLvlSelect()
@@ -107,7 +107,7 @@ public class LvlSelectManager : MonoBehaviour
         sltLvl.gameObject.SetActive(false);
         unsltLvl.gameObject.SetActive(true);
         canvas.gameObject.SetActive(false);
-        lvlScroll.GetComponent<ScrollRect>().horizontalNormalizedPosition = 0;
+        lvlScroll.GetComponent<ScrollRect>().horizontalNormalizedPosition = 0; //set to the leftmost position
     }
 
     public void PlayLvl()

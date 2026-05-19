@@ -1,11 +1,10 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.InputSystem;
 
 public class ItemOverlay : MonoBehaviour
 {
-    public TextMeshProUGUI itemNameText;
-    public TextMeshProUGUI itemDescriptionText;
+    [SerializeField] private TextMeshProUGUI itemNameText;
+    [SerializeField] private TextMeshProUGUI itemDescriptionText;
 
     public void Initialize(LoadoutItems item)
     {

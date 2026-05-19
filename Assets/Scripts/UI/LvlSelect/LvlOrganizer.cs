@@ -10,18 +10,18 @@ public class LvlOrganizer : ScriptableObject
 {
     [Header("Scene To Be Called")]
     #if UNITY_EDITOR
-    public SceneAsset sceneAsset;
+    [SerializeField] public SceneAsset sceneAsset;
     #endif
-    public string sceneName;
+    [SerializeField] public string sceneName;
 
     [Header("Text")]
-    public string lvlTitle;
-    [TextArea(2, 5)] public string lvlDescription;
-    public Sprite lvlIcon;
-    public List<string> objectiveText = new();
+    [SerializeField] public string lvlTitle;
+    [TextArea(2, 5)] [SerializeField] public string lvlDescription;
+    [SerializeField] public Sprite lvlIcon;
+    [SerializeField] public List<string> objectiveText = new();
 
     [Header("Requirements")]
-    public List<LvlOrganizer> prerequisites = new();
+    [SerializeField] public List<LvlOrganizer> prerequisites = new();
     
     private void OnValidate()
     {
