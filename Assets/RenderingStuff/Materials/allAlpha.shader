@@ -55,7 +55,7 @@ Shader "Custom/allAlpha"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                half4 color = half4(((SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv*_BaseColor)).r<0.001f?0.4f:0),0,0,1);
+                half4 color = half4(((SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv*_BaseColor)).r<0.001f?0.2f:0),0,0,1);
                 return color;
             }
             ENDHLSL

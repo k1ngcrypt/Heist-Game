@@ -167,7 +167,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     }
 
     void Start() {
-        addingMaterial = new Material(Shader.Find("Custom/ADDINGSHADERRRRR"));
+        addingMaterial = new Material(Shader.Find("Custom/AddingShader"));
         int l = Map.currentLayer();
         pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
