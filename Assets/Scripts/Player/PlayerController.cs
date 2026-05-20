@@ -14,6 +14,9 @@ public class PlayerController : MonoBehaviour
     private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
+    void Start() {
+        Map.SetPlayer(gameObject);
+    }
     async void Update() {
         // Prevent starting new actions while one is in progress
         if (!isMoving && Keyboard.current != null) {

@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+[RequireComponent(typeof(Tilemap))]
 public class GlassTop : MonoBehaviour
 {
     [Header("Tile References")]

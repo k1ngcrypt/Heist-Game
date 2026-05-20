@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f1cc21e9bb445be4aa552dfb18754f3f
+guid: 41fe5179cb3763941b0264d71dd7f0e7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6234176133674011997
-    second: Base_0
+      213: 1307574483087492157
+    second: wEIRDMarbleV1.3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,10 +48,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 130
+  spritePixelsToUnits: 150
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Base_0
+      name: wEIRDMarbleV1.3_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 130
-        width: 130
-        height: 130
+        y: 150
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,20 +115,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d5d8bdad92e348650800000000000000
-      internalID: 6234176133674011997
+      spriteID: d348bc58010752210800000000000000
+      internalID: 1307574483087492157
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Base_1
+      name: wEIRDMarbleV1.3_1
       rect:
         serializedVersion: 2
-        x: 130
-        y: 130
-        width: 130
-        height: 130
+        x: 150
+        y: 150
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,20 +137,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b9e35688b689f754bb14137eb2b0cdd0
-      internalID: 1664401464
+      spriteID: c1466588010990a43831b0c10ea101f0
+      internalID: 2139794403
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Base_2
+      name: wEIRDMarbleV1.3_2
       rect:
         serializedVersion: 2
-        x: 260
-        y: 130
-        width: 130
-        height: 130
+        x: 300
+        y: 150
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -159,20 +159,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 42ecdd34ce42e9947a18fec8544aad63
-      internalID: -349822282
+      spriteID: 293733f357690ff4bbdf5833ddabf935
+      internalID: -1950343083
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Base_3
+      name: wEIRDMarbleV1.3_3
       rect:
         serializedVersion: 2
-        x: 390
-        y: 130
-        width: 130
-        height: 130
+        x: 450
+        y: 150
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -181,42 +181,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2f145b69cb1d8cd4e8bc7a741fa62b6e
-      internalID: -1670766655
+      spriteID: de364058576f60f408f3e4a353dce455
+      internalID: -1584097303
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Base_4
-      rect:
-        serializedVersion: 2
-        x: 520
-        y: 130
-        width: 130
-        height: 130
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: cddfcde6687ecac49b87ae46f72e7a76
-      internalID: -108691552
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Base_5
+      name: wEIRDMarbleV1.3_4
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 130
-        height: 130
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -225,20 +203,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ae9ea181f867ea947a37230b1ef1cf47
-      internalID: 1592445239
+      spriteID: 0bce0f1f9fabd1f46a7683c3f660efcc
+      internalID: -1600210216
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Base_6
+      name: wEIRDMarbleV1.3_5
       rect:
         serializedVersion: 2
-        x: 130
+        x: 150
         y: 0
-        width: 130
-        height: 130
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -247,20 +225,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 275e4aa2b166a364d8607da0e25ea2eb
-      internalID: -1203687042
+      spriteID: e0e1b3116d6fbf34f8d932fecf5d5ec5
+      internalID: 87128543
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Base_7
+      name: wEIRDMarbleV1.3_6
       rect:
         serializedVersion: 2
-        x: 260
+        x: 300
         y: 0
-        width: 130
-        height: 130
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -269,20 +247,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f58fcbb5b0977144ab73d707f8555790
-      internalID: -1963050923
+      spriteID: eac3632aaec7bbd47ad394a5960fb1d1
+      internalID: -730955706
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Base_8
+      name: wEIRDMarbleV1.3_7
       rect:
         serializedVersion: 2
-        x: 390
+        x: 450
         y: 0
-        width: 130
-        height: 130
+        width: 150
+        height: 150
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -291,30 +269,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0969a942eb00b5e43bd066c86d4e71fd
-      internalID: 1063779895
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Base_9
-      rect:
-        serializedVersion: 2
-        x: 520
-        y: 0
-        width: 130
-        height: 130
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: b2ee3c1e6a0865241b74093df2669630
-      internalID: -744577701
+      spriteID: 041336fe1a3d37b4dac09aa3a41e25a4
+      internalID: -733202678
       vertices: []
       indices: 
       edges: []
@@ -323,7 +279,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: dbcc6cc544b8c014c9f431aa7b3e713d
+    spriteID: 8ad337319b59b82489dfea8f8c2c62b1
     internalID: 0
     vertices: []
     indices: 
@@ -333,18 +289,16 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":130.0,"y":130.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":2.0},"gridSpriteSize":{"x":150.0,"y":150.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Base_0: 6234176133674011997
-      Base_1: 1664401464
-      Base_2: -349822282
-      Base_3: -1670766655
-      Base_4: -108691552
-      Base_5: 1592445239
-      Base_6: -1203687042
-      Base_7: -1963050923
-      Base_8: 1063779895
-      Base_9: -744577701
+      wEIRDMarbleV1.3_0: 1307574483087492157
+      wEIRDMarbleV1.3_1: 2139794403
+      wEIRDMarbleV1.3_2: -1950343083
+      wEIRDMarbleV1.3_3: -1584097303
+      wEIRDMarbleV1.3_4: -1600210216
+      wEIRDMarbleV1.3_5: 87128543
+      wEIRDMarbleV1.3_6: -730955706
+      wEIRDMarbleV1.3_7: -733202678
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 
+[RequireComponent(typeof(Tilemap))]
 public class WallFloor : MonoBehaviour
 {
     public RuleTile floorWallTile;
