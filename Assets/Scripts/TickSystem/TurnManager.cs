@@ -78,6 +78,7 @@ public class TurnManager : MonoBehaviour
                     actor.TickDebt++;
                     if (actor.TickDebt > 0)
                     {
+                        Debug.Log($"Processing tick for {actor}. Tick debt: {actor.TickDebt}");
                         await actor.OnTick(); // Do not forget to decrement tick debt accordingly.
                     }
                     

@@ -21,4 +21,12 @@ namespace HeistGame.Door
         bool IsDestroyed { get; }
         bool TryDestroy(); // Returns true if the player has the right tool/beats the minigame
     }
+
+    public interface IHaSpecialLink
+    {
+        Transform LinkTransform { get; }
+        Transform OtherLinkTransform { get; }
+        bool IsBidirectional { get; }
+        int TraversalCost { get; }
+    }
 }
