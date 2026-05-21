@@ -608,10 +608,10 @@ public class Pathfinder : MonoBehaviour
                 Vector2 worldPoint = worldBottomLeft + Vector2.right * (x * nodeDiameter + nodeRadius)
                                                    + Vector2.up * (y * nodeDiameter + nodeRadius);
                 cachedSpecialTileMap.TryGetValue(index, out ISpecialTile interaction);
-                bool walkable = cachedWalkable[index];
-                if (interaction != null)
+                bool walkable = true;
+                if (interaction == null)
                 {
-                    walkable = true;
+                    walkable = cachedWalkable[index];
                 }
 
                 nodes[index] = new HaNode
