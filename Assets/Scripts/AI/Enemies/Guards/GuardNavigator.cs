@@ -24,13 +24,8 @@ namespace Guards
         {
             get
             {
-                if (!hasDestination)
-                {
-                    return true;
-                }
-
                 // Arrival uses distance plus path exhaustion so the guard does not stop early on a nearby waypoint.
-                return Vector2.Distance(transform.position, destination) <= arrivalThreshold && !HasPath;
+                return !hasDestination || (Vector2.Distance(transform.position, destination) <= arrivalThreshold && !HasPath);
             }
         }
 
