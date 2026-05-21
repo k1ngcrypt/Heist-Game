@@ -6,6 +6,7 @@ using UnityEngine;
 public enum HaNodeFlags : byte
 {
     None = 0,
+    // Stored as a flag so future node state can be extended without changing the struct layout.
     Walkable = 1 << 0,
     Dirty = 1 << 1
 }
@@ -13,6 +14,7 @@ public enum HaNodeFlags : byte
 [Serializable]
 public struct HaNode
 {
+    // Grid and world positions are both stored to avoid repeated conversion during pathfinding.
     public Vector2Int GridPosition;
     public Vector2 WorldPosition;
     public int GCost;
@@ -26,6 +28,7 @@ public struct HaNode
 
     public int FCost => GCost + HCost;
 
+    // Walkability is derived from flags so the struct can stay compact and copy-friendly.
     public bool Walkable
     {
         readonly get => (Flags & HaNodeFlags.Walkable) == HaNodeFlags.Walkable;
@@ -42,6 +45,7 @@ public struct HaNode
         }
     }
 
+    // Interaction checks stay separate from walkability so doors, vents, and other tiles can gate movement.
     public readonly bool IsTraversable()
     {
         if (!Walkable) return false;
@@ -88,6 +92,7 @@ public struct HaAbstractNode
 public sealed class HaRoom
 {
     public int Id;
+    // Lists are used because room membership is built incrementally during flood fill.
     public List<int> NodeIndices = new();
     public List<int> PortalIndices = new();
 

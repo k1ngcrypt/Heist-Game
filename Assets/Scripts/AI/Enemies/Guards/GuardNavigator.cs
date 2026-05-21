@@ -5,6 +5,7 @@ namespace Guards
 {
     public class GuardNavigator : MonoBehaviour
     {
+        // Pathfinding is injected so navigation can be swapped or reused without rewriting movement logic.
         [SerializeField] private Pathfinder pathfinder;
         [SerializeField] private float arrivalThreshold = 0.05f;
         [SerializeField] private bool repathOnBlocked = true;
@@ -16,6 +17,7 @@ namespace Guards
 
         public bool HasDestination => hasDestination;
 
+        // A path only matters while there are still unvisited nodes left to consume.
         public bool HasPath => currentPath.Count > 0 && pathIndex < currentPath.Count;
 
         public bool ReachedDestination
@@ -27,12 +29,14 @@ namespace Guards
                     return true;
                 }
 
+                // Arrival uses distance plus path exhaustion so the guard does not stop early on a nearby waypoint.
                 return Vector2.Distance(transform.position, destination) <= arrivalThreshold && !HasPath;
             }
         }
 
         public void SetDestination(Vector2 target, bool forceRepath = false)
         {
+            // Ignore tiny destination changes to avoid unnecessary path rebuilds every tick.
             if (!forceRepath && hasDestination && Vector2.Distance(destination, target) <= arrivalThreshold)
             {
                 return;
@@ -57,6 +61,7 @@ namespace Guards
                 return;
             }
 
+            // Recompute lazily so navigation cost is paid only when the guard actually needs to move.
             if (!HasPath)
             {
                 RecalculatePath();
@@ -98,6 +103,7 @@ namespace Guards
                 return;
             }
 
+            // The pathfinder returns node indices so movement can follow the same grid used for collision checks.
             List<int> newPath = pathfinder.FindPathIndices(transform.position, destination);
             if (newPath.Count == 0)
             {
@@ -110,6 +116,7 @@ namespace Guards
 
         private void SkipReachedNodes()
         {
+            // Skip already-reached nodes so the guard does not oscillate around its current tile.
             while (pathIndex < currentPath.Count)
             {
                 Vector2 nodePosition = pathfinder.GetNodeWorldPosition(currentPath[pathIndex]);
@@ -130,6 +137,7 @@ namespace Guards
                 return true;
             }
 
+            // Interactions are allowed to block movement until they report that passage is safe.
             if (!interaction.CanPass())
             {
                 interaction.OnPass();

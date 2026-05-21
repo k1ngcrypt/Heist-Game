@@ -4,6 +4,7 @@ namespace Guards
 {
     public class GuardStateManager : MonoBehaviour, ITurnActor
     {
+        // Serialized dependencies keep guard behavior data-driven instead of hard-coded.
         [SerializeField] private TurnManager turnManager;
         [SerializeField] private Transform playerTarget;
         [SerializeField] private float detectionRange = 6f;
@@ -14,6 +15,7 @@ namespace Guards
         [SerializeField] private float suspicionPerTick = 10f;
         [SerializeField] private float maxSuspicion = 100f;
 
+        // One active state at a time keeps the guard behavior easy to reason about and test.
         BaseState currentState;
 
         private IdleState idleState;
@@ -50,6 +52,7 @@ namespace Guards
 
             hitBuffer = new RaycastHit2D[Mathf.Max(1, lineOfSightBufferSize)];
 
+            // Patrol is the default so guards resume a safe, deterministic baseline.
             currentState = patrollingState;
             currentState.EnterState();
 
@@ -63,6 +66,7 @@ namespace Guards
 
         public async Awaitable OnTick()
         {
+            // Tick debt lets the turn system catch up without skipping intermediate guard decisions.
             while (TickDebt > 0)
             {
                 currentState.TickState();
@@ -73,6 +77,7 @@ namespace Guards
 
         public void UpdateState(BaseState newState)
         {
+            // Exit/enter hooks centralize state transitions so each state owns its own setup and cleanup.
             currentState.ExitState();
             currentState = newState;
             currentState.EnterState();
@@ -85,6 +90,7 @@ namespace Guards
                 return false;
             }
 
+            // Detection uses shared utility logic so sight rules stay consistent across guards.
             return DetectionUtils.IsDetected(
                 transform.position,
                 transform.up,
@@ -112,6 +118,7 @@ namespace Guards
 
         public bool IncreaseSuspicion()
         {
+            // Suspicion is clamped so the state machine can rely on a predictable max threshold.
             Suspicion = Mathf.Min(maxSuspicion, Suspicion + suspicionPerTick);
             return Suspicion >= maxSuspicion;
         }

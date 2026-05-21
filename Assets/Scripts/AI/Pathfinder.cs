@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 
 public class Pathfinder : MonoBehaviour
 {
+    // Separate obstacle and player masks so path rules can change without changing scene colliders.
     [SerializeField]
     private LayerMask Obstacles;
 
@@ -30,6 +31,7 @@ public class Pathfinder : MonoBehaviour
     [SerializeField]
     private LayerMask specialTileMask;
 
+    // Rooms are derived from floor tiles so the graph matches authored level layout.
     [Header("Room Settings")]
     [SerializeField]
     private Tilemap floorTilemap;
@@ -40,6 +42,7 @@ public class Pathfinder : MonoBehaviour
     [SerializeField]
     private bool separateRoomsByTileType = true;
 
+    // Cached data keeps editor rebuilds fast when the grid configuration has not changed.
     [Header("Editor Build")]
     [SerializeField]
     private bool useCachedGridData = true;
@@ -143,6 +146,7 @@ public class Pathfinder : MonoBehaviour
     private static readonly List<Pathfinder> ActivePathfinders = new();
     private static readonly HashSet<IHaSpecialLink> ActiveSpecialLinks = new();
 
+    // Build once on load so runtime path requests do not pay setup cost.
     private void Awake()
     {
         CreateGrid(true);
@@ -198,6 +202,7 @@ public class Pathfinder : MonoBehaviour
             CreateGrid();
         }
 
+        // Resolve path endpoints to node indices first so the search works on a stable grid.
         int startIndex = NodeIndexFromWorldPoint(startPos);
         int targetIndex = NodeIndexFromWorldPoint(targetPos);
 
@@ -219,6 +224,7 @@ public class Pathfinder : MonoBehaviour
             return new List<int>();
         }
 
+        // Use the local grid path when both points are in one room; the abstract graph is only needed across rooms.
         if (startRoom == endRoom)
         {
             return FindLowLevelPathIndicesInRoom(startIndex, targetIndex, startRoom);
@@ -472,6 +478,7 @@ public class Pathfinder : MonoBehaviour
         ResolveGridBounds();
         EnsureGridSettings();
 
+        // Reuse cached node data when the geometry is unchanged so editor and runtime rebuilds stay cheap.
         if (allowCachedAbstractData && useCachedGridData)
         {
             if (TryLoadCachedNodeData())
@@ -514,6 +521,7 @@ public class Pathfinder : MonoBehaviour
         nodes = new HaNode[gridSizeX * gridSizeY];
         Vector2 worldBottomLeft = gridWorldBottomLeft;
 
+        // Each node stores enough metadata to avoid recomputing world/grid conversions during search.
         for (int x = 0; x < gridSizeX; x++)
         {
             for (int y = 0; y < gridSizeY; y++)
@@ -743,6 +751,7 @@ public class Pathfinder : MonoBehaviour
 
     private void BuildNeighbors()
     {
+        // Only cardinal links are created here so diagonal movement cannot cut across blocked corners.
         for (int x = 0; x < gridSizeX; x++)
         {
             for (int y = 0; y < gridSizeY; y++)
@@ -779,6 +788,7 @@ public class Pathfinder : MonoBehaviour
 
     private void BuildRoomsAndPortals(bool cacheResults)
     {
+        // Room/portal data forms a higher-level graph, which reduces search cost between distant rooms.
         rooms.Clear();
         portals.Clear();
         abstractNodes.Clear();
@@ -1100,6 +1110,7 @@ public class Pathfinder : MonoBehaviour
         bool[] visited = new bool[nodes.Length];
         int roomId = 0;
 
+        // Flood-fill contiguous walkable tiles so room grouping stays aligned with the floor art.
         for (int index = 0; index < nodes.Length; index++)
         {
             if (visited[index] || !IsRoomCandidate(index))
@@ -1243,6 +1254,7 @@ public class Pathfinder : MonoBehaviour
 
     private void BuildRoomBoundaryPortals()
     {
+        // Border portals connect adjacent rooms wherever walkable nodes touch across a room boundary.
         for (int index = 0; index < nodes.Length; index++)
         {
             if (!nodes[index].IsTraversable() || nodes[index].RoomId < 0)
@@ -1313,6 +1325,7 @@ public class Pathfinder : MonoBehaviour
 
     private void BuildSpecialLinkPortals()
     {
+        // Special links are tracked globally so linked scene objects can create portals without tight coupling.
         HashSet<(EntityId, EntityId)> processedLinks = new();
         specialLinkBuffer.Clear();
 
@@ -1691,6 +1704,7 @@ public class Pathfinder : MonoBehaviour
         {
             return new List<int>();
         }
+        // Virtual endpoints let the same search logic handle arbitrary start/end nodes inside their rooms.
         int totalNodes = abstractNodes.Count + 2;
         int virtualStart = abstractNodes.Count;
         int virtualEnd = abstractNodes.Count + 1;
@@ -2077,6 +2091,7 @@ public class Pathfinder : MonoBehaviour
 
     private bool TryGetWalkable(Vector2 worldPoint, out ISpecialTile interaction)
     {
+        // Special tiles are checked first so they can override collision-based blocking when intended.
         TryGetSpecialTile(worldPoint, out interaction);
         Collider2D[] hits = Physics2D.OverlapCircleAll(worldPoint, GetCollisionRadius(), GetObstacleMask());
         if (hits.Length == 0)
