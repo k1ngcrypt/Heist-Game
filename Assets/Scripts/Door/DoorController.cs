@@ -44,6 +44,7 @@ namespace HeistGame.Door
 
             openBehavior.OpenDoor();
             autoCloser?.NotifyDoorOpened();
+            Pathfinder.NotifyObstacleChanged(transform.position);
             return true;
         }
 
@@ -56,6 +57,7 @@ namespace HeistGame.Door
 
             openBehavior.CloseDoor();
             autoCloser?.NotifyDoorClosed();
+            Pathfinder.NotifyObstacleChanged(transform.position);
             return true;
         }
 
@@ -66,7 +68,13 @@ namespace HeistGame.Door
                 return false;
             }
 
-            return destroyBehavior.TryDestroy();
+            bool destroyed = destroyBehavior.TryDestroy();
+            if (destroyed)
+            {
+                Pathfinder.NotifyObstacleChanged(transform.position);
+            }
+
+            return destroyed;
         }
     }
 }
