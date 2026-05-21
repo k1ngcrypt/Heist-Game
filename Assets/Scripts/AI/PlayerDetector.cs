@@ -11,7 +11,7 @@ public static class DetectionUtils
         ContactFilter2D filter,
         RaycastHit2D[] hitBuffer)
     {
-        Vector2 toTarget = (Vector2)(target.position - (Vector3)observerPos);
+        Vector2 toTarget = (Vector2)target.position - observerPos;
         float sqrDistance = toTarget.sqrMagnitude;
 
         // 1. Distance Check
