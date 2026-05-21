@@ -9,7 +9,7 @@
                 return;
             }
 
-            if (Manager.IsPlayerDetected() && Manager.PlayerTarget != null)
+            if (Manager.IsPlayerDetected())
             {
                 Manager.UpdateLastKnownPlayerPosition();
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
