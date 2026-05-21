@@ -10,6 +10,9 @@ public class Pathfinder : MonoBehaviour
     private LayerMask Obstacles;
 
     [SerializeField]
+    private LayerMask playerCollisionMask;
+
+    [SerializeField]
     private Vector2 gridWorldSize = new(20f, 20f);
 
     [SerializeField]
@@ -20,6 +23,9 @@ public class Pathfinder : MonoBehaviour
 
     [SerializeField]
     private float nodeRadius = 0.5f;
+
+    [SerializeField]
+    private float collisionRadiusShrink = 0.05f;
 
     [SerializeField]
     private bool allowDiagonals = false;
@@ -38,6 +44,9 @@ public class Pathfinder : MonoBehaviour
     private bool separateRoomsByTileType = true;
 
     [Header("Editor Build")]
+    [SerializeField]
+    private bool useCachedGridData = true;
+
     [SerializeField]
     private bool useCachedAbstractData = true;
 
@@ -93,6 +102,21 @@ public class Pathfinder : MonoBehaviour
     private int cachedGridSizeY;
 
     [SerializeField, HideInInspector]
+    private Vector2 cachedGridWorldSize;
+
+    [SerializeField, HideInInspector]
+    private Vector2 cachedGridWorldBottomLeft;
+
+    [SerializeField, HideInInspector]
+    private float cachedNodeRadius;
+
+    [SerializeField, HideInInspector]
+    private bool[] cachedWalkable;
+
+    [SerializeField, HideInInspector]
+    private List<CachedSpecialTileEntry> cachedSpecialTiles = new();
+
+    [SerializeField, HideInInspector]
     private List<RoomAbstractNodeList> cachedRoomAbstractNodes = new();
 
     [SerializeField, HideInInspector]
@@ -124,10 +148,24 @@ public class Pathfinder : MonoBehaviour
     private bool[] abstractClosedFlags;
     private bool[] abstractOpenFlags;
     private readonly List<int> abstractNeighborBuffer = new();
+    private static readonly List<Pathfinder> ActivePathfinders = new();
 
     private void Awake()
     {
         CreateGrid(true);
+    }
+
+    private void OnEnable()
+    {
+        if (!ActivePathfinders.Contains(this))
+        {
+            ActivePathfinders.Add(this);
+        }
+    }
+
+    private void OnDisable()
+    {
+        ActivePathfinders.Remove(this);
     }
 
 #if UNITY_EDITOR
@@ -431,6 +469,37 @@ public class Pathfinder : MonoBehaviour
         BuildRoomsAndPortals(false);
     }
 
+    public static void NotifyObstacleChanged(Vector2 worldPosition, bool rebuildAbstractGraph = true)
+    {
+        for (int i = 0; i < ActivePathfinders.Count; i++)
+        {
+            ActivePathfinders[i].RefreshNodeAtWorldPosition(worldPosition, rebuildAbstractGraph);
+        }
+    }
+
+    public void RefreshNodeAtWorldPosition(Vector2 worldPosition, bool rebuildAbstractGraph = true)
+    {
+        if (nodes == null || nodes.Length == 0)
+        {
+            CreateGrid(false);
+        }
+
+        int index = NodeIndexFromWorldPoint(worldPosition);
+        if (index < 0 || index >= nodes.Length)
+        {
+            return;
+        }
+
+        UpdateNodeAtIndex(index);
+        lowLevelCostCache.Clear();
+        roomLowLevelCostCache.Clear();
+
+        if (rebuildAbstractGraph)
+        {
+            BuildRoomsAndPortals(false);
+        }
+    }
+
     private void CreateGrid()
     {
         CreateGrid(true);
@@ -438,6 +507,20 @@ public class Pathfinder : MonoBehaviour
 
     private void CreateGrid(bool allowCachedAbstractData)
     {
+        ResolveGridBounds();
+        EnsureGridSettings();
+
+        if (allowCachedAbstractData && useCachedGridData && TryLoadCachedGridData())
+        {
+            if (TryLoadCachedAbstractData())
+            {
+                return;
+            }
+
+            BuildRoomsAndPortals(false);
+            return;
+        }
+
         BuildGrid();
 
         if (allowCachedAbstractData && TryLoadCachedAbstractData())
@@ -461,21 +544,7 @@ public class Pathfinder : MonoBehaviour
             {
                 Vector2 worldPoint = worldBottomLeft + Vector2.right * (x * nodeDiameter + nodeRadius)
                                                    + Vector2.up * (y * nodeDiameter + nodeRadius);
-                bool walkable = !Physics2D.OverlapCircle(worldPoint, nodeRadius, Obstacles);
-                ISpecialTile interaction = null;
-                if (specialTileMask != 0)
-                {
-                    Collider2D specialCollider = Physics2D.OverlapCircle(worldPoint, nodeRadius, specialTileMask);
-                    if (specialCollider != null)
-                    {
-                        interaction = specialCollider.GetComponentInParent<ISpecialTile>() ?? specialCollider.GetComponent<ISpecialTile>();
-                    }
-                }
-
-                if (interaction != null)
-                {
-                    walkable = true;
-                }
+                bool walkable = TryGetWalkable(worldPoint, out ISpecialTile interaction);
 
                 int index = GetIndex(x, y);
                 nodes[index] = new HaNode
@@ -496,6 +565,104 @@ public class Pathfinder : MonoBehaviour
 
         BuildNeighbors();
         EnsureSearchArrays();
+    }
+
+    private bool TryLoadCachedGridData()
+    {
+        if (cachedWalkable == null || cachedWalkable.Length == 0)
+        {
+            return false;
+        }
+
+        if (cachedGridSizeX != gridSizeX || cachedGridSizeY != gridSizeY)
+        {
+            return false;
+        }
+
+        if (!IsCachedGridCompatible())
+        {
+            return false;
+        }
+
+        nodes = new HaNode[gridSizeX * gridSizeY];
+        Vector2 worldBottomLeft = gridWorldBottomLeft;
+        Dictionary<int, ISpecialTile> cachedSpecialTileMap = BuildCachedSpecialTileMap();
+
+        for (int x = 0; x < gridSizeX; x++)
+        {
+            for (int y = 0; y < gridSizeY; y++)
+            {
+                int index = GetIndex(x, y);
+                Vector2 worldPoint = worldBottomLeft + Vector2.right * (x * nodeDiameter + nodeRadius)
+                                                   + Vector2.up * (y * nodeDiameter + nodeRadius);
+                cachedSpecialTileMap.TryGetValue(index, out ISpecialTile interaction);
+                bool walkable = cachedWalkable[index];
+                if (interaction != null)
+                {
+                    walkable = true;
+                }
+
+                nodes[index] = new HaNode
+                {
+                    GridPosition = new Vector2Int(x, y),
+                    WorldPosition = worldPoint,
+                    Walkable = walkable,
+                    GCost = 0,
+                    HCost = 0,
+                    ParentIndex = -1,
+                    Neighbors = Array.Empty<int>(),
+                    RoomId = -1,
+                    Flags = walkable ? HaNodeFlags.Walkable : HaNodeFlags.None,
+                    Interaction = interaction
+                };
+            }
+        }
+
+        BuildNeighbors();
+        EnsureSearchArrays();
+        return true;
+    }
+
+    private bool IsCachedGridCompatible()
+    {
+        if (!Mathf.Approximately(cachedNodeRadius, nodeRadius))
+        {
+            return false;
+        }
+
+        float sizeDelta = (cachedGridWorldSize - gridWorldSize).sqrMagnitude;
+        if (sizeDelta > 0.0001f)
+        {
+            return false;
+        }
+
+        float bottomLeftDelta = (cachedGridWorldBottomLeft - gridWorldBottomLeft).sqrMagnitude;
+        return bottomLeftDelta <= 0.0001f;
+    }
+
+    private Dictionary<int, ISpecialTile> BuildCachedSpecialTileMap()
+    {
+        Dictionary<int, ISpecialTile> map = new();
+        if (cachedSpecialTiles == null)
+        {
+            return map;
+        }
+
+        for (int i = 0; i < cachedSpecialTiles.Count; i++)
+        {
+            CachedSpecialTileEntry entry = cachedSpecialTiles[i];
+            if (entry.Tile == null)
+            {
+                continue;
+            }
+
+            if (entry.Tile is ISpecialTile specialTile)
+            {
+                map[entry.NodeIndex] = specialTile;
+            }
+        }
+
+        return map;
     }
 
     private void ResolveGridBounds()
@@ -582,6 +749,7 @@ public class Pathfinder : MonoBehaviour
 
         if (cacheResults)
         {
+            CacheGridData();
             CacheAbstractData();
         }
     }
@@ -639,6 +807,45 @@ public class Pathfinder : MonoBehaviour
 
         CacheRoomAbstractNodes();
         CacheRoomPortalCosts();
+    }
+
+    private void CacheGridData()
+    {
+        cachedGridSizeX = gridSizeX;
+        cachedGridSizeY = gridSizeY;
+        cachedGridWorldSize = gridWorldSize;
+        cachedGridWorldBottomLeft = gridWorldBottomLeft;
+        cachedNodeRadius = nodeRadius;
+
+        if (nodes == null)
+        {
+            return;
+        }
+
+        if (cachedWalkable == null || cachedWalkable.Length != nodes.Length)
+        {
+            cachedWalkable = new bool[nodes.Length];
+        }
+
+        if (cachedSpecialTiles == null)
+        {
+            cachedSpecialTiles = new List<CachedSpecialTileEntry>();
+        }
+
+        cachedSpecialTiles.Clear();
+
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            cachedWalkable[i] = nodes[i].Walkable;
+            if (nodes[i].Interaction is MonoBehaviour interactionComponent)
+            {
+                cachedSpecialTiles.Add(new CachedSpecialTileEntry
+                {
+                    NodeIndex = i,
+                    Tile = interactionComponent
+                });
+            }
+        }
     }
 
     private void ApplyCachedRoomIds()
@@ -1856,10 +2063,97 @@ public class Pathfinder : MonoBehaviour
         return cost;
     }
 
+    private LayerMask GetObstacleMask()
+    {
+        return Obstacles | playerCollisionMask;
+    }
+
+    private bool TryGetSpecialTile(Vector2 worldPoint, out ISpecialTile interaction)
+    {
+        interaction = null;
+        if (specialTileMask == 0)
+        {
+            return false;
+        }
+
+        Collider2D specialCollider = Physics2D.OverlapCircle(worldPoint, nodeRadius, specialTileMask);
+        if (specialCollider == null)
+        {
+            return false;
+        }
+
+        interaction = specialCollider.GetComponentInParent<ISpecialTile>() ?? specialCollider.GetComponent<ISpecialTile>();
+        return interaction != null;
+    }
+
+    private void UpdateNodeAtIndex(int index)
+    {
+        if (nodes == null || index < 0 || index >= nodes.Length)
+        {
+            return;
+        }
+
+        HaNode node = nodes[index];
+        Vector2 worldPoint = node.WorldPosition;
+        bool walkable = TryGetWalkable(worldPoint, out ISpecialTile interaction);
+
+        node.Walkable = walkable;
+        node.Interaction = interaction;
+        nodes[index] = node;
+    }
+
+    private float GetCollisionRadius()
+    {
+        return Mathf.Max(0.001f, nodeRadius - Mathf.Max(0f, collisionRadiusShrink));
+    }
+
+    private bool TryGetWalkable(Vector2 worldPoint, out ISpecialTile interaction)
+    {
+        TryGetSpecialTile(worldPoint, out interaction);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(worldPoint, GetCollisionRadius(), GetObstacleMask());
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+            if (hit == null)
+            {
+                continue;
+            }
+
+            if (IsSpecialTileCollider(hit))
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsSpecialTileCollider(Collider2D collider)
+    {
+        if (collider == null)
+        {
+            return false;
+        }
+
+        return collider.GetComponentInParent<ISpecialTile>() != null
+            || collider.GetComponent<ISpecialTile>() != null
+            || collider.GetComponentInParent<IHaSpecialLink>() != null
+            || collider.GetComponent<IHaSpecialLink>() != null;
+    }
+
     [Serializable]
     private sealed class RoomAbstractNodeList
     {
         public List<int> Nodes = new();
+    }
+
+    [Serializable]
+    private struct CachedSpecialTileEntry
+    {
+        public int NodeIndex;
+        public MonoBehaviour Tile;
     }
 
     [Serializable]
