@@ -28,9 +28,6 @@ public class Pathfinder : MonoBehaviour
     private float collisionRadiusShrink = 0.05f;
 
     [SerializeField]
-    private bool allowDiagonals = false;
-
-    [SerializeField]
     private LayerMask specialTileMask;
 
     [Header("Room Settings")]
@@ -82,6 +79,7 @@ public class Pathfinder : MonoBehaviour
     private int gridSizeX;
     private int gridSizeY;
     private Vector2 gridWorldBottomLeft;
+    [SerializeField, HideInInspector]
     private HaNode[] nodes;
     [SerializeField, HideInInspector]
     private List<HaRoom> rooms = new();
@@ -127,28 +125,23 @@ public class Pathfinder : MonoBehaviour
     private List<int>[] roomAbstractNodes;
 
     [SerializeField, HideInInspector]
-    private int[] portalAbstractA;
-
-    [SerializeField, HideInInspector]
-    private int[] portalAbstractB;
+    private PortalAbstractPair[] portalAbstractPairs;
+    private TileBase[] roomTileCache;
     private readonly Dictionary<long, int> lowLevelCostCache = new();
     private readonly Dictionary<long, int> roomPortalCostCache = new();
     private readonly Dictionary<(int roomId, int min, int max), int> roomLowLevelCostCache = new();
 
-    private int[] gCosts;
-    private int[] hCosts;
-    private int[] parents;
-    private bool[] closedFlags;
-    private bool[] openFlags;
-    private readonly List<int> openSet = new();
-    private readonly List<int> abstractOpenSet = new();
-    private int[] abstractGCosts;
-    private int[] abstractHCosts;
-    private int[] abstractParents;
-    private bool[] abstractClosedFlags;
-    private bool[] abstractOpenFlags;
+    private readonly SearchState lowLevelSearch = new();
+    private readonly SearchState abstractSearch = new();
+    private readonly MinHeap lowLevelOpenSet = new();
+    private readonly MinHeap abstractOpenSet = new();
     private readonly List<int> abstractNeighborBuffer = new();
+    private readonly List<int> neighborIndexBuffer = new();
+    private readonly List<int> pathIndexBuffer = new();
+    private readonly Queue<int> roomSearchQueue = new();
+    private readonly List<IHaSpecialLink> specialLinkBuffer = new();
     private static readonly List<Pathfinder> ActivePathfinders = new();
+    private static readonly HashSet<IHaSpecialLink> ActiveSpecialLinks = new();
 
     private void Awake()
     {
@@ -247,58 +240,9 @@ public class Pathfinder : MonoBehaviour
             return new List<int>();
         }
 
-        if (startIndex == endIndex)
+        if (TryFindLowLevelPath(startIndex, endIndex, roomId, true, true, out int _, out List<int> path))
         {
-            return new List<int> { startIndex };
-        }
-
-        EnsureSearchArrays();
-        ResetSearchArrays();
-        openSet.Clear();
-
-        gCosts[startIndex] = 0;
-        hCosts[startIndex] = GetDistance(startIndex, endIndex);
-        openSet.Add(startIndex);
-        openFlags[startIndex] = true;
-
-        while (openSet.Count > 0)
-        {
-            int currentIndex = GetLowestFCostIndex(openSet, gCosts, hCosts);
-            openSet.Remove(currentIndex);
-            openFlags[currentIndex] = false;
-            closedFlags[currentIndex] = true;
-
-            if (currentIndex == endIndex)
-            {
-                return RetracePathIndices(startIndex, endIndex);
-            }
-
-            foreach (int neighborIndex in nodes[currentIndex].Neighbors)
-            {
-                if (closedFlags[neighborIndex])
-                {
-                    continue;
-                }
-
-                if (!nodes[neighborIndex].IsTraversable() || nodes[neighborIndex].RoomId != roomId)
-                {
-                    continue;
-                }
-
-                int newMovementCost = gCosts[currentIndex] + GetDistance(currentIndex, neighborIndex);
-                if (newMovementCost < gCosts[neighborIndex] || !openFlags[neighborIndex])
-                {
-                    gCosts[neighborIndex] = newMovementCost;
-                    hCosts[neighborIndex] = GetDistance(neighborIndex, endIndex);
-                    parents[neighborIndex] = currentIndex;
-
-                    if (!openFlags[neighborIndex])
-                    {
-                        openSet.Add(neighborIndex);
-                        openFlags[neighborIndex] = true;
-                    }
-                }
-            }
+            return path;
         }
 
         return new List<int>();
@@ -477,6 +421,26 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
+    public static void RegisterSpecialLink(IHaSpecialLink link)
+    {
+        if (link == null)
+        {
+            return;
+        }
+
+        ActiveSpecialLinks.Add(link);
+    }
+
+    public static void UnregisterSpecialLink(IHaSpecialLink link)
+    {
+        if (link == null)
+        {
+            return;
+        }
+
+        ActiveSpecialLinks.Remove(link);
+    }
+
     public void RefreshNodeAtWorldPosition(Vector2 worldPosition, bool rebuildAbstractGraph = true)
     {
         if (nodes == null || nodes.Length == 0)
@@ -501,24 +465,36 @@ public class Pathfinder : MonoBehaviour
     }
 
     private void CreateGrid()
-    {
-        CreateGrid(true);
-    }
+        => CreateGrid(true);
 
     private void CreateGrid(bool allowCachedAbstractData)
     {
         ResolveGridBounds();
         EnsureGridSettings();
 
-        if (allowCachedAbstractData && useCachedGridData && TryLoadCachedGridData())
+        if (allowCachedAbstractData && useCachedGridData)
         {
-            if (TryLoadCachedAbstractData())
+            if (TryLoadCachedNodeData())
             {
+                if (TryLoadCachedAbstractData())
+                {
+                    return;
+                }
+
+                BuildRoomsAndPortals(false);
                 return;
             }
 
-            BuildRoomsAndPortals(false);
-            return;
+            if (TryLoadCachedGridData())
+            {
+                if (TryLoadCachedAbstractData())
+                {
+                    return;
+                }
+
+                BuildRoomsAndPortals(false);
+                return;
+            }
         }
 
         BuildGrid();
@@ -565,6 +541,34 @@ public class Pathfinder : MonoBehaviour
 
         BuildNeighbors();
         EnsureSearchArrays();
+    }
+
+    private bool TryLoadCachedNodeData()
+    {
+        if (nodes == null || nodes.Length == 0)
+        {
+            return false;
+        }
+
+        if (cachedGridSizeX != gridSizeX || cachedGridSizeY != gridSizeY)
+        {
+            return false;
+        }
+
+        if (nodes.Length != gridSizeX * gridSizeY)
+        {
+            return false;
+        }
+
+        if (!IsCachedGridCompatible())
+        {
+            return false;
+        }
+
+        ApplyCachedNodeInteractions();
+        EnsureNodeNeighbors();
+        EnsureSearchArrays();
+        return true;
     }
 
     private bool TryLoadCachedGridData()
@@ -623,6 +627,54 @@ public class Pathfinder : MonoBehaviour
         return true;
     }
 
+    private void ApplyCachedNodeInteractions()
+    {
+        if (cachedSpecialTiles == null || cachedSpecialTiles.Count == 0)
+        {
+            return;
+        }
+
+        Dictionary<int, ISpecialTile> cachedSpecialTileMap = BuildCachedSpecialTileMap();
+        if (cachedSpecialTileMap.Count == 0)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<int, ISpecialTile> entry in cachedSpecialTileMap)
+        {
+            if (entry.Key < 0 || entry.Key >= nodes.Length)
+            {
+                continue;
+            }
+
+            HaNode node = nodes[entry.Key];
+            node.Interaction = entry.Value;
+            if (entry.Value != null)
+            {
+                node.Walkable = true;
+            }
+
+            nodes[entry.Key] = node;
+        }
+    }
+
+    private void EnsureNodeNeighbors()
+    {
+        if (nodes == null || nodes.Length == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            if (nodes[i].Neighbors == null || nodes[i].Neighbors.Length == 0)
+            {
+                BuildNeighbors();
+                return;
+            }
+        }
+    }
+
     private bool IsCachedGridCompatible()
     {
         if (!Mathf.Approximately(cachedNodeRadius, nodeRadius))
@@ -643,7 +695,7 @@ public class Pathfinder : MonoBehaviour
     private Dictionary<int, ISpecialTile> BuildCachedSpecialTileMap()
     {
         Dictionary<int, ISpecialTile> map = new();
-        if (cachedSpecialTiles == null)
+        if (cachedSpecialTiles == null || cachedSpecialTiles.Count == 0)
         {
             return map;
         }
@@ -695,7 +747,7 @@ public class Pathfinder : MonoBehaviour
         {
             for (int y = 0; y < gridSizeY; y++)
             {
-                List<int> neighborIndices = new();
+                neighborIndexBuffer.Clear();
                 for (int offsetX = -1; offsetX <= 1; offsetX++)
                 {
                     for (int offsetY = -1; offsetY <= 1; offsetY++)
@@ -705,24 +757,21 @@ public class Pathfinder : MonoBehaviour
                             continue;
                         }
 
-                        if (!allowDiagonals && Mathf.Abs(offsetX) + Mathf.Abs(offsetY) > 1)
-                        {
-                            continue;
-                        }
-
                         int checkX = x + offsetX;
                         int checkY = y + offsetY;
 
-                        if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                        if (Mathf.Abs(offsetX) + Mathf.Abs(offsetY) == 1
+                            && checkX >= 0 && checkX < gridSizeX
+                            && checkY >= 0 && checkY < gridSizeY)
                         {
-                            neighborIndices.Add(GetIndex(checkX, checkY));
+                            neighborIndexBuffer.Add(GetIndex(checkX, checkY));
                         }
                     }
                 }
 
                 int index = GetIndex(x, y);
                 HaNode node = nodes[index];
-                node.Neighbors = neighborIndices.ToArray();
+                node.Neighbors = neighborIndexBuffer.ToArray();
                 nodes[index] = node;
             }
         }
@@ -738,9 +787,9 @@ public class Pathfinder : MonoBehaviour
         roomLowLevelCostCache.Clear();
         roomAbstractNodes = null;
         abstractNodeToGridIndex = null;
-        portalAbstractA = null;
-        portalAbstractB = null;
+        portalAbstractPairs = null;
 
+        BuildRoomTileCache();
         AssignRoomsFromFloor();
         BuildRoomBoundaryPortals();
         BuildSpecialLinkPortals();
@@ -892,17 +941,16 @@ public class Pathfinder : MonoBehaviour
             return;
         }
 
-        if (portalAbstractA != null && portalAbstractB != null
-            && portalAbstractA.Length == portals.Count
-            && portalAbstractB.Length == portals.Count)
+        if (portalAbstractPairs != null && portalAbstractPairs.Length == portals.Count)
         {
             return;
         }
 
-        portalAbstractA = new int[portals.Count];
-        portalAbstractB = new int[portals.Count];
-        Array.Fill(portalAbstractA, -1);
-        Array.Fill(portalAbstractB, -1);
+        portalAbstractPairs = new PortalAbstractPair[portals.Count];
+        for (int i = 0; i < portalAbstractPairs.Length; i++)
+        {
+            portalAbstractPairs[i] = new PortalAbstractPair { A = -1, B = -1 };
+        }
 
         for (int i = 0; i < abstractNodes.Count; i++)
         {
@@ -912,14 +960,17 @@ public class Pathfinder : MonoBehaviour
                 continue;
             }
 
-            if (portalAbstractA[portalIndex] < 0)
+            PortalAbstractPair pair = portalAbstractPairs[portalIndex];
+            if (pair.A < 0)
             {
-                portalAbstractA[portalIndex] = i;
+                pair.A = i;
             }
             else
             {
-                portalAbstractB[portalIndex] = i;
+                pair.B = i;
             }
+
+            portalAbstractPairs[portalIndex] = pair;
         }
     }
 
@@ -1045,6 +1096,7 @@ public class Pathfinder : MonoBehaviour
 
     private void AssignRoomsFromFloor()
     {
+        BuildRoomTileCache();
         bool[] visited = new bool[nodes.Length];
         int roomId = 0;
 
@@ -1055,20 +1107,20 @@ public class Pathfinder : MonoBehaviour
                 continue;
             }
 
-            TileBase roomTile = GetRoomTile(nodes[index].WorldPosition);
+            TileBase roomTile = GetRoomTileForIndex(index);
             if (separateRoomsByTileType && floorTilemap != null && roomTile == null)
             {
                 continue;
             }
 
             HaRoom room = new HaRoom(roomId);
-            Queue<int> open = new Queue<int>();
-            open.Enqueue(index);
+            roomSearchQueue.Clear();
+            roomSearchQueue.Enqueue(index);
             visited[index] = true;
 
-            while (open.Count > 0)
+            while (roomSearchQueue.Count > 0)
             {
-                int currentIndex = open.Dequeue();
+                int currentIndex = roomSearchQueue.Dequeue();
                 HaNode node = nodes[currentIndex];
                 node.RoomId = roomId;
                 nodes[currentIndex] = node;
@@ -1082,7 +1134,7 @@ public class Pathfinder : MonoBehaviour
                     }
 
                     visited[neighbor] = true;
-                    open.Enqueue(neighbor);
+                    roomSearchQueue.Enqueue(neighbor);
                 }
             }
 
@@ -1098,7 +1150,7 @@ public class Pathfinder : MonoBehaviour
             return false;
         }
 
-        return IsRoomCandidate(index, GetRoomTile(nodes[index].WorldPosition));
+        return IsRoomCandidate(index, GetRoomTileForIndex(index));
     }
 
     private bool IsRoomCandidate(int index, TileBase expectedTile)
@@ -1108,18 +1160,64 @@ public class Pathfinder : MonoBehaviour
             return false;
         }
 
-        if (!IsFloorNode(nodes[index].WorldPosition))
-        {
-            return false;
-        }
-
-        if (!separateRoomsByTileType || floorTilemap == null)
+        if (floorTilemap == null)
         {
             return true;
         }
 
-        TileBase tile = GetRoomTile(nodes[index].WorldPosition);
-        return tile != null && tile == expectedTile;
+        TileBase tile = GetRoomTileForIndex(index);
+        if (tile == null)
+        {
+            return false;
+        }
+
+        if (!separateRoomsByTileType)
+        {
+            return true;
+        }
+
+        return tile == expectedTile;
+    }
+
+    private TileBase GetRoomTileForIndex(int index)
+    {
+        if (roomTileCache != null && index >= 0 && index < roomTileCache.Length)
+        {
+            return roomTileCache[index];
+        }
+
+        return GetRoomTile(nodes[index].WorldPosition);
+    }
+
+    private void BuildRoomTileCache()
+    {
+        if (floorTilemap == null || nodes == null || nodes.Length == 0)
+        {
+            roomTileCache = null;
+            return;
+        }
+
+        if (roomTileCache == null || roomTileCache.Length != nodes.Length)
+        {
+            roomTileCache = new TileBase[nodes.Length];
+        }
+
+        HashSet<TileBase> allowedTiles = null;
+        if (floorTiles != null && floorTiles.Count > 0)
+        {
+            allowedTiles = new HashSet<TileBase>(floorTiles);
+        }
+
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            TileBase tile = floorTilemap.GetTile(floorTilemap.WorldToCell(nodes[i].WorldPosition));
+            if (tile != null && allowedTiles != null && !allowedTiles.Contains(tile))
+            {
+                tile = null;
+            }
+
+            roomTileCache[i] = tile;
+        }
     }
 
     private TileBase GetRoomTile(Vector2 worldPosition)
@@ -1141,11 +1239,6 @@ public class Pathfinder : MonoBehaviour
         }
 
         return floorTiles.Contains(tile) ? tile : null;
-    }
-
-    private bool IsFloorNode(Vector2 worldPosition)
-    {
-        return GetRoomTile(worldPosition) != null || floorTilemap == null;
     }
 
     private void BuildRoomBoundaryPortals()
@@ -1220,12 +1313,18 @@ public class Pathfinder : MonoBehaviour
 
     private void BuildSpecialLinkPortals()
     {
-        MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include);
         HashSet<(EntityId, EntityId)> processedLinks = new();
+        specialLinkBuffer.Clear();
 
-        foreach (MonoBehaviour behaviour in behaviours)
+        if (ActiveSpecialLinks.Count > 0)
         {
-            if (behaviour is not IHaSpecialLink link)
+            specialLinkBuffer.AddRange(ActiveSpecialLinks);
+        }
+
+        for (int i = 0; i < specialLinkBuffer.Count; i++)
+        {
+            IHaSpecialLink link = specialLinkBuffer[i];
+            if (link == null)
             {
                 continue;
             }
@@ -1387,18 +1486,21 @@ public class Pathfinder : MonoBehaviour
             }
         }
 
-        if (portalAbstractA == null || portalAbstractA.Length < portals.Count)
+        if (portalAbstractPairs == null || portalAbstractPairs.Length < portals.Count)
         {
-            Array.Resize(ref portalAbstractA, portals.Count);
-            Array.Resize(ref portalAbstractB, portals.Count);
+            int previousLength = portalAbstractPairs?.Length ?? 0;
+            Array.Resize(ref portalAbstractPairs, portals.Count);
+            for (int i = previousLength; i < portalAbstractPairs.Length; i++)
+            {
+                portalAbstractPairs[i] = new PortalAbstractPair { A = -1, B = -1 };
+            }
         }
 
         abstractNodeToGridIndex[abstractIndexA] = gridIndexA;
         abstractNodeToGridIndex[abstractIndexB] = gridIndexB;
         roomAbstractNodes[roomA].Add(abstractIndexA);
         roomAbstractNodes[roomB].Add(abstractIndexB);
-        portalAbstractA[portalIndex] = abstractIndexA;
-        portalAbstractB[portalIndex] = abstractIndexB;
+        portalAbstractPairs[portalIndex] = new PortalAbstractPair { A = abstractIndexA, B = abstractIndexB };
     }
 
     private void BuildAbstractNeighbors()
@@ -1414,7 +1516,8 @@ public class Pathfinder : MonoBehaviour
             List<int> neighbors = new();
 
             int portalIndex = node.PortalIndex;
-            int paired = portalAbstractA[portalIndex] == i ? portalAbstractB[portalIndex] : portalAbstractA[portalIndex];
+            PortalAbstractPair pair = portalAbstractPairs[portalIndex];
+            int paired = pair.A == i ? pair.B : pair.A;
             if (paired >= 0)
             {
                 neighbors.Add(paired);
@@ -1449,119 +1552,11 @@ public class Pathfinder : MonoBehaviour
 
     private int GetIndex(int x, int y) => x + y * gridSizeX;
 
-    private List<int> FindLowLevelPathIndices(int startIndex, int endIndex)
-    {
-        if (startIndex == endIndex)
-        {
-            return new List<int> { startIndex };
-        }
-
-        EnsureSearchArrays();
-        ResetSearchArrays();
-        openSet.Clear();
-
-        gCosts[startIndex] = 0;
-        hCosts[startIndex] = GetDistance(startIndex, endIndex);
-        openSet.Add(startIndex);
-        openFlags[startIndex] = true;
-
-        while (openSet.Count > 0)
-        {
-            int currentIndex = GetLowestFCostIndex(openSet, gCosts, hCosts);
-            openSet.Remove(currentIndex);
-            openFlags[currentIndex] = false;
-            closedFlags[currentIndex] = true;
-
-            if (currentIndex == endIndex)
-            {
-                return RetracePathIndices(startIndex, endIndex);
-            }
-
-            foreach (int neighborIndex in nodes[currentIndex].Neighbors)
-            {
-                if (closedFlags[neighborIndex])
-                {
-                    continue;
-                }
-
-                if (!nodes[neighborIndex].IsTraversable())
-                {
-                    continue;
-                }
-
-                int newMovementCost = gCosts[currentIndex] + GetDistance(currentIndex, neighborIndex);
-                if (newMovementCost < gCosts[neighborIndex] || !openFlags[neighborIndex])
-                {
-                    gCosts[neighborIndex] = newMovementCost;
-                    hCosts[neighborIndex] = GetDistance(neighborIndex, endIndex);
-                    parents[neighborIndex] = currentIndex;
-
-                    if (!openFlags[neighborIndex])
-                    {
-                        openSet.Add(neighborIndex);
-                        openFlags[neighborIndex] = true;
-                    }
-                }
-            }
-        }
-
-        return new List<int>();
-    }
-
     private int FindLowLevelCost(int startIndex, int endIndex)
     {
-        if (startIndex == endIndex)
+        if (TryFindLowLevelPath(startIndex, endIndex, -1, false, false, out int cost, out List<int> _))
         {
-            return 0;
-        }
-
-        EnsureSearchArrays();
-        ResetSearchArrays();
-        openSet.Clear();
-
-        gCosts[startIndex] = 0;
-        hCosts[startIndex] = GetDistance(startIndex, endIndex);
-        openSet.Add(startIndex);
-        openFlags[startIndex] = true;
-
-        while (openSet.Count > 0)
-        {
-            int currentIndex = GetLowestFCostIndex(openSet, gCosts, hCosts);
-            openSet.Remove(currentIndex);
-            openFlags[currentIndex] = false;
-            closedFlags[currentIndex] = true;
-
-            if (currentIndex == endIndex)
-            {
-                return gCosts[endIndex];
-            }
-
-            foreach (int neighborIndex in nodes[currentIndex].Neighbors)
-            {
-                if (closedFlags[neighborIndex])
-                {
-                    continue;
-                }
-
-                if (!nodes[neighborIndex].IsTraversable())
-                {
-                    continue;
-                }
-
-                int newMovementCost = gCosts[currentIndex] + GetDistance(currentIndex, neighborIndex);
-                if (newMovementCost < gCosts[neighborIndex] || !openFlags[neighborIndex])
-                {
-                    gCosts[neighborIndex] = newMovementCost;
-                    hCosts[neighborIndex] = GetDistance(neighborIndex, endIndex);
-                    parents[neighborIndex] = currentIndex;
-
-                    if (!openFlags[neighborIndex])
-                    {
-                        openSet.Add(neighborIndex);
-                        openFlags[neighborIndex] = true;
-                    }
-                }
-            }
+            return cost;
         }
 
         return int.MaxValue;
@@ -1573,82 +1568,119 @@ public class Pathfinder : MonoBehaviour
         {
             return int.MaxValue;
         }
-
-        if (startIndex == endIndex)
+        if (TryFindLowLevelPath(startIndex, endIndex, roomId, true, false, out int cost, out List<int> _))
         {
-            return 0;
-        }
-
-        EnsureSearchArrays();
-        ResetSearchArrays();
-        openSet.Clear();
-
-        gCosts[startIndex] = 0;
-        hCosts[startIndex] = GetDistance(startIndex, endIndex);
-        openSet.Add(startIndex);
-        openFlags[startIndex] = true;
-
-        while (openSet.Count > 0)
-        {
-            int currentIndex = GetLowestFCostIndex(openSet, gCosts, hCosts);
-            openSet.Remove(currentIndex);
-            openFlags[currentIndex] = false;
-            closedFlags[currentIndex] = true;
-
-            if (currentIndex == endIndex)
-            {
-                return gCosts[endIndex];
-            }
-
-            foreach (int neighborIndex in nodes[currentIndex].Neighbors)
-            {
-                if (closedFlags[neighborIndex])
-                {
-                    continue;
-                }
-
-                if (!nodes[neighborIndex].IsTraversable() || nodes[neighborIndex].RoomId != roomId)
-                {
-                    continue;
-                }
-
-                int newMovementCost = gCosts[currentIndex] + GetDistance(currentIndex, neighborIndex);
-                if (newMovementCost < gCosts[neighborIndex] || !openFlags[neighborIndex])
-                {
-                    gCosts[neighborIndex] = newMovementCost;
-                    hCosts[neighborIndex] = GetDistance(neighborIndex, endIndex);
-                    parents[neighborIndex] = currentIndex;
-
-                    if (!openFlags[neighborIndex])
-                    {
-                        openSet.Add(neighborIndex);
-                        openFlags[neighborIndex] = true;
-                    }
-                }
-            }
+            return cost;
         }
 
         return int.MaxValue;
     }
 
-    private List<int> RetracePathIndices(int startIndex, int endIndex)
+    private bool TryFindLowLevelPath(int startIndex, int endIndex, int roomId, bool constrainRoom, bool buildPath, out int cost, out List<int> path)
     {
-        List<int> path = new();
+        path = null;
+        cost = int.MaxValue;
+
+        if (startIndex == endIndex)
+        {
+            cost = 0;
+            if (buildPath)
+            {
+                pathIndexBuffer.Clear();
+                pathIndexBuffer.Add(startIndex);
+                path = new List<int>(pathIndexBuffer);
+            }
+
+            return true;
+        }
+
+        EnsureSearchArrays();
+        ResetSearchArrays();
+        lowLevelOpenSet.Clear();
+
+        lowLevelSearch.GCosts[startIndex] = 0;
+        lowLevelSearch.HCosts[startIndex] = GetDistance(startIndex, endIndex);
+        lowLevelSearch.Open[startIndex] = true;
+        lowLevelOpenSet.EnqueueOrUpdate(startIndex);
+
+        while (lowLevelOpenSet.Count > 0)
+        {
+            int currentIndex = lowLevelOpenSet.Dequeue();
+            lowLevelSearch.Open[currentIndex] = false;
+            lowLevelSearch.Closed[currentIndex] = true;
+
+            if (currentIndex == endIndex)
+            {
+                cost = lowLevelSearch.GCosts[endIndex];
+                if (buildPath)
+                {
+                    if (!TryBuildPathIndices(startIndex, endIndex, pathIndexBuffer))
+                    {
+                        return false;
+                    }
+
+                    path = new List<int>(pathIndexBuffer);
+                }
+
+                return true;
+            }
+
+            foreach (int neighborIndex in nodes[currentIndex].Neighbors)
+            {
+                if (lowLevelSearch.Closed[neighborIndex])
+                {
+                    continue;
+                }
+
+                if (!nodes[neighborIndex].IsTraversable())
+                {
+                    continue;
+                }
+
+                if (constrainRoom && nodes[neighborIndex].RoomId != roomId)
+                {
+                    continue;
+                }
+
+                int newMovementCost = lowLevelSearch.GCosts[currentIndex] + GetDistance(currentIndex, neighborIndex);
+                if (newMovementCost < lowLevelSearch.GCosts[neighborIndex] || !lowLevelSearch.Open[neighborIndex])
+                {
+                    lowLevelSearch.GCosts[neighborIndex] = newMovementCost;
+                    lowLevelSearch.HCosts[neighborIndex] = GetDistance(neighborIndex, endIndex);
+                    lowLevelSearch.Parents[neighborIndex] = currentIndex;
+
+                    if (!lowLevelSearch.Open[neighborIndex])
+                    {
+                        lowLevelSearch.Open[neighborIndex] = true;
+                    }
+
+                    lowLevelOpenSet.EnqueueOrUpdate(neighborIndex);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryBuildPathIndices(int startIndex, int endIndex, List<int> pathBuffer)
+    {
+        pathBuffer.Clear();
         int currentIndex = endIndex;
 
         while (currentIndex != startIndex)
         {
-            path.Add(currentIndex);
-            currentIndex = parents[currentIndex];
+            pathBuffer.Add(currentIndex);
+            currentIndex = lowLevelSearch.Parents[currentIndex];
             if (currentIndex < 0)
             {
-                return new List<int>();
+                pathBuffer.Clear();
+                return false;
             }
         }
 
-        path.Add(startIndex);
-        path.Reverse();
-        return path;
+        pathBuffer.Add(startIndex);
+        pathBuffer.Reverse();
+        return true;
     }
 
     private List<int> FindAbstractPath(int startIndex, int endIndex)
@@ -1671,17 +1703,16 @@ public class Pathfinder : MonoBehaviour
         ResetAbstractSearchArrays(totalNodes);
         abstractOpenSet.Clear();
 
-        abstractGCosts[virtualStart] = 0;
-        abstractHCosts[virtualStart] = GetDistance(startIndex, endIndex);
-        abstractOpenSet.Add(virtualStart);
-        abstractOpenFlags[virtualStart] = true;
+        abstractSearch.GCosts[virtualStart] = 0;
+        abstractSearch.HCosts[virtualStart] = GetDistance(startIndex, endIndex);
+        abstractSearch.Open[virtualStart] = true;
+        abstractOpenSet.EnqueueOrUpdate(virtualStart);
 
         while (abstractOpenSet.Count > 0)
         {
-            int currentIndex = GetLowestFCostIndex(abstractOpenSet, abstractGCosts, abstractHCosts);
-            abstractOpenSet.Remove(currentIndex);
-            abstractOpenFlags[currentIndex] = false;
-            abstractClosedFlags[currentIndex] = true;
+            int currentIndex = abstractOpenSet.Dequeue();
+            abstractSearch.Open[currentIndex] = false;
+            abstractSearch.Closed[currentIndex] = true;
 
             if (currentIndex == virtualEnd)
             {
@@ -1691,7 +1722,7 @@ public class Pathfinder : MonoBehaviour
             EnumerateAbstractNeighbors(currentIndex, startIndex, endIndex, startRoom, endRoom);
             foreach (int neighborIndex in abstractNeighborBuffer)
             {
-                if (abstractClosedFlags[neighborIndex])
+                if (abstractSearch.Closed[neighborIndex])
                 {
                     continue;
                 }
@@ -1702,18 +1733,19 @@ public class Pathfinder : MonoBehaviour
                     continue;
                 }
 
-                int newMovementCost = abstractGCosts[currentIndex] + cost;
-                if (newMovementCost < abstractGCosts[neighborIndex] || !abstractOpenFlags[neighborIndex])
+                int newMovementCost = abstractSearch.GCosts[currentIndex] + cost;
+                if (newMovementCost < abstractSearch.GCosts[neighborIndex] || !abstractSearch.Open[neighborIndex])
                 {
-                    abstractGCosts[neighborIndex] = newMovementCost;
-                    abstractHCosts[neighborIndex] = GetDistance(GetAbstractNodeGridIndex(neighborIndex, startIndex, endIndex), endIndex);
-                    abstractParents[neighborIndex] = currentIndex;
+                    abstractSearch.GCosts[neighborIndex] = newMovementCost;
+                    abstractSearch.HCosts[neighborIndex] = GetDistance(GetAbstractNodeGridIndex(neighborIndex, startIndex, endIndex), endIndex);
+                    abstractSearch.Parents[neighborIndex] = currentIndex;
 
-                    if (!abstractOpenFlags[neighborIndex])
+                    if (!abstractSearch.Open[neighborIndex])
                     {
-                        abstractOpenSet.Add(neighborIndex);
-                        abstractOpenFlags[neighborIndex] = true;
+                        abstractSearch.Open[neighborIndex] = true;
                     }
+
+                    abstractOpenSet.EnqueueOrUpdate(neighborIndex);
                 }
             }
         }
@@ -1779,19 +1811,12 @@ public class Pathfinder : MonoBehaviour
     }
 
     private int GetAbstractNodeGridIndex(int abstractIndex, int startIndex, int endIndex)
-    {
-        if (abstractIndex == abstractNodes.Count)
+        => abstractIndex switch
         {
-            return startIndex;
-        }
-
-        if (abstractIndex == abstractNodes.Count + 1)
-        {
-            return endIndex;
-        }
-
-        return abstractNodeToGridIndex[abstractIndex];
-    }
+            var index when index == abstractNodes.Count => startIndex,
+            var index when index == abstractNodes.Count + 1 => endIndex,
+            _ => abstractNodeToGridIndex[abstractIndex]
+        };
 
     private List<int> RetraceAbstractPath(int startIndex, int endIndex)
     {
@@ -1801,7 +1826,7 @@ public class Pathfinder : MonoBehaviour
         while (currentIndex != startIndex)
         {
             path.Add(currentIndex);
-            currentIndex = abstractParents[currentIndex];
+            currentIndex = abstractSearch.Parents[currentIndex];
             if (currentIndex < 0)
             {
                 return new List<int>();
@@ -1929,7 +1954,7 @@ public class Pathfinder : MonoBehaviour
 
     private List<Vector2> ConvertPathToWorldPositions(List<int> nodeIndices)
     {
-        List<Vector2> path = new();
+        List<Vector2> path = new(nodeIndices.Count);
         for (int i = 0; i < nodeIndices.Count; i++)
         {
             path.Add(nodes[nodeIndices[i]].WorldPosition);
@@ -1938,40 +1963,12 @@ public class Pathfinder : MonoBehaviour
         return path;
     }
 
-    private int GetLowestFCostIndex(List<int> indices, int[] gCost, int[] hCost)
-    {
-        int bestIndex = indices[0];
-        int bestCost = gCost[bestIndex] + hCost[bestIndex];
-        int bestHCost = hCost[bestIndex];
-
-        for (int i = 1; i < indices.Count; i++)
-        {
-            int candidate = indices[i];
-            int candidateCost = gCost[candidate] + hCost[candidate];
-            if (candidateCost < bestCost || (candidateCost == bestCost && hCost[candidate] < bestHCost))
-            {
-                bestIndex = candidate;
-                bestCost = candidateCost;
-                bestHCost = hCost[candidate];
-            }
-        }
-
-        return bestIndex;
-    }
-
     private int GetDistance(int indexA, int indexB)
     {
         Vector2Int a = nodes[indexA].GridPosition;
         Vector2Int b = nodes[indexB].GridPosition;
         int dstX = Mathf.Abs(a.x - b.x);
         int dstY = Mathf.Abs(a.y - b.y);
-
-        if (allowDiagonals)
-        {
-            int remaining = Mathf.Abs(dstX - dstY);
-            return 14 * Mathf.Min(dstX, dstY) + 10 * remaining;
-        }
-
         return 10 * (dstX + dstY);
     }
 
@@ -1988,27 +1985,13 @@ public class Pathfinder : MonoBehaviour
             return;
         }
 
-        int length = nodes.Length;
-        if (gCosts == null || gCosts.Length != length)
-        {
-            gCosts = new int[length];
-            hCosts = new int[length];
-            parents = new int[length];
-            closedFlags = new bool[length];
-            openFlags = new bool[length];
-        }
+        lowLevelSearch.Ensure(nodes.Length);
+        lowLevelOpenSet.Initialize(lowLevelSearch.HeapIndices, lowLevelSearch.GCosts, lowLevelSearch.HCosts);
     }
 
     private void ResetSearchArrays()
     {
-        for (int i = 0; i < gCosts.Length; i++)
-        {
-            gCosts[i] = int.MaxValue;
-            hCosts[i] = 0;
-            parents[i] = -1;
-            closedFlags[i] = false;
-            openFlags[i] = false;
-        }
+        lowLevelSearch.Reset(nodes.Length);
     }
 
     private bool EnsureAbstractSearchArrays(int totalNodes)
@@ -2018,28 +2001,15 @@ public class Pathfinder : MonoBehaviour
             return false;
         }
 
-        if (abstractGCosts == null || abstractGCosts.Length < totalNodes)
-        {
-            abstractGCosts = new int[totalNodes];
-            abstractHCosts = new int[totalNodes];
-            abstractParents = new int[totalNodes];
-            abstractClosedFlags = new bool[totalNodes];
-            abstractOpenFlags = new bool[totalNodes];
-        }
+        abstractSearch.Ensure(totalNodes);
+        abstractOpenSet.Initialize(abstractSearch.HeapIndices, abstractSearch.GCosts, abstractSearch.HCosts);
 
         return true;
     }
 
     private void ResetAbstractSearchArrays(int totalNodes)
     {
-        for (int i = 0; i < totalNodes; i++)
-        {
-            abstractGCosts[i] = int.MaxValue;
-            abstractHCosts[i] = 0;
-            abstractParents[i] = -1;
-            abstractClosedFlags[i] = false;
-            abstractOpenFlags[i] = false;
-        }
+        abstractSearch.Reset(totalNodes);
     }
 
     private int GetCachedLowLevelCost(int startIndex, int endIndex)
@@ -2064,9 +2034,7 @@ public class Pathfinder : MonoBehaviour
     }
 
     private LayerMask GetObstacleMask()
-    {
-        return Obstacles | playerCollisionMask;
-    }
+        => Obstacles | playerCollisionMask;
 
     private bool TryGetSpecialTile(Vector2 worldPoint, out ISpecialTile interaction)
     {
@@ -2111,9 +2079,13 @@ public class Pathfinder : MonoBehaviour
     {
         TryGetSpecialTile(worldPoint, out interaction);
         Collider2D[] hits = Physics2D.OverlapCircleAll(worldPoint, GetCollisionRadius(), GetObstacleMask());
-        for (int i = 0; i < hits.Length; i++)
+        if (hits.Length == 0)
         {
-            Collider2D hit = hits[i];
+            return true;
+        }
+
+        foreach (Collider2D hit in hits)
+        {
             if (hit == null)
             {
                 continue;
@@ -2143,6 +2115,182 @@ public class Pathfinder : MonoBehaviour
             || collider.GetComponent<IHaSpecialLink>() != null;
     }
 
+    private sealed class SearchState
+    {
+        public int[] GCosts;
+        public int[] HCosts;
+        public int[] Parents;
+        public bool[] Closed;
+        public bool[] Open;
+        public int[] HeapIndices;
+
+        public void Ensure(int length)
+        {
+            if (length <= 0)
+            {
+                return;
+            }
+
+            if (GCosts == null || GCosts.Length < length)
+            {
+                GCosts = new int[length];
+                HCosts = new int[length];
+                Parents = new int[length];
+                Closed = new bool[length];
+                Open = new bool[length];
+                HeapIndices = new int[length];
+            }
+        }
+
+        public void Reset(int length)
+        {
+            Ensure(length);
+            for (int i = 0; i < length; i++)
+            {
+                GCosts[i] = int.MaxValue;
+                HCosts[i] = 0;
+                Parents[i] = -1;
+                Closed[i] = false;
+                Open[i] = false;
+                HeapIndices[i] = -1;
+            }
+        }
+    }
+
+    private sealed class MinHeap
+    {
+        private readonly List<int> heap = new();
+        private int[] positions;
+        private int[] gCosts;
+        private int[] hCosts;
+
+        public int Count => heap.Count;
+
+        public void Initialize(int[] positionMap, int[] gCostMap, int[] hCostMap)
+        {
+            positions = positionMap;
+            gCosts = gCostMap;
+            hCosts = hCostMap;
+        }
+
+        public void Clear()
+        {
+            if (heap.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < heap.Count; i++)
+            {
+                int index = heap[i];
+                if (index >= 0 && index < positions.Length)
+                {
+                    positions[index] = -1;
+                }
+            }
+
+            heap.Clear();
+        }
+
+        public void EnqueueOrUpdate(int index)
+        {
+            int position = positions[index];
+            if (position >= 0)
+            {
+                HeapifyUp(position);
+                return;
+            }
+
+            positions[index] = heap.Count;
+            heap.Add(index);
+            HeapifyUp(heap.Count - 1);
+        }
+
+        public int Dequeue()
+        {
+            int result = heap[0];
+            int lastIndex = heap.Count - 1;
+            Swap(0, lastIndex);
+            heap.RemoveAt(lastIndex);
+            positions[result] = -1;
+
+            if (heap.Count > 0)
+            {
+                HeapifyDown(0);
+            }
+
+            return result;
+        }
+
+        private int GetPriority(int index)
+            => gCosts[index] + hCosts[index];
+
+        private bool HasHigherPriority(int a, int b)
+        {
+            int costA = GetPriority(a);
+            int costB = GetPriority(b);
+            if (costA == costB)
+            {
+                return hCosts[a] < hCosts[b];
+            }
+
+            return costA < costB;
+        }
+
+        private void HeapifyUp(int index)
+        {
+            while (index > 0)
+            {
+                int parent = (index - 1) / 2;
+                if (HasHigherPriority(heap[parent], heap[index]))
+                {
+                    break;
+                }
+
+                Swap(parent, index);
+                index = parent;
+            }
+        }
+
+        private void HeapifyDown(int index)
+        {
+            int lastIndex = heap.Count - 1;
+            while (true)
+            {
+                int left = index * 2 + 1;
+                int right = left + 1;
+                if (left > lastIndex)
+                {
+                    return;
+                }
+
+                int best = left;
+                if (right <= lastIndex && HasHigherPriority(heap[right], heap[left]))
+                {
+                    best = right;
+                }
+
+                if (HasHigherPriority(heap[index], heap[best]))
+                {
+                    return;
+                }
+
+                Swap(index, best);
+                index = best;
+            }
+        }
+
+        private void Swap(int a, int b)
+        {
+            int temp = heap[a];
+            heap[a] = heap[b];
+            heap[b] = temp;
+
+            positions[heap[a]] = a;
+            positions[heap[b]] = b;
+        }
+    }
+
     [Serializable]
     private sealed class RoomAbstractNodeList
     {
@@ -2154,6 +2302,13 @@ public class Pathfinder : MonoBehaviour
     {
         public int NodeIndex;
         public MonoBehaviour Tile;
+    }
+
+    [Serializable]
+    private struct PortalAbstractPair
+    {
+        public int A;
+        public int B;
     }
 
     [Serializable]

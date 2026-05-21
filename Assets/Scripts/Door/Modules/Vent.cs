@@ -27,6 +27,11 @@ namespace HeistGame.Door {
         private void OnEnable() {
             spriteRenderer = GetComponent<SpriteRenderer>();
             player = GameObject.FindWithTag("Player");
+            Pathfinder.RegisterSpecialLink(this);
+        }
+
+        private void OnDisable() {
+            Pathfinder.UnregisterSpecialLink(this);
         }
          
         public void OpenDoor() {

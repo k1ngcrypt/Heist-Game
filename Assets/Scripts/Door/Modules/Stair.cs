@@ -13,6 +13,11 @@ namespace HeistGame.Door {
          
         private void OnEnable() {
             player = GameObject.FindWithTag("Player");
+            Pathfinder.RegisterSpecialLink(this);
+        }
+
+        private void OnDisable() {
+            Pathfinder.UnregisterSpecialLink(this);
         }
         public void OpenDoor() {
             player.transform.position = otherStair.position;

@@ -10,6 +10,7 @@ public enum HaNodeFlags : byte
     Dirty = 1 << 1
 }
 
+[Serializable]
 public struct HaNode
 {
     public Vector2Int GridPosition;
@@ -20,6 +21,7 @@ public struct HaNode
     public int[] Neighbors;
     public int RoomId;
     public HaNodeFlags Flags;
+    [NonSerialized]
     public ISpecialTile Interaction;
 
     public int FCost => GCost + HCost;
