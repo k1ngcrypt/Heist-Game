@@ -2297,10 +2297,7 @@ public class Pathfinder : MonoBehaviour
 
         private void Swap(int a, int b)
         {
-            int temp = heap[a];
-            heap[a] = heap[b];
-            heap[b] = temp;
-
+            (heap[b], heap[a]) = (heap[a], heap[b]);
             positions[heap[a]] = a;
             positions[heap[b]] = b;
         }

@@ -2,6 +2,12 @@ using UnityEngine;
 
 namespace Guards
 {
+    [RequireComponent(typeof(IdleState))]
+    [RequireComponent(typeof(PatrollingState))]
+    [RequireComponent(typeof(SuspiciousState))]
+    [RequireComponent(typeof(ChasingState))]
+    [RequireComponent(typeof(SearchingState))]
+    [RequireComponent(typeof(GuardNavigator))]
     public class GuardStateManager : MonoBehaviour, ITurnActor
     {
         // Serialized dependencies keep guard behavior data-driven instead of hard-coded.

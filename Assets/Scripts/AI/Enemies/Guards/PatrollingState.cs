@@ -35,19 +35,18 @@ namespace Guards
                 return;
             }
 
-            GuardNavigator navigator = Manager.Navigator;
-            if (navigator == null)
+            if (Manager.Navigator == null)
             {
                 return;
             }
 
-            navigator.TickAdvance();
-            if (navigator.ReachedDestination)
+            Manager.Navigator.TickAdvance();
+            if (Manager.Navigator.ReachedDestination)
             {
                 Transform nextPoint = Manager.AdvancePatrolPoint();
                 if (nextPoint != null)
                 {
-                    navigator.SetDestination(nextPoint.position, true);
+                    Manager.Navigator.SetDestination(nextPoint.position, true);
                 }
             }
         }

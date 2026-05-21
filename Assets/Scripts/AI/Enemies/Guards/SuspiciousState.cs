@@ -21,13 +21,7 @@
 
         public override void TickState()
         {
-            if (Manager == null)
-            {
-                return;
-            }
-
-            GuardNavigator navigator = Manager.Navigator;
-            if (navigator == null)
+            if (Manager == null || Manager.Navigator == null)
             {
                 return;
             }
@@ -35,10 +29,8 @@
             if (Manager.IsPlayerDetected())
             {
                 Manager.UpdateLastKnownPlayerPosition();
-                if (Manager.PlayerTarget != null)
-                {
-                    navigator.SetDestination(Manager.PlayerTarget.position, true);
-                }
+                
+                Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
 
                 if (Manager.IncreaseSuspicion())
                 {
@@ -46,12 +38,12 @@
                     return;
                 }
 
-                navigator.TickAdvance();
+                Manager.Navigator.TickAdvance();
                 return;
             }
 
-            navigator.TickAdvance();
-            if (navigator.ReachedDestination)
+            Manager.Navigator.TickAdvance();
+            if (Manager.Navigator.ReachedDestination)
             {
                 Manager.UpdateState(Manager.SearchingState);
             }
