@@ -155,6 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Stair
   otherStair: {fileID: 0}
+  traversalCost: 10
 --- !u!114 &8035896566059632399
 MonoBehaviour:
   m_ObjectHideFlags: 0
