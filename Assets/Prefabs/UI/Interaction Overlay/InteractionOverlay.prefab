@@ -561,7 +561,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 3793766463075220212}
         m_TargetAssemblyTypeName: InteractionOverlay, Assembly-CSharp
-        m_MethodName: EditMenu
+        m_MethodName: ToggleMenuStatus
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

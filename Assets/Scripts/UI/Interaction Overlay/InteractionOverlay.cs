@@ -11,6 +11,8 @@ public class InteractionOverlay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private Button btnPrefab;
 
+    private List<(Button btn, bool active)> allButtons = new List<(Button btn, bool active)>();
+
     public void Initialize(string title, List<InteractBtnTemplate> actions, Vector3 worldPosition)
     {
         menuPanel.gameObject.SetActive(true); //make sure layout is correct and then will close
@@ -20,17 +22,24 @@ public class InteractionOverlay : MonoBehaviour
         menuPanel.GetComponent<Transform>().position = worldPosition - new Vector3(0, 0.5f, 0); // One tile down;
         canvas.worldCamera = Camera.main;
 
-        List<Button> buttons = new List<Button>();
         foreach (var btnData in actions)
         {
             Button btn = Instantiate(btnPrefab, menuPanel);
             btn.GetComponentInChildren<TMP_Text>().text = btnData.text;
 
             btn.onClick.AddListener(() => btnData.onClick.Invoke());
-            buttons.Add(btn);
+            allButtons.Add((btn, true));
         }
 
-        //resize panel to fit buttons
+        ResizeMenu();        
+
+        UpdateButtons();
+
+        ToggleMenuStatus(); //close it for start
+    }
+
+    private void ResizeMenu()
+    {
         var layout = menuPanel.GetComponent<VerticalLayoutGroup>();
         float paddingBottom = layout.padding.bottom;
 
@@ -38,14 +47,12 @@ public class InteractionOverlay : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(pnl);
 
         RectTransform lastElement;
-        if (buttons.Count == 0)
+        if (allButtons.Count == 0)
         {
             lastElement = titleText.GetComponent<RectTransform>();
-            Debug.Log("No buttons in interact area, resizing to fit title only");
         } else
         {
-            lastElement = buttons[^1].GetComponent<RectTransform>();
-            Debug.Log("Resizing interact area to fit " + buttons.Count + " buttons");
+            lastElement = allButtons[^1].GetComponent<RectTransform>();
         }
          
         float pos = lastElement.anchoredPosition.y;
@@ -53,11 +60,14 @@ public class InteractionOverlay : MonoBehaviour
 
 
         pnl.sizeDelta = new Vector2(pnl.sizeDelta.x, -(pos - (height*0.5f) - paddingBottom));
-
-        EditMenu(); //close it for start
     }
 
-    public void EditMenu()
+    public void UpdateButtons()
+    {
+        //do smth with condition and the pair list maybe?
+    }
+
+    public void ToggleMenuStatus()
     {
         if (menuPanel.gameObject.activeSelf)
         {
