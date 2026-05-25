@@ -12,13 +12,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
   m_Name: New Rule Tile
   m_EditorClassIdentifier: Unity.2D.Tilemap.Extras::UnityEngine.RuleTile
-  m_DefaultSprite: {fileID: 908303477, guid: 47ccb029a4aa8d547b3831ff34c210f5, type: 3}
+  m_DefaultSprite: {fileID: -2192867365784106673, guid: ebf19617ec645d949bfaf6482abf55b4, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules:
+  - m_Id: 3
+    m_Sprites:
+    - {fileID: -1184242750, guid: ebf19617ec645d949bfaf6482abf55b4, type: 3}
+    m_GameObject: {fileID: 0}
+    m_MinAnimationSpeed: 1
+    m_MaxAnimationSpeed: 1
+    m_PerlinScale: 0.5
+    m_Output: 0
+    m_ColliderType: 1
+    m_RandomTransform: 0
+    m_Neighbors: 020000000200000002000000
+    m_NeighborPositions:
+    - {x: -1, y: 0, z: 0}
+    - {x: 0, y: -1, z: 0}
+    - {x: 1, y: 0, z: 0}
+    m_RuleTransform: 3
+  - m_Id: 4
+    m_Sprites:
+    - {fileID: 619428066, guid: ebf19617ec645d949bfaf6482abf55b4, type: 3}
+    m_GameObject: {fileID: 0}
+    m_MinAnimationSpeed: 1
+    m_MaxAnimationSpeed: 1
+    m_PerlinScale: 0.5
+    m_Output: 0
+    m_ColliderType: 1
+    m_RandomTransform: 0
+    m_Neighbors: 020000000200000002000000
+    m_NeighborPositions:
+    - {x: 0, y: -1, z: 0}
+    - {x: 0, y: 1, z: 0}
+    - {x: 1, y: 0, z: 0}
+    m_RuleTransform: 2
   - m_Id: 0
     m_Sprites:
-    - {fileID: -1245907760, guid: 47ccb029a4aa8d547b3831ff34c210f5, type: 3}
+    - {fileID: 895560453, guid: ebf19617ec645d949bfaf6482abf55b4, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -33,7 +65,7 @@ MonoBehaviour:
     m_RuleTransform: 2
   - m_Id: 1
     m_Sprites:
-    - {fileID: 186276259027785144, guid: 47ccb029a4aa8d547b3831ff34c210f5, type: 3}
+    - {fileID: 1328935906524323264, guid: ebf19617ec645d949bfaf6482abf55b4, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -45,10 +77,10 @@ MonoBehaviour:
     m_NeighborPositions:
     - {x: 0, y: 1, z: 0}
     - {x: -1, y: 0, z: 0}
-    m_RuleTransform: 0
+    m_RuleTransform: 2
   - m_Id: 2
     m_Sprites:
-    - {fileID: 261908393, guid: 47ccb029a4aa8d547b3831ff34c210f5, type: 3}
+    - {fileID: 1438457137, guid: ebf19617ec645d949bfaf6482abf55b4, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
