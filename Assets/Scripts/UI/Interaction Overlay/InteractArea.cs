@@ -16,7 +16,7 @@ public class InteractBtnTemplate
 public class InteractArea : MonoBehaviour, ITurnActor
 {
     [Header("Overlay Settings")]
-    [SerializeField] public string title;
+    [SerializeField] private string title;
     [SerializeField] private int radius;
     [SerializeField] private TurnManager turnManager;
     [SerializeField] private Transform player;
