@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!4 &41026539 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+  m_PrefabInstance: {fileID: 826113839}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &220362735
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -181,7 +186,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 346082018492137348, guid: d7132517f141c284583ef337f012f1c5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1465412945}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7132517f141c284583ef337f012f1c5, type: 3}
 --- !u!4 &220362736 stripped
@@ -461,7 +469,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 346082018492137348, guid: d7132517f141c284583ef337f012f1c5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 41026539}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7132517f141c284583ef337f012f1c5, type: 3}
 --- !u!4 &578086256 stripped
@@ -469,6 +480,147 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 346082018492137348, guid: d7132517f141c284583ef337f012f1c5, type: 3}
   m_PrefabInstance: {fileID: 578086255}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &826113839
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 578086256}
+    m_Modifications:
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: title
+      value: Vent
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1120341669}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].text
+      value: Close
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].text
+      value: Open
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[2].text
+      value: Open
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1805615408}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1805615408}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CloseDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OpenDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: HeistGame.Door.Vent, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: HeistGame.Door.Vent, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_Name
+      value: InteractArea (1)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
 --- !u!1001 &1016034601
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2236,6 +2388,17 @@ Transform:
   - {fileID: 1298018756}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1353415042 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2173688282081315406, guid: d7132517f141c284583ef337f012f1c5, type: 3}
+  m_PrefabInstance: {fileID: 220362735}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b741a8ac27105540a5c7f153b0ba0c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Vent
 --- !u!1001 &1453909141
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2337,6 +2500,163 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b05f71908decd784b974bdacbe4ea5b3, type: 3}
+--- !u!4 &1465412945 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+  m_PrefabInstance: {fileID: 1659670837}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1659670837
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 220362736}
+    m_Modifications:
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: title
+      value: Vent
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1120341669}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].text
+      value: Close
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].text
+      value: Open
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[2].text
+      value: Open
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1353415042}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1353415042}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CloseDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OpenDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: HeistGame.Door.Vent, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: HeistGame.Door.Vent, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[0].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: buttons.Array.data[1].onClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_Name
+      value: InteractArea
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+--- !u!114 &1805615408 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2173688282081315406, guid: d7132517f141c284583ef337f012f1c5, type: 3}
+  m_PrefabInstance: {fileID: 578086255}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b741a8ac27105540a5c7f153b0ba0c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Vent
 --- !u!4 &1880950369 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6794984632515874601, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
