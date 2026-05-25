@@ -6,20 +6,21 @@ namespace HeistGame.Objectives {
         public ObjectiveData Data { get; private set; }
         public int CurrentAmount { get; private set; }
         public bool IsCompleted { get; private set; }
-        public bool IsVisible { get; private set; }
+        public bool IsHidden { get; private set; }
+        public bool failed { get; private set; }
 
-        public ActiveObjective(ObjectiveData data, bool startVisible) {
+        public ActiveObjective(ObjectiveData data) {
             Data = data;
             CurrentAmount = 0;
             IsCompleted = false;
-            IsVisible = startVisible;
+            IsHidden = data.isHidden;
+            if (data.failable) failed = false;
         }
 
         public bool AdvanceProgress(int amount) {
             if (IsCompleted) return false;
 
-            CurrentAmount = Math.Min(CurrentAmount + amount, Data.requiredAmount);
-            
+            CurrentAmount += amount; 
             if (CurrentAmount >= Data.requiredAmount) {
                 IsCompleted = true;
                 return true;
@@ -27,6 +28,12 @@ namespace HeistGame.Objectives {
             return false;
         }
 
-        public void Reveal() { IsVisible = true; }
+        public bool Fail() {
+            if (!Data.failable || failed) return false; // Can't fail if it's not failable or already failed
+            failed = true;
+            return true;
+        }
+
+        public void Reveal() { IsHidden = false; }
     }
 }

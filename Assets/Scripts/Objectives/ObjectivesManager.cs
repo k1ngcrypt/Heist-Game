@@ -6,7 +6,7 @@ namespace HeistGame.Objectives {
     public class ObjectiveManager : MonoBehaviour {
         public static ObjectiveManager Instance { get; private set; }
 
-        // Eddie looks at This
+        // Eddie looks at this for the UI
         public static event Action OnObjectivesChanged; 
 
         // The master list of runtime objectives for the current level
@@ -20,14 +20,14 @@ namespace HeistGame.Objectives {
         // Called by LevelObjectiveLoader when the scene boots up
         public void InitializeLevelObjectives(List<ObjectiveData> levelData) {
             activeObjectives.Clear();
-            foreach (var data in levelData) activeObjectives.Add(new ActiveObjective(data, data.startVisible));
+            foreach (var data in levelData) activeObjectives.Add(new ActiveObjective(data));
             OnObjectivesChanged?.Invoke();
         }
 
         // For Eddie: Call this to get the list of objectives that should be shown on the UI for the specific level.
         public List<ActiveObjective> GetVisibleObjectives() {
             List<ActiveObjective> visibleList = new();
-            foreach (var obj in activeObjectives) if (obj.IsVisible) visibleList.Add(obj);
+            foreach (var obj in activeObjectives) if (!obj.IsHidden) visibleList.Add(obj);
             return visibleList;
         }
 
@@ -43,10 +43,30 @@ namespace HeistGame.Objectives {
             }
         }
 
-        // Call this to reveal "additional/hidden" objectives (Like if the player is an idiot and attacks the guards, the objectives now change)
+        // Call this when the player fails an objective (e.g., gets caught by a guard)
+        public void FailObjective(string objectiveID) {
+            ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
+
+            if (target != null) {
+                if (target.Data.failable == false) {
+                    Debug.LogWarning($"Objective {target.Data.title} cannot be failed!");
+                    return;
+                }
+                
+                bool newlyFailed = target.Fail();
+                OnObjectivesChanged?.Invoke();
+
+                if (newlyFailed) {
+                    if (target.Data.failable && !target.Data.isOptional) Debug.Log($"Logic: {target.Data.title} has failed. Player has failed the level.");
+                    else if (target.Data.failable) Debug.Log($"Logic: {target.Data.title} has failed. However Player can still pass the level");
+                }
+            }
+        }
+
+        // Call this to reveal "additional/hidden" objectives
         public void RevealObjective(string objectiveID) {
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
-            if (target != null && !target.IsVisible) {
+            if (target != null && target.IsHidden) {
                 target.Reveal();
                 OnObjectivesChanged?.Invoke(); // Tell the UI to redraw because a new objective appeared
             }
