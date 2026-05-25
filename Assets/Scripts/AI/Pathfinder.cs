@@ -434,7 +434,20 @@ public class Pathfinder : MonoBehaviour
             return;
         }
 
-        ActiveSpecialLinks.Add(link);
+        if (!ActiveSpecialLinks.Add(link))
+        {
+            return;
+        }
+
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        for (int i = 0; i < ActivePathfinders.Count; i++)
+        {
+            ActivePathfinders[i].RebuildAbstractGraph(false);
+        }
     }
 
     public static void UnregisterSpecialLink(IHaSpecialLink link)
@@ -444,7 +457,20 @@ public class Pathfinder : MonoBehaviour
             return;
         }
 
-        ActiveSpecialLinks.Remove(link);
+        if (!ActiveSpecialLinks.Remove(link))
+        {
+            return;
+        }
+
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        for (int i = 0; i < ActivePathfinders.Count; i++)
+        {
+            ActivePathfinders[i].RebuildAbstractGraph(false);
+        }
     }
 
     public void RefreshNodeAtWorldPosition(Vector2 worldPosition, bool rebuildAbstractGraph = true)
@@ -841,9 +867,32 @@ public class Pathfinder : MonoBehaviour
         RestoreRoomAbstractNodes();
         EnsureAbstractNeighbors();
         RestoreRoomPortalCosts();
+        AppendSpecialLinksToCachedGraph();
         lowLevelCostCache.Clear();
         roomLowLevelCostCache.Clear();
         return true;
+    }
+
+    private void AppendSpecialLinksToCachedGraph()
+    {
+        if (ActiveSpecialLinks.Count == 0)
+        {
+            return;
+        }
+
+        int portalCount = portals.Count;
+        int abstractCount = abstractNodes.Count;
+
+        BuildSpecialLinkPortals();
+
+        if (portals.Count == portalCount && abstractNodes.Count == abstractCount)
+        {
+            return;
+        }
+
+        roomPortalCostCache.Clear();
+        BuildRoomPortalCosts();
+        BuildAbstractNeighbors();
     }
 
     private void CacheAbstractData()
@@ -1328,6 +1377,18 @@ public class Pathfinder : MonoBehaviour
         // Special links are tracked globally so linked scene objects can create portals without tight coupling.
         HashSet<(EntityId, EntityId)> processedLinks = new();
         specialLinkBuffer.Clear();
+
+        if (!Application.isPlaying)
+        {
+            MonoBehaviour[] behaviours = FindObjectsOfType<MonoBehaviour>(true);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                if (behaviours[i] is IHaSpecialLink link)
+                {
+                    specialLinkBuffer.Add(link);
+                }
+            }
+        }
 
         if (ActiveSpecialLinks.Count > 0)
         {
