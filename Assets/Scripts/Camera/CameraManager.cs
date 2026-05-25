@@ -64,10 +64,10 @@ public class CameraManager : MonoBehaviour, ITurnActor
         transform.position = new Vector3(0,0,-10);
 
         //Setup Map Layer Cameras
-        foreach (Vector2 v in layerLocations) {
+        for (int i = 0; i<layerLocations.Count; i++) {
             GameObject camObject = Instantiate(cam,transform);
             camObject.transform.parent = transform;
-            camObject.transform.position = new Vector3(v.x, v.y, -10);
+            camObject.transform.position = new Vector3(layerLocations[i].x, layerLocations[i].y-i, -10);
             Camera c = camObject.GetComponent<Camera>();
             cameras.Add(c);
             cameraData.cameraStack.Add(c);
@@ -169,7 +169,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     void Start() {
         addingMaterial = new Material(Shader.Find("Custom/AddingShader"));
         int l = Map.currentLayer();
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y, -10));
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y+1, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
 
@@ -220,8 +220,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
 
         //Set Locations
         int l = Map.currentLayer();
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y, -10));
-        tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(layerLocations[l-1].x, layerLocations[l-1].y, 10);
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, 1-layerLocations[l-1].y, -10));
+        tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(layerLocations[l-1].x, layerLocations[l-1].y-1, 10);
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
         
