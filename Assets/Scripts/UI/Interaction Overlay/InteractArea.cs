@@ -10,7 +10,6 @@ public class InteractBtnTemplate
 {
     [SerializeField] public string text;
     [SerializeField] public UnityEvent onClick;
-    //[SerializeField] public UnityEvent condition;
 }
 
 public class InteractArea : MonoBehaviour, ITurnActor
@@ -66,8 +65,6 @@ public class InteractArea : MonoBehaviour, ITurnActor
                 currentOverlay = Instantiate(overlayPrefab, this.transform);
                 currentOverlay.Initialize(title, buttons, GetComponent<Transform>().position);
             }
-            
-            
         } else if (currentOverlay != null)
         {
             //not in area but overlay is active, so destroy it

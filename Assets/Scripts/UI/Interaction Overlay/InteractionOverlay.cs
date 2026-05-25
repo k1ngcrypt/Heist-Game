@@ -13,8 +13,16 @@ public class InteractionOverlay : MonoBehaviour
 
     private List<Button> allButtons = new List<Button>();
 
+    private VerticalLayoutGroup layout;
+    private RectTransform textRect;
+    private RectTransform menuRect;
+
     public void Initialize(string title, List<InteractBtnTemplate> actions, Vector3 worldPosition)
     {
+        layout = menuPanel.GetComponent<VerticalLayoutGroup>();
+        textRect = titleText.GetComponent<RectTransform>();
+        menuRect = menuPanel.GetComponent<RectTransform>();
+
         menuPanel.gameObject.SetActive(true); //make sure layout is correct and then will close
 
         titleText.text = title;
@@ -40,16 +48,13 @@ public class InteractionOverlay : MonoBehaviour
 
     private void ResizeMenu()
     {
-        var layout = menuPanel.GetComponent<VerticalLayoutGroup>();
         float paddingBottom = layout.padding.bottom;
-
-        var pnl = menuPanel.GetComponent<RectTransform>();
-        LayoutRebuilder.ForceRebuildLayoutImmediate(pnl);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(menuRect);
 
         RectTransform lastElement;
         if (allButtons.Count == 0)
         {
-            lastElement = titleText.GetComponent<RectTransform>();
+            lastElement = textRect;
         } else
         {
             lastElement = allButtons[^1].GetComponent<RectTransform>();
@@ -59,12 +64,12 @@ public class InteractionOverlay : MonoBehaviour
         float height = lastElement.rect.height;
 
 
-        pnl.sizeDelta = new Vector2(pnl.sizeDelta.x, -(pos - (height*0.5f) - paddingBottom));
+        menuRect.sizeDelta = new Vector2(menuRect.sizeDelta.x, -(pos - (height*0.5f) - paddingBottom));
     }
 
     public void UpdateButtons()
     {
-        //do smth with condition and the pair list maybe?
+        //do smth please
     }
 
     public void ToggleMenuStatus()
