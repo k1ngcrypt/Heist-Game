@@ -20,6 +20,7 @@ namespace Guards
         [SerializeField] private Transform[] patrolPoints;
         [SerializeField] private float suspicionPerTick = 10f;
         [SerializeField] private float maxSuspicion = 100f;
+        [SerializeField] private float immediateDetectionRange = 1f;
 
         // One active state at a time keeps the guard behavior easy to reason about and test.
         BaseState currentState;
@@ -32,6 +33,9 @@ namespace Guards
 
         private RaycastHit2D[] hitBuffer;
         private int patrolIndex;
+
+        private bool isPlayerDetected = false;
+        private bool detectionCheckedThisTick = false;
 
         public Vector2 LastKnownPlayerPosition { get; private set; }
         public float Suspicion { get; private set; }
@@ -78,6 +82,7 @@ namespace Guards
                 currentState.TickState();
                 TickDebt--;
             }
+            detectionCheckedThisTick = false;
             return;
         }
 
@@ -96,15 +101,20 @@ namespace Guards
                 return false;
             }
 
-            // Detection uses shared utility logic so sight rules stay consistent across guards.
-            return DetectionUtils.IsDetected(
+            if (!detectionCheckedThisTick)
+            {
+                detectionCheckedThisTick = true;
+                isPlayerDetected = DetectionUtils.IsDetected(
                 transform.position,
                 transform.up,
                 playerTarget,
                 detectionRange,
                 fieldOfView,
                 lineOfSightFilter,
-                hitBuffer);
+                hitBuffer,
+                immediateDetectionRange);
+            }
+            return isPlayerDetected;
         }
 
         public void UpdateLastKnownPlayerPosition()

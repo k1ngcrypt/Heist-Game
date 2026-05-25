@@ -61,7 +61,8 @@ public class CameraDetector : MonoBehaviour
             detectionRange,
             viewAngle,
             losFilter,
-            losHits
+            losHits,
+            0f
         );
 
         if (IsPlayerVisible)
