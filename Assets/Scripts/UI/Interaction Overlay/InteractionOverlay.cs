@@ -11,7 +11,7 @@ public class InteractionOverlay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private Button btnPrefab;
 
-    private List<(Button btn, bool active)> allButtons = new List<(Button btn, bool active)>();
+    private List<Button> allButtons = new List<Button>();
 
     public void Initialize(string title, List<InteractBtnTemplate> actions, Vector3 worldPosition)
     {
@@ -28,7 +28,7 @@ public class InteractionOverlay : MonoBehaviour
             btn.GetComponentInChildren<TMP_Text>().text = btnData.text;
 
             btn.onClick.AddListener(() => btnData.onClick.Invoke());
-            allButtons.Add((btn, true));
+            allButtons.Add(btn);
         }
 
         ResizeMenu();        

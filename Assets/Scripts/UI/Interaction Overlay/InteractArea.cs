@@ -31,7 +31,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
     private Vector3 worldPosition;
     private Vector3 topRight;
     private Vector3 bottomLeft;
-    private Vector3 buffer; //incase to make sure it will still call player
+    private Vector3 buffer = new Vector3(0.25f, 0.25f, 0); //incase to make sure it will still call player
 
     public void OnEnable()
     {
@@ -45,7 +45,6 @@ public class InteractArea : MonoBehaviour, ITurnActor
         }
         turnManager.Register(this);
         worldPosition = this.transform.position;
-        buffer = new Vector3(0.25f, 0.25f, 0);
         topRight = worldPosition + new Vector3(radius, radius, 0) + buffer;
         bottomLeft = worldPosition - new Vector3(radius, radius, 0) - buffer;
         
