@@ -1380,7 +1380,7 @@ public class Pathfinder : MonoBehaviour
 
         if (!Application.isPlaying)
         {
-            MonoBehaviour[] behaviours = FindObjectsOfType<MonoBehaviour>(true);
+            MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include);
             for (int i = 0; i < behaviours.Length; i++)
             {
                 if (behaviours[i] is IHaSpecialLink link)
