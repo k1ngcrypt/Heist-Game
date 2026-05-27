@@ -35,6 +35,8 @@ namespace Guards
         private RaycastHit2D[] hitBuffer;
         private int patrolIndex;
 
+        private const float MinDirectionSqrMagnitude = 0.0001f;
+
         private bool isPlayerDetected = false;
         private bool detectionCheckedThisTick = false;
 
@@ -116,9 +118,10 @@ namespace Guards
             if (!detectionCheckedThisTick)
             {
                 detectionCheckedThisTick = true;
+                Vector2 detectionForward = ResolveDetectionForward(isPlayerDetected);
                 isPlayerDetected = DetectionUtils.IsDetected(
                 transform.position,
-                transform.up,
+                detectionForward,
                 playerTarget,
                 detectionRange,
                 fieldOfView,
@@ -129,6 +132,29 @@ namespace Guards
             return isPlayerDetected;
         }
 
+        private Vector2 ResolveDetectionForward(bool preferPlayerFocus)
+        {
+            if (preferPlayerFocus && playerTarget != null)
+            {
+                Vector2 toPlayer = (Vector2)playerTarget.position - (Vector2)transform.position;
+                if (toPlayer.sqrMagnitude > MinDirectionSqrMagnitude)
+                {
+                    return toPlayer.normalized;
+                }
+            }
+
+            if (Navigator != null)
+            {
+                Vector2 moveDirection = Navigator.LastMoveDirection;
+                if (moveDirection.sqrMagnitude > MinDirectionSqrMagnitude)
+                {
+                    return moveDirection;
+                }
+            }
+
+            return transform.up;
+        }
+
         public void UpdateLastKnownPlayerPosition()
         {
             if (playerTarget == null)
@@ -137,6 +163,7 @@ namespace Guards
             }
 
             LastKnownPlayerPosition = playerTarget.position;
+        awarenessManager?.ReportPlayerSeen(LastKnownPlayerPosition);
         }
 
         public void ResetSuspicion()
@@ -225,7 +252,7 @@ namespace Guards
 
             Gizmos.color = Color.yellow;
             Vector3 origin = transform.position;
-            Vector3 forward = transform.up;
+            Vector3 forward = ResolveDetectionForward(isPlayerDetected);
 
             Gizmos.DrawWireSphere(origin, detectionRange);
 

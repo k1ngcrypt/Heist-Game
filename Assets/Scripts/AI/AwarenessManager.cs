@@ -33,12 +33,14 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
     private readonly List<GuardStateManager> guards = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraSuspicionHandlers = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraDetectionHandlers = new();
-    private readonly Dictionary<CameraDetector, int> cameraLastDispatchTick = new();
-
     private float awareness;
     private float pendingAwarenessBoost;
     private AwarenessLevel currentLevel;
     private int tickCount;
+    private int lastDispatchTick = -1;
+    private bool playerSeenThisTick;
+    private bool hasLastKnownPlayerPosition;
+    private Vector2 lastKnownPlayerPosition;
 
     public static AwarenessManager Instance { get; private set; }
     public float Awareness => awareness;
@@ -164,7 +166,6 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
             cameraDetectionHandlers.Remove(detector);
         }
 
-        cameraLastDispatchTick.Remove(detector);
     }
 
     private void UnregisterAllCameras()
@@ -190,6 +191,12 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
             maxAwareness);
         pendingAwarenessBoost = 0f;
         UpdateAwarenessLevel();
+        if (playerSeenThisTick || HasActiveGuardChase())
+        {
+            TryDispatchFromChase();
+        } 
+
+        playerSeenThisTick = false;
         TickDebt--;
         return;
     }
@@ -236,7 +243,6 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         }
 
         pendingAwarenessBoost += cameraSuspicionBoost;
-        DispatchGuard(detector);
     }
 
     private void HandleCameraDetection(CameraDetector detector)
@@ -247,35 +253,54 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         }
 
         pendingAwarenessBoost += cameraDetectionBoost;
-        DispatchGuard(detector);
     }
 
-    private void DispatchGuard(CameraDetector detector)
+    public void ReportPlayerSeen(Vector2 position)
     {
-        if (detector == null)
+        lastKnownPlayerPosition = position;
+        hasLastKnownPlayerPosition = true;
+        playerSeenThisTick = true;
+        TryDispatchFromChase();
+    }
+
+    private bool HasActiveGuardChase()
+    {
+        foreach (GuardStateManager guard in guards)
+        {
+            if (guard != null && guard.IsChasing)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void TryDispatchFromChase()
+    {
+        if (!hasLastKnownPlayerPosition)
         {
             return;
         }
 
-        if (dispatchCooldownTicks > 0 && cameraLastDispatchTick.TryGetValue(detector, out int lastTick))
+        if (lastDispatchTick == tickCount)
         {
-            if (tickCount - lastTick < dispatchCooldownTicks)
-            {
-                return;
-            }
+            return;
         }
 
-        GuardStateManager guard = FindDispatchGuard(detector.transform.position);
+        if (lastDispatchTick >= 0 && dispatchCooldownTicks > 0 && tickCount - lastDispatchTick < dispatchCooldownTicks)
+        {
+            return;
+        }
+
+        GuardStateManager guard = FindDispatchGuard(lastKnownPlayerPosition);
         if (guard == null)
         {
             return;
         }
 
-        Vector2 investigatePosition = detector.HasLastSeenPosition
-            ? detector.LastSeenPosition
-            : (Vector2)detector.transform.position;
-        guard.InvestigatePosition(investigatePosition);
-        cameraLastDispatchTick[detector] = tickCount;
+        guard.InvestigatePosition(lastKnownPlayerPosition);
+        lastDispatchTick = tickCount;
     }
 
     private GuardStateManager FindDispatchGuard(Vector2 position)

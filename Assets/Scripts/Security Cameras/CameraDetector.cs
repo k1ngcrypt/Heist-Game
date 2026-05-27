@@ -85,6 +85,7 @@ public class CameraDetector : MonoBehaviour
             {
                 lastSeenPosition = player.position;
                 hasLastSeenPosition = true;
+                AwarenessManager.Instance?.ReportPlayerSeen(lastSeenPosition);
             }
 
             Debug.Log($"Player detected by {name} at distance {Vector2.Distance(transform.position, player.position):F2}");
