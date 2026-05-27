@@ -114,10 +114,13 @@ public static class Map
         }
         _player = player;
     }
-    public static int currentLayer()
-    {
-        if (!IsInitialized||_player == null||layerLocations.Count==0) return 0;
-        Vector2 pos = (Vector2) _player.transform.position;
+    public static int CurrentLayer() {
+        if (_player == null) return 0;
+        return LayerByPos(_player.transform.position);
+    }
+
+    public static int LayerByPos(Vector2 pos) {
+        if (!IsInitialized||layerLocations.Count==0) return 0;
         int l = 0;
         float d = Vector2.Distance(layerLocations[0], pos);
         for (int i = 1; i < layerLocations.Count; i++) {
