@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using HeistGame.Door;
+using HeistGame.Objectives;
 
 public class PlayerController : MonoBehaviour
 {
@@ -83,7 +84,16 @@ public class PlayerController : MonoBehaviour
                 if (hit.CompareTag("Door")) { await DoorInteraction(hit, 0); break; }
                 else if (hit.CompareTag("Vent")) { await DoorInteraction(hit, 1); break; }
                 else if (hit.CompareTag("Stair")) { await DoorInteraction(hit, 2); break; }
+                else await ObjectiveCheck(hit);
             } 
+        }
+    }
+
+    private async Awaitable ObjectiveCheck(Collider2D obj) {
+        var trigger = obj.GetComponent<ObjectiveTrigger>();
+        if (trigger != null) {
+            trigger.TriggerProgress();
+            await Awaitable.WaitForSecondsAsync(interactionDuration);
         }
     }
 
