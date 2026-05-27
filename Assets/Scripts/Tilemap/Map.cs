@@ -135,7 +135,7 @@ public static class Map
         if (layerLocations.Count==0||!IsInitialized) return;
         _layerBounds = new List<BoundsInt>();
         for (int i = 0; i<layerLocations.Count; i++) {
-            BoundsInt bounds = new BoundsInt();
+            BoundsInt bounds = new();
             bool b = true;
             Vector2 location = layerLocations[i];
             for (int x = -100; x<101; x++) for (int y = -100; y<101; y++) {

@@ -11,6 +11,10 @@ public class CameraManager : MonoBehaviour, ITurnActor
 {
     [Header("Locations")]
     [SerializeField] private List<Vector2> layerLocations;
+    [Header("Vents")]
+    [SerializeField] private bool isTopLocationVents = true;
+    [SerializeField] private GameObject outsideVents;
+    [SerializeField] private GameObject insideVents;
     [Header("Cameras")]
     [SerializeField] private float smoothTime = 0.3f;
     [SerializeField] private int shadowRenderTextureScale = 15;
@@ -67,7 +71,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
         for (int i = 0; i<layerLocations.Count; i++) {
             GameObject camObject = Instantiate(cam,transform);
             camObject.transform.parent = transform;
-            camObject.transform.position = new Vector3(layerLocations[i].x, layerLocations[i].y-i, -10);
+            camObject.transform.position = new Vector3(layerLocations[i].x, layerLocations[i].y-i-1, -10);
             Camera c = camObject.GetComponent<Camera>();
             cameras.Add(c);
             cameraData.cameraStack.Add(c);
@@ -157,6 +161,9 @@ public class CameraManager : MonoBehaviour, ITurnActor
             coolCameras.Add(cool);
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
+
+        if (!isTopLocationVents||outsideVents==null||insideVents==null) return;
+        //If TopLayer is Vents Stuff
     }
 
     private void OnEnable() {
@@ -169,7 +176,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     void Start() {
         addingMaterial = new Material(Shader.Find("Custom/AddingShader"));
         int l = Map.currentLayer();
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y+1, -10));
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, l-layerLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
 
@@ -220,8 +227,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
 
         //Set Locations
         int l = Map.currentLayer();
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, 1-layerLocations[l-1].y, -10));
-        tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(layerLocations[l-1].x, layerLocations[l-1].y-1, 10);
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, l-layerLocations[l-1].y, -10));
+        tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(layerLocations[l-1].x, layerLocations[l-1].y-l, 10);
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
         
