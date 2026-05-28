@@ -14,7 +14,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] private List<Vector2> layerLocations;
     [Header("Vents")]
     [SerializeField] private bool isTopLocationVents = true;
-    [SerializeField] private GameObject insideVents;
+    [SerializeField] private GameObject vents;
     [Header("Cameras")]
     [SerializeField] private float smoothTime = 0.3f;
     [SerializeField] private int shadowRenderTextureScale = 15;
@@ -51,6 +51,16 @@ public class CameraManager : MonoBehaviour, ITurnActor
             Map.layerLocations = locations;
             Map.ReloadLayerBounds();
             layerBounds = Map.LayerBounds;
+            
+            //Setup Vents if needed
+            if (!isTopLocationVents||vents==null) return;
+            for (int i = 0; i<vents.transform.childCount; i++) {
+                Transform t = vents.transform.GetChild(i), vent = t.GetChild(0);
+                vent.parent = t;
+                vent.localPosition = (Vector3)(layerLocations[^1] - Map.layerLocations[Map.LayerByPos(t.position)]+Vector2.up);
+                vent.gameObject.GetComponent<Vent>().otherVent = t;
+                t.gameObject.GetComponent<Vent>().otherVent = vent;
+            }
         };
     }
     void Awake() {
@@ -161,17 +171,6 @@ public class CameraManager : MonoBehaviour, ITurnActor
             coolCameras.Add(cool);
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
-
-        //Setup Vents if needed
-        if (!isTopLocationVents||insideVents==null) return;
-        Vent[] vents = GameObject.FindObjectsByType<Vent>();
-        foreach (Vent v in vents) {
-            GameObject vent = Instantiate(insideVents);
-            Transform t = v.gameObject.transform;
-            vent.transform.position = t.position + (Vector3)(layerLocations[^1] - Map.layerLocations[Map.LayerByPos(t.position)]+Vector2.up);
-            vent.GetComponent<Vent>().otherVent = t;
-            v.otherVent = vent.transform;
-        }
     }
 
     private void OnEnable() {
