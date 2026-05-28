@@ -14,8 +14,10 @@ namespace Guards
         private int pathIndex;
         private Vector2 destination;
         private bool hasDestination;
+        private Vector2 lastMoveDirection;
 
         public bool HasDestination => hasDestination;
+        public Vector2 LastMoveDirection => lastMoveDirection;
 
         // A path only matters while there are still unvisited nodes left to consume.
         public bool HasPath => currentPath.Count > 0 && pathIndex < currentPath.Count;
@@ -40,6 +42,11 @@ namespace Guards
             destination = target;
             hasDestination = true;
             RecalculatePath();
+        }
+
+        private void Awake()
+        {
+            lastMoveDirection = transform.up;
         }
 
         public void ClearDestination()
@@ -85,6 +92,11 @@ namespace Guards
             }
 
             Vector2 nextPosition = pathfinder.GetNodeWorldPosition(nextIndex);
+            Vector2 delta = nextPosition - (Vector2)transform.position;
+            if (delta.sqrMagnitude > 0.0001f)
+            {
+                lastMoveDirection = delta.normalized;
+            }
             transform.position = nextPosition;
             pathIndex++;
         }

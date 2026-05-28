@@ -52,9 +52,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Guards.GuardStateManager
   turnManager: {fileID: 0}
+  awarenessManager: {fileID: 0}
   playerTarget: {fileID: 0}
   detectionRange: 6
-  fieldOfView: 90
+  fieldOfView: 155
   lineOfSightFilter:
     useTriggers: 0
     useLayerMask: 0
@@ -64,17 +65,19 @@ MonoBehaviour:
     useOutsideNormalAngle: 0
     layerMask:
       serializedVersion: 2
-      m_Bits: 0
+      m_Bits: 8
     minDepth: 0
     maxDepth: 0
     minNormalAngle: 0
     maxNormalAngle: 0
   lineOfSightBufferSize: 4
   patrolPoints:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {x: -2.5, y: 410.5}
+  - {x: -2.5, y: 405.5}
+  - {x: 0.5, y: 5.5}
   suspicionPerTick: 10
   maxSuspicion: 100
+  immediateDetectionRange: 1
   Navigator: {fileID: 5126320102472977764}
 --- !u!114 &1934003314051609791
 MonoBehaviour:
@@ -197,7 +200,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -390459291
-  m_SortingLayer: 1
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: d7ba88b5753861843a44f1d39ffd3c19, type: 3}
