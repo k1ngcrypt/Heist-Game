@@ -162,12 +162,13 @@ public class CameraManager : MonoBehaviour, ITurnActor
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
 
+        //Setup Vents if needed
         if (!isTopLocationVents||insideVents==null) return;
         Vent[] vents = GameObject.FindObjectsByType<Vent>();
         foreach (Vent v in vents) {
             GameObject vent = Instantiate(insideVents);
             Transform t = v.gameObject.transform;
-            vent.transform.position = t.position + (Vector3)(layerLocations[^1] - Map.layerLocations[Map.LayerByPos(t.position)]);
+            vent.transform.position = t.position + (Vector3)(layerLocations[^1] - Map.layerLocations[Map.LayerByPos(t.position)]+Vector2.up);
             vent.GetComponent<Vent>().otherVent = t;
             v.otherVent = vent.transform;
         }
