@@ -12,14 +12,16 @@ namespace Guards
     {
         // Serialized dependencies keep guard behavior data-driven instead of hard-coded.
         [SerializeField] private TurnManager turnManager;
+        [SerializeField] private AwarenessManager awarenessManager;
         [SerializeField] private Transform playerTarget;
         [SerializeField] private float detectionRange = 6f;
         [SerializeField] private float fieldOfView = 90f;
         [SerializeField] private ContactFilter2D lineOfSightFilter;
         [SerializeField] private int lineOfSightBufferSize = 4;
-        [SerializeField] private Transform[] patrolPoints;
+        [SerializeField] private Vector2[] patrolPoints;
         [SerializeField] private float suspicionPerTick = 10f;
         [SerializeField] private float maxSuspicion = 100f;
+        [SerializeField] private float immediateDetectionRange = 1f;
 
         // One active state at a time keeps the guard behavior easy to reason about and test.
         BaseState currentState;
@@ -33,9 +35,15 @@ namespace Guards
         private RaycastHit2D[] hitBuffer;
         private int patrolIndex;
 
+        private const float MinDirectionSqrMagnitude = 0.0001f;
+
+        private bool isPlayerDetected = false;
+        private bool detectionCheckedThisTick = false;
+
         public Vector2 LastKnownPlayerPosition { get; private set; }
         public float Suspicion { get; private set; }
         public float MaxSuspicion => maxSuspicion;
+        public float SuspicionRatio => maxSuspicion <= 0f ? 0f : Suspicion / maxSuspicion;
 
         public Transform PlayerTarget => playerTarget;
         public IdleState IdleState => idleState;
@@ -43,6 +51,8 @@ namespace Guards
         public SuspiciousState SuspiciousState => suspiciousState;
         public ChasingState ChasingState => chasingState;
         public SearchingState SearchingState => searchingState;
+
+        public bool IsChasing => currentState == chasingState;
 
         public GuardNavigator Navigator;
         public int TickDebt { get; set; }
@@ -63,11 +73,19 @@ namespace Guards
             currentState.EnterState();
 
             turnManager.Register(this);
+
+            if (awarenessManager == null)
+            {
+                awarenessManager = AwarenessManager.Instance;
+            }
+
+            awarenessManager?.RegisterGuard(this);
         }
 
         private void OnDisable()
         {
             turnManager.Unregister(this);
+            awarenessManager?.UnregisterGuard(this);
         }
 
         public async Awaitable OnTick()
@@ -78,6 +96,7 @@ namespace Guards
                 currentState.TickState();
                 TickDebt--;
             }
+            detectionCheckedThisTick = false;
             return;
         }
 
@@ -96,15 +115,44 @@ namespace Guards
                 return false;
             }
 
-            // Detection uses shared utility logic so sight rules stay consistent across guards.
-            return DetectionUtils.IsDetected(
+            if (!detectionCheckedThisTick)
+            {
+                detectionCheckedThisTick = true;
+                Vector2 detectionForward = ResolveDetectionForward(isPlayerDetected);
+                isPlayerDetected = DetectionUtils.IsDetected(
                 transform.position,
-                transform.up,
+                detectionForward,
                 playerTarget,
                 detectionRange,
                 fieldOfView,
                 lineOfSightFilter,
-                hitBuffer);
+                hitBuffer,
+                immediateDetectionRange);
+            }
+            return isPlayerDetected;
+        }
+
+        private Vector2 ResolveDetectionForward(bool preferPlayerFocus)
+        {
+            if (preferPlayerFocus && playerTarget != null)
+            {
+                Vector2 toPlayer = (Vector2)playerTarget.position - (Vector2)transform.position;
+                if (toPlayer.sqrMagnitude > MinDirectionSqrMagnitude)
+                {
+                    return toPlayer.normalized;
+                }
+            }
+
+            if (Navigator != null)
+            {
+                Vector2 moveDirection = Navigator.LastMoveDirection;
+                if (moveDirection.sqrMagnitude > MinDirectionSqrMagnitude)
+                {
+                    return moveDirection;
+                }
+            }
+
+            return transform.up;
         }
 
         public void UpdateLastKnownPlayerPosition()
@@ -115,6 +163,7 @@ namespace Guards
             }
 
             LastKnownPlayerPosition = playerTarget.position;
+        awarenessManager?.ReportPlayerSeen(LastKnownPlayerPosition);
         }
 
         public void ResetSuspicion()
@@ -129,7 +178,7 @@ namespace Guards
             return Suspicion >= maxSuspicion;
         }
 
-        public Transform GetCurrentPatrolPoint()
+        public Vector2? GetCurrentPatrolPoint()
         {
             if (patrolPoints == null || patrolPoints.Length == 0)
             {
@@ -140,7 +189,22 @@ namespace Guards
             return patrolPoints[patrolIndex];
         }
 
-        public Transform AdvancePatrolPoint()
+        public void InvestigatePosition(Vector2 position)
+        {
+            LastKnownPlayerPosition = position;
+
+            if (Navigator != null)
+            {
+                Navigator.SetDestination(position, true);
+            }
+
+            if (currentState != searchingState && currentState != suspiciousState && currentState != chasingState)
+            {
+                UpdateState(searchingState);
+            }
+        }
+
+        public Vector2? AdvancePatrolPoint()
         {
             if (patrolPoints == null || patrolPoints.Length == 0)
             {
@@ -149,6 +213,60 @@ namespace Guards
 
             patrolIndex = (patrolIndex + 1) % patrolPoints.Length;
             return patrolPoints[patrolIndex];
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            DrawPatrolPoints();
+            DrawFieldOfView();
+        }
+
+        private void DrawPatrolPoints()
+        {
+            if (patrolPoints == null || patrolPoints.Length == 0)
+            {
+                return;
+            }
+
+            Gizmos.color = Color.cyan;
+
+            for (int i = 0; i < patrolPoints.Length; i++)
+            {
+                Vector3 point = patrolPoints[i];
+                Gizmos.DrawSphere(point, 0.15f);
+
+                if (patrolPoints.Length > 1)
+                {
+                    Vector3 nextPoint = patrolPoints[(i + 1) % patrolPoints.Length];
+                    Gizmos.DrawLine(point, nextPoint);
+                }
+            }
+        }
+
+        private void DrawFieldOfView()
+        {
+            if (detectionRange <= 0f)
+            {
+                return;
+            }
+
+            Gizmos.color = Color.yellow;
+            Vector3 origin = transform.position;
+            Vector3 forward = ResolveDetectionForward(isPlayerDetected);
+
+            Gizmos.DrawWireSphere(origin, detectionRange);
+
+            if (fieldOfView <= 0f || fieldOfView >= 360f)
+            {
+                return;
+            }
+
+            float halfFov = fieldOfView * 0.5f;
+            Vector3 leftDirection = Quaternion.Euler(0f, 0f, -halfFov) * forward;
+            Vector3 rightDirection = Quaternion.Euler(0f, 0f, halfFov) * forward;
+
+            Gizmos.DrawLine(origin, origin + leftDirection * detectionRange);
+            Gizmos.DrawLine(origin, origin + rightDirection * detectionRange);
         }
 
     }
