@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private AwarenessManager awarenessManager;
     
     private bool isMoving = false;
     private bool inVent = false;
@@ -65,7 +66,7 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.position = endPosition;
-        
+        awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
         isMoving = false;
@@ -108,16 +109,23 @@ public class PlayerController : MonoBehaviour
             if (doorType == 1) inVent = !inVent; 
             else if (doorType == 2) {
                 doorScript.TryOpenDoor();
+                awarenessManager.MakeSound(transform.position, 1.5f); // Make noise on stair use
                 if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(stairWaitTicks);
                 isMoving = false;
                 return;
             }
             if (openBehavior.IsOpen) {
                 success = doorScript.TryCloseDoor();
-                if (success) Debug.Log("Object closed!");
+                if (success) {
+                    Debug.Log("Object closed!");
+                    awarenessManager.MakeSound(transform.position, 0.5f); // Make noise on door close
+                }
             } else {
                 success = doorScript.TryOpenDoor();
-                if (success) Debug.Log("Object opened!");
+                if (success) {
+                    Debug.Log("Object opened!");
+                    awarenessManager.MakeSound(transform.position, 1.5f); // Make noise on door open
+                }
             }
 
             if (success && TurnManager.Instance != null) {
