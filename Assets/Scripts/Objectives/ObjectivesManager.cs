@@ -33,8 +33,12 @@ namespace HeistGame.Objectives {
 
         // Called when the player completes an action
         public void UpdateObjectiveProgress(string objectiveID, int progressAmount = 1) {
+            
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
-
+            if (target.failed) {
+                Debug.LogWarning($"Objective {target.Data.title} has already failed. Progress cannot be updated.");
+                return;
+            }
             if (target != null) {
                 bool newlyCompleted = target.AdvanceProgress(progressAmount);
                 OnObjectivesChanged?.Invoke();
@@ -48,7 +52,7 @@ namespace HeistGame.Objectives {
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
 
             if (target != null) {
-                if (target.Data.failable == false) {
+                if (target.Data.failable == false || target.Data.isOptional == false) {
                     Debug.LogWarning($"Objective {target.Data.title} cannot be failed!");
                     return;
                 }
@@ -57,8 +61,8 @@ namespace HeistGame.Objectives {
                 OnObjectivesChanged?.Invoke();
 
                 if (newlyFailed) {
-                    if (target.Data.failable && !target.Data.isOptional) Debug.Log($"Logic: {target.Data.title} has failed. Player has failed the level.");
-                    else if (target.Data.failable) Debug.Log($"Logic: {target.Data.title} has failed. However Player can still pass the level");
+                    if (!target.Data.isOptional) Debug.Log($"Logic: {target.Data.title} has failed. Player has failed the level."); //Edit code to make it fail level when this happens
+                    else Debug.Log($"Logic: {target.Data.title} has failed. However Player can still pass the level");
                 }
             }
         }

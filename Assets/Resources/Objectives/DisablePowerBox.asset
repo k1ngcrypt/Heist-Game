@@ -17,4 +17,6 @@ MonoBehaviour:
   description: Disable the Power Box
   manyRequiredTasks: 0
   requiredAmount: 1
-  startVisible: 1
+  isHidden: 0
+  isOptional: 1
+  failable: 0

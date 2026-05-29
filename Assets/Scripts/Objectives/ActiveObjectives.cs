@@ -14,11 +14,11 @@ namespace HeistGame.Objectives {
             CurrentAmount = 0;
             IsCompleted = false;
             IsHidden = data.isHidden;
-            if (data.failable) failed = false;
+            if (data.failable || data.isOptional) failed = false;
         }
 
         public bool AdvanceProgress(int amount) {
-            if (IsCompleted) return false;
+            if (IsCompleted || failed) return false;
 
             CurrentAmount += amount; 
             if (CurrentAmount >= Data.requiredAmount) {
