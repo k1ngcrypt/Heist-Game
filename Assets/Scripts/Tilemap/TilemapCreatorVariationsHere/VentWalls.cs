@@ -32,10 +32,10 @@ public class VentWalls : DuplicateTilemapBase
                     bounds.yMax = Mathf.Max(bounds.yMax, y);
                 }
         }
-        bounds.xMin-=8;
-        bounds.yMin-=8;
-        bounds.xMax+=8;
-        bounds.yMax+=8;
+        bounds.xMin-=2;
+        bounds.yMin-=2;
+        bounds.xMax+=2;
+        bounds.yMax+=2;
         return true;
     }
     
