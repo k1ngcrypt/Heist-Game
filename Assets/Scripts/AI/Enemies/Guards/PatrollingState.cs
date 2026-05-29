@@ -13,10 +13,10 @@ namespace Guards
 
             Manager.ResetSuspicion();
 
-            Transform patrolPoint = Manager.GetCurrentPatrolPoint();
-            if (patrolPoint != null)
+            Vector2? patrolPoint = Manager.GetCurrentPatrolPoint();
+            if (patrolPoint.HasValue)
             {
-                Manager.Navigator.SetDestination(patrolPoint.position, true);
+                Manager.Navigator.SetDestination(patrolPoint.Value, true);
             }
         }
 
@@ -43,10 +43,10 @@ namespace Guards
             Manager.Navigator.TickAdvance();
             if (Manager.Navigator.ReachedDestination)
             {
-                Transform nextPoint = Manager.AdvancePatrolPoint();
-                if (nextPoint != null)
+                Vector2? nextPoint = Manager.AdvancePatrolPoint();
+                if (nextPoint.HasValue)
                 {
-                    Manager.Navigator.SetDestination(nextPoint.position, true);
+                    Manager.Navigator.SetDestination(nextPoint.Value, true);
                 }
             }
         }

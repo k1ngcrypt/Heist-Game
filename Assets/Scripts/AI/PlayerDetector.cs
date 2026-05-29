@@ -9,10 +9,15 @@ public static class DetectionUtils
         float range,
         float fovAngle,
         ContactFilter2D filter,
-        RaycastHit2D[] hitBuffer)
+        RaycastHit2D[] hitBuffer,
+        float immediateDetectionRange = 0f)
     {
         Vector2 toTarget = (Vector2)target.position - observerPos;
         float sqrDistance = toTarget.sqrMagnitude;
+
+        // 0. Immediate Detection Check
+        if (immediateDetectionRange > 0f && sqrDistance <= immediateDetectionRange * immediateDetectionRange)
+            return true;
 
         // 1. Distance Check
         if (sqrDistance > range * range)

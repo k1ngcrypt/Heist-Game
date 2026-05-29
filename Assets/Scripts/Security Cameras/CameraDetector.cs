@@ -24,6 +24,8 @@ public class CameraDetector : MonoBehaviour
     private bool hasDetectedPlayer = false;
     private bool hadSuspicionLastFrame = false;
     private float suspicion = 0f;
+    private Vector2 lastSeenPosition;
+    private bool hasLastSeenPosition;
     private ContactFilter2D losFilter;
     private readonly RaycastHit2D[] losHits = new RaycastHit2D[4];
 
@@ -32,6 +34,8 @@ public class CameraDetector : MonoBehaviour
     public float ViewAngle => viewAngle;
     public bool IsPlayerVisible { get; private set; }
     public bool HasDetectedPlayer => hasDetectedPlayer;
+    public Vector2 LastSeenPosition => lastSeenPosition;
+    public bool HasLastSeenPosition => hasLastSeenPosition;
     public UnityEvent OnPlayerDetected => onPlayerDetected;
     public UnityEvent OnSuspicionStarted => onSuspicionStarted;
     public UnityEvent OnSuspicionCleared => onSuspicionCleared;
@@ -45,6 +49,16 @@ public class CameraDetector : MonoBehaviour
         }
 
         InitializeLineOfSightFilter();
+    }
+
+    private void OnEnable()
+    {
+        AwarenessManager.Instance?.RegisterCamera(this);
+    }
+
+    private void OnDisable()
+    {
+        AwarenessManager.Instance?.UnregisterCamera(this);
     }
 
     public void Tick()
@@ -61,11 +75,19 @@ public class CameraDetector : MonoBehaviour
             detectionRange,
             viewAngle,
             losFilter,
-            losHits
+            losHits,
+            0f
         );
 
         if (IsPlayerVisible)
         {
+            if (player != null)
+            {
+                lastSeenPosition = player.position;
+                hasLastSeenPosition = true;
+                AwarenessManager.Instance?.ReportPlayerSeen(lastSeenPosition);
+            }
+
             Debug.Log($"Player detected by {name} at distance {Vector2.Distance(transform.position, player.position):F2}");
             float normalizedDistance = Mathf.Clamp01(Vector2.Distance(transform.position, player.position) / detectionRange);
             float fillRate = Mathf.Lerp(suspicionFillPerTickAtClosest, suspicionFillPerTickAtMaxRange, normalizedDistance);
@@ -100,6 +122,7 @@ public class CameraDetector : MonoBehaviour
         suspicion = 0f;
         hasDetectedPlayer = false;
         hadSuspicionLastFrame = false;
+        hasLastSeenPosition = false;
     }
 
     private void InitializeLineOfSightFilter()
