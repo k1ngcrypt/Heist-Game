@@ -98,6 +98,7 @@ namespace Guards
                 lastMoveDirection = delta.normalized;
             }
             transform.position = nextPosition;
+            //ADD animation logic
             pathIndex++;
         }
 
