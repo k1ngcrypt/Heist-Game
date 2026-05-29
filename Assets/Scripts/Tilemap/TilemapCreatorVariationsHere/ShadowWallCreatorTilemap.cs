@@ -10,10 +10,11 @@ public class ShadowWallCreatorTilemap : DuplicateTilemapBase
     public List<RuleTile> ReferenceTiles;
     public RuleTile NewTile;
 
-    protected override void OnCreation() {}
+    protected override bool OnCreation() {
+        return ReferenceTiles!=null && ReferenceTiles.Count>0 && NewTile != null;
+    }
 
     protected override TileBase GetTile(Vector3Int v) {
-        if (ReferenceTiles==null || ReferenceTiles.Count==0 || NewTile == null) return null;
         foreach (RuleTile t in ReferenceTiles) if (Map.IsTile(v, t)) return NewTile;
         return null;
     }

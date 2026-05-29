@@ -14,7 +14,7 @@ public abstract class DuplicateTilemapBase : MonoBehaviour
     {
         _thisTilemap = GetComponent<Tilemap>();
         if (_thisTilemap == null||queued) return;
-        OnCreation();
+        if (!OnCreation()) return;
         queued = true;
         EditorApplication.delayCall += () => {
             queued = false;
@@ -28,10 +28,11 @@ public abstract class DuplicateTilemapBase : MonoBehaviour
                     tiles.Add(GetTile(new Vector3Int(x, y, 0)));
                 }
             _thisTilemap.SetTiles(positions.ToArray(), tiles.ToArray());
+            Debug.Log("["+GetType().Name+"] Generated "+positions.Count+" tile"+(positions.Count==1?"":"s")+" in tilemap "+gameObject.name);
         };
     }
 
-    protected abstract void OnCreation();
+    protected abstract bool OnCreation();
 
     protected abstract TileBase GetTile(Vector3Int v);
 }

@@ -9,7 +9,7 @@ public class DuplicateTilemap : DuplicateTilemapBase
     public RuleTile ReferenceTile;
     public RuleTile NewTile;
 
-    protected override void OnCreation() {}
+    protected override bool OnCreation() {return true;}
 
     protected override TileBase GetTile(Vector3Int v) {
         if (ReferenceTile == null && NewTile == null) return Map.GetTile(v);
