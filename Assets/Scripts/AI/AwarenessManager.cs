@@ -194,7 +194,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         if (playerSeenThisTick || HasActiveGuardChase())
         {
             TryDispatchFromChase();
-        } 
+        }
 
         playerSeenThisTick = false;
         TickDebt--;
@@ -364,5 +364,15 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         }
 
         currentLevel = newLevel;
+    }
+
+    public void MakeSound(Vector2 position, float intensity)
+    {
+        GuardStateManager nearest = FindDispatchGuard(position);
+
+        if (nearest != null && Vector2.Distance(nearest.transform.position, position) <= intensity)
+        {
+            nearest.InvestigatePosition(position);
+        }
     }
 }
