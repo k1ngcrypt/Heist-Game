@@ -83,6 +83,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
             camObject.transform.parent = transform;
             camObject.transform.position = new Vector3(layerLocations[i].x, layerLocations[i].y-i-1, -10);
             Camera c = camObject.GetComponent<Camera>();
+            c.orthographicSize=mainCamera.orthographicSize;
             cameras.Add(c);
             cameraData.cameraStack.Add(c);
         }
