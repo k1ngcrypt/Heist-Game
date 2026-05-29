@@ -59,7 +59,8 @@ Shader "Custom/ShadowChanger"
             half4 frag(Varyings IN) : SV_Target
             {
                 half m = max(0.6f*SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv).r, SAMPLE_TEXTURE2D(_OtherTex, sampler_OtherTex, IN.uv).r);
-                half4 color = half4(0.8f*m*(0.2f-4*m), 0.2f*m*(0.2f-5*m), 2*m*(0.2f-2*m), 1-(12-m)*m);
+                //half4 color = half4(0.2f*m*(0.4f-m),0.1f*m*(0.3f-m), 0.2f*m*(0.6f-m), max(1-(6-m)*m,0));
+                half4 color = half4(0.1f*m,0.04f*m, 0.14f*m, max(1-(6-m)*m,0));
                 return color;
             }
             ENDHLSL
