@@ -5,12 +5,16 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
+using HeistGame.Door;
 
 [RequireComponent(typeof(Camera))]
 public class CameraManager : MonoBehaviour, ITurnActor
 {
     [Header("Locations")]
     [SerializeField] private List<Vector2> layerLocations;
+    [Header("Vents")]
+    [SerializeField] private bool isTopLocationVents = true;
+    [SerializeField] private GameObject vents;
     [Header("Cameras")]
     [SerializeField] private float smoothTime = 0.3f;
     [SerializeField] private int shadowRenderTextureScale = 15;
@@ -47,6 +51,16 @@ public class CameraManager : MonoBehaviour, ITurnActor
             Map.layerLocations = locations;
             Map.ReloadLayerBounds();
             layerBounds = Map.LayerBounds;
+            
+            //Setup Vents if needed
+            if (!isTopLocationVents||vents==null) return;
+            for (int i = 0; i<vents.transform.childCount; i++) {
+                Transform t = vents.transform.GetChild(i), vent = t.GetChild(0);
+                vent.parent = t;
+                vent.localPosition = (Vector3)(layerLocations[^1] - Map.layerLocations[Map.LayerByPos(t.position)]+Vector2.up);
+                vent.gameObject.GetComponent<Vent>().otherVent = t;
+                t.gameObject.GetComponent<Vent>().otherVent = vent;
+            }
         };
     }
     void Awake() {
@@ -64,11 +78,12 @@ public class CameraManager : MonoBehaviour, ITurnActor
         transform.position = new Vector3(0,0,-10);
 
         //Setup Map Layer Cameras
-        foreach (Vector2 v in layerLocations) {
+        for (int i = 0; i<layerLocations.Count; i++) {
             GameObject camObject = Instantiate(cam,transform);
             camObject.transform.parent = transform;
-            camObject.transform.position = new Vector3(v.x, v.y, -10);
+            camObject.transform.position = new Vector3(layerLocations[i].x, layerLocations[i].y-i-1, -10);
             Camera c = camObject.GetComponent<Camera>();
+            c.orthographicSize=mainCamera.orthographicSize;
             cameras.Add(c);
             cameraData.cameraStack.Add(c);
         }
@@ -168,8 +183,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
 
     void Start() {
         addingMaterial = new Material(Shader.Find("Custom/AddingShader"));
-        int l = Map.currentLayer();
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y, -10));
+        int l = Map.CurrentLayer();
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, l-layerLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
 
@@ -219,9 +234,9 @@ public class CameraManager : MonoBehaviour, ITurnActor
         if (!enabled) return;
 
         //Set Locations
-        int l = Map.currentLayer();
-        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, -layerLocations[l-1].y, -10));
-        tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(layerLocations[l-1].x, layerLocations[l-1].y, 10);
+        int l = Map.CurrentLayer();
+        pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, l-layerLocations[l-1].y, -10));
+        tinyCarrotLight.transform.localPosition = l==0?new Vector3(0,0,10) : new Vector3(layerLocations[l-1].x, layerLocations[l-1].y-l, 10);
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
         

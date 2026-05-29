@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace HeistGame.Door
 {
+    [RequireComponent(typeof(DoorController))]
     public class AutoCloser : MonoBehaviour, ITurnActor
     {
         [SerializeField, Min(0)] private int closeDelayTicks = 3;
@@ -13,6 +14,11 @@ namespace HeistGame.Door
         private void Awake()
         {
             doorController = GetComponent<DoorController>();
+        }
+
+        private void OnEnable() {
+            if (turnManager == null) turnManager = TurnManager.Instance;
+            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
         }
 
         public void NotifyDoorOpened()
