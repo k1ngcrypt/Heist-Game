@@ -34,7 +34,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     private Vector3 velocity = Vector3.zero;
     private Camera mainCamera;
     private Shader shader;
-    private const int SHADOWEXTRASIDESIZES = 4;
+    private const int SHADOWEXTRASIDESIZES = 2;
     private readonly List<Camera> cameras = new(), coolCameras = new();
     private const float camFixer = 0.7f;
     private bool queued = false;
@@ -153,7 +153,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
 
             //Create the shadow input
             GameObject coolCamera = Instantiate(shadowCam, Vector3.zero, Quaternion.identity);
-            coolCamera.transform.position = new Vector3(bounds.center.x, bounds.center.y-0.69f, -10);
+            coolCamera.transform.position = new Vector3(bounds.center.x+0.5f, bounds.center.y-0.19f, -10);
             Camera cool = coolCamera.GetComponent<Camera>();
             cool.orthographicSize = (bounds.size.y+SHADOWEXTRASIDESIZES)*0.5f;
             cool.targetTexture = inputRT[i];
@@ -165,7 +165,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
             shadowMaterials.Add(new Material(shader));
             shadowMaterials[i].SetTexture("_OtherTex", inputRT[i]);
             GameObject permalightOutput = Instantiate(shadowSpotlight, transform.position, Quaternion.identity);
-            permalightOutput.transform.position = new Vector3(bounds.center.x, bounds.center.y, 0);
+            permalightOutput.transform.position = new Vector3(bounds.center.x+0.5f, bounds.center.y+0.5f, 0);
             permalightOutput.transform.GetChild(0).GetComponent<RawImage>().texture = outputRT[i];
             permalightOutput.transform.GetChild(0).GetComponent<RawImage>().material = shadowMaterials[i];
             permalightOutput.GetComponent<RectTransform>().localScale = new Vector3(bounds.size.x+SHADOWEXTRASIDESIZES, bounds.size.y+SHADOWEXTRASIDESIZES, 1);
@@ -192,17 +192,21 @@ public class CameraManager : MonoBehaviour, ITurnActor
         Material m = new(Shader.Find("Custom/allAlpha"));
         for (int i = 0; i < inputRT.Count; i++) {
             coolCameras[i].Render();
-            Graphics.Blit(inputRT[i], outputRT[i], m);
+            if (!isTopLocationVents||i!=inputRT.Count-1) Graphics.Blit(inputRT[i], outputRT[i], m);
 
             coolCameras[i].gameObject.transform.position += new Vector3(0,0.69f,0);
-            RenderTexture tempp = new(outputRT[i].width, outputRT[i].height, 1, outputRT[i].graphicsFormat);
-            tempp.Create();
-            RenderTexture temppp = new(outputRT[i].width, outputRT[i].height, 1, outputRT[i].graphicsFormat);
-            Graphics.CopyTexture(outputRT[i], temppp);
-            coolCameras[i].Render();
-            Graphics.Blit(inputRT[i], tempp, m);
-            addingMaterial.SetTexture("_OtherTex", temppp);
-            Graphics.Blit(tempp, outputRT[i], addingMaterial);
+            if (!isTopLocationVents||i!=inputRT.Count-1) {
+                RenderTexture tempp = new(outputRT[i].width, outputRT[i].height, 1, outputRT[i].graphicsFormat);
+                tempp.Create();
+                RenderTexture temppp = new(outputRT[i].width, outputRT[i].height, 1, outputRT[i].graphicsFormat);
+                Graphics.CopyTexture(outputRT[i], temppp);
+                coolCameras[i].Render();
+                Graphics.Blit(inputRT[i], tempp, m);
+                addingMaterial.SetTexture("_OtherTex", temppp);
+                Graphics.Blit(tempp, outputRT[i], addingMaterial);
+                tempp.Release();
+                temppp.Release();
+            }
 
             coolCameras[i].cullingMask = 1 << LayerMask.NameToLayer("ShadowLayer");
             var cameraData = coolCameras[i].GetUniversalAdditionalCameraData();
