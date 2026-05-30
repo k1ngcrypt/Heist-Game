@@ -7,18 +7,18 @@ namespace HeistGame.Objectives {
         public int CurrentAmount { get; private set; }
         public bool IsCompleted { get; private set; }
         public bool IsHidden { get; private set; }
-        public bool failed { get; private set; }
+        public bool IsFailed { get; private set; }
 
         public ActiveObjective(ObjectiveData data) {
             Data = data;
             CurrentAmount = 0;
             IsCompleted = false;
             IsHidden = data.isHidden;
-            if (data.failable || data.isOptional) failed = false;
+            if (data.failable || data.isOptional) IsFailed = false;
         }
 
         public bool AdvanceProgress(int amount) {
-            if (IsCompleted || failed) return false;
+            if (IsCompleted || IsFailed) return false;
 
             CurrentAmount += amount; 
             if (CurrentAmount >= Data.requiredAmount) {
@@ -29,8 +29,8 @@ namespace HeistGame.Objectives {
         }
 
         public bool Fail() {
-            if (!Data.failable || failed) return false; // Can't fail if it's not failable or already failed
-            failed = true;
+            if (!Data.failable || IsFailed) return false; // Can't fail if it's not failable or already failed
+            IsFailed = true;
             return true;
         }
 
