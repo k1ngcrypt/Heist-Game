@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using HeistGame.Door;
 using HeistGame.Objectives;
+using UnityEditor.Experimental.GraphView;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -45,8 +47,9 @@ public class PlayerController : MonoBehaviour
 
     private async Awaitable AttemptMove(Vector2 direction) {
         Vector2 targetPos = (Vector2)transform.position + (direction * gridSize);
-        if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
-        else Debug.Log("Wall in the way!");
+        if (Map.IsInitialized) {
+            if (Map.IsNull(new Vector3Int((int)Math.Round(targetPos.x-0.5f),(int)Math.Round(targetPos.y-0.5f)))) await Move(direction);
+        } else if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
     }
 
     private async Awaitable Move(Vector2 direction) {

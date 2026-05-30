@@ -6,7 +6,7 @@ namespace HeistGame.Door {
         [SerializeField] private bool isOpen;
         [SerializeField] private Sprite openSprite;
         [SerializeField] private Sprite closeSprite;
-        [SerializeField] private Transform otherVent;
+        public Transform otherVent;
         [SerializeField] private int traversalCost = 10;
         private GameObject player;
 
@@ -35,6 +35,7 @@ namespace HeistGame.Door {
         }
          
         public void OpenDoor() {
+            if (otherVent==null) return;
             isOpen = true;
             spriteRenderer.sprite = openSprite;
             player.transform.position = otherVent.position;
