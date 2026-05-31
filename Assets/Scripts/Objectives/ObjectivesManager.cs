@@ -53,7 +53,7 @@ namespace HeistGame.Objectives {
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
 
             if (target != null) {
-                if (target.Data.failable == false || target.Data.isOptional == false) {
+                if (!target.Data.failable && !target.Data.isOptional) {
                     Debug.LogWarning($"Objective {target.Data.title} cannot be failed!");
                     return;
                 }
