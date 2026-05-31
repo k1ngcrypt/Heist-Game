@@ -63,7 +63,7 @@ MonoBehaviour:
   m_UseNormalMap: 0
   m_ShadowsEnabled: 1
   m_ShadowIntensity: 0.91
-  m_ShadowSoftness: 0.56
+  m_ShadowSoftness: 0.9
   m_ShadowSoftnessFalloffIntensity: 0.8
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75

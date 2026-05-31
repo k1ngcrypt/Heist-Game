@@ -194,7 +194,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
                 float direction = ii*dir+sunDirection*AC;
                 GameObject sun = Instantiate(sunLight, center+new Vector2(Mathf.Sin(direction)*distance,Mathf.Cos(ii*dir+sunDirection*AC)*distance), Quaternion.identity);
                 sun.GetComponent<Light2D>().intensity*=sunLowering+Mathf.Abs((1-2*((float)ii)/sunAmount)*(1-sunLowering));
-                sun.transform.eulerAngles = new Vector3(0,0,ii*360f/sunAmount+sunDirection);
+                sun.transform.eulerAngles = new Vector3(0,0,180f -ii*360f/sunAmount-sunDirection);
                 suns++;
             }
         }
