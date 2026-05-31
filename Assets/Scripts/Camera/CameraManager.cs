@@ -6,6 +6,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using HeistGame.Door;
+using System;
 
 [RequireComponent(typeof(Camera))]
 public class CameraManager : MonoBehaviour, ITurnActor
@@ -18,6 +19,13 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [Header("Cameras")]
     [SerializeField] private float smoothTime = 0.3f;
     [SerializeField] private int shadowRenderTextureScale = 15;
+    [Header("The Sun")]
+    [SerializeField] private bool hasSun = true;
+    [SerializeField] private GameObject sunLight;
+    [SerializeField] [Range(0,10)] private int sunAmount = 3;
+    [SerializeField] [Range(0f,360f)] private float sunDirection = 0f;
+    [SerializeField] [Range(0f,1f)] private float sunLowering = 0.6f;
+    [SerializeField] [Range(0f,100f)] private float sunExtraDistanceFromTilemap = 14;
     [Header("References")]
     [SerializeField] private GameObject shadowCam;
     [SerializeField] private GameObject cam;
@@ -35,6 +43,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     private Camera mainCamera;
     private Shader shader;
     private const int SHADOWEXTRASIDESIZES = 2;
+    private const float AC = Mathf.PI/180f;
     private readonly List<Camera> cameras = new(), coolCameras = new();
     private const float camFixer = 0.7f;
     private bool queued = false;
@@ -172,6 +181,25 @@ public class CameraManager : MonoBehaviour, ITurnActor
             coolCameras.Add(cool);
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
+
+        //The Sun
+        if (!hasSun||sunAmount<=0||sunLight==null) return;
+        int suns = 0;
+        for (int i = 0; i<Map.layerLocations.Count; i++)
+        {
+            if (isTopLocationVents&&i==Map.layerLocations.Count-1) continue;
+            float distance = Map.LayerBounds[i].size.magnitude*0.5f+sunExtraDistanceFromTilemap, dir = 2*Mathf.PI/sunAmount;
+            Vector2 center = Map.LayerBounds[i].center;
+            for (int ii = 0; ii < sunAmount; ii++) {
+                float direction = ii*dir+sunDirection*AC;
+                GameObject sun = Instantiate(sunLight, center+new Vector2(Mathf.Sin(direction)*distance,Mathf.Cos(ii*dir+sunDirection*AC)*distance), Quaternion.identity);
+                sun.GetComponent<Light2D>().intensity*=sunLowering+Mathf.Abs((1-2*((float)ii)/sunAmount)*(1-sunLowering));
+                sun.transform.eulerAngles = new Vector3(0,0,ii*360f/sunAmount+sunDirection);
+                suns++;
+            }
+        }
+        Debug.Log(Map.layerLocations.Count);
+        Debug.Log("[CameraManager] Created "+suns+" Suns in Scene");
     }
 
     private void OnEnable() {
