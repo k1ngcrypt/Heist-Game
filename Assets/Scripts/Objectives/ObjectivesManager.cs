@@ -35,11 +35,12 @@ namespace HeistGame.Objectives {
         public void UpdateObjectiveProgress(string objectiveID, int progressAmount = 1) {
             
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
-            if (target.IsFailed) {
-                Debug.LogWarning($"Objective {target.Data.title} has already failed. Progress cannot be updated.");
-                return;
-            }
             if (target != null) {
+                if (target.IsFailed) {
+                    Debug.LogWarning($"Objective {target.Data.title} has already failed. Progress cannot be updated.");
+                    return;
+                }
+                
                 bool newlyCompleted = target.AdvanceProgress(progressAmount);
                 OnObjectivesChanged?.Invoke();
 
