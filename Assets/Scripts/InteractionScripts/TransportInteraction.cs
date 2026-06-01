@@ -5,6 +5,7 @@ using HeistGame.Door;
 namespace HeistGame.Interactions {
     public class TransportInteraction : MonoBehaviour, IInteractionContributor {
         private DoorController door;
+        private PlayerController player;
         private IDoorOpenBehavior openBehavior;
         private InteractionStateManager stateManager;
  
@@ -19,6 +20,7 @@ namespace HeistGame.Interactions {
             door = GetComponentInParent<DoorController>();
             openBehavior = door.GetComponent<IDoorOpenBehavior>();
             stateManager = GetComponent<InteractionStateManager>();
+            player = FindObjectOfType<PlayerController>();
         }
 
         public List<InteractBtnTemplate> GetContextButtons() {
@@ -39,6 +41,7 @@ namespace HeistGame.Interactions {
             bool success;
             success = door.TryOpenDoor();
             if (success) {
+                if (nameOfTransport == "Vent") { player.inVent = !player.inVent; }
                 stateManager.RebuildActiveMenu();
                 await TurnManager.Instance.ProcessTicks(ticksUsedToTransport);
             } else {

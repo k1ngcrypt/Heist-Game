@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AwarenessManager awarenessManager;
     
     private bool isMoving = false;
-    private bool inVent = false;
+    public bool inVent = false;
 
     private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;

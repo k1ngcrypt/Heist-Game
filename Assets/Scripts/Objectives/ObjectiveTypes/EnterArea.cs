@@ -11,13 +11,12 @@ namespace HeistGame.Objectives {
         [SerializeField] private TurnManager turnManager;
 
         private readonly Vector2 buffer = new Vector2(0.5f, 0.5f);
-        private bool isTriggered = false;
 
         private void OnEnable() { turnManager.Register(this); }
+        private void OnDisable() { turnManager.Unregister(this); }
 
         public async Awaitable OnTick() {
             TickDebt = 0;
-            if (isTriggered) return;
             Vector3 currentPosition = playerPos.position;
             if (currentPosition.x > bottomLeft.x - buffer.x && currentPosition.x < topRight.x + buffer.x &&
                 currentPosition.y > bottomLeft.y - buffer.y && currentPosition.y < topRight.y + buffer.y) {
@@ -27,12 +26,11 @@ namespace HeistGame.Objectives {
             return;
         }
         public override void TriggerProgress() {
-            if (isTriggered) return;
-
             base.TriggerProgress();
-            isTriggered = true;
         
             Debug.Log("Area was entered, objective progress triggered.");
+            gameObject.transform.SetParent(null); 
+            Destroy(gameObject);
         }
     }
 }

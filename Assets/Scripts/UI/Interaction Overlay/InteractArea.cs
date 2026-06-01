@@ -48,6 +48,9 @@ public class InteractArea : MonoBehaviour, ITurnActor
         bottomLeft = worldPosition - new Vector3(radius, radius, 0) - buffer;
         
     }
+    public void OnDisable() {
+        turnManager.Unregister(this);
+    }
 
     public async Awaitable OnTick()
     {
