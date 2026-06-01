@@ -294,6 +294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d63da5f3eb62244a83b9b83076be543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.DoorInteractions
+  nameOfDoor: Door
   openable: 1
   lockable: 1
   destroyable: 1

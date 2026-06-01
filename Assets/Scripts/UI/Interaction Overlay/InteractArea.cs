@@ -70,6 +70,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
             //not in area but overlay is active, so destroy it
             Destroy(currentOverlay.gameObject);
         }
+        await Awaitable.EndOfFrameAsync();
     }
 
     //for interaction scripts to call to update the buttons when something changes

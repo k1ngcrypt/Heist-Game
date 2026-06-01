@@ -120,6 +120,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8434073835006382612}
   - {fileID: 5973879885828269595}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -243,7 +244,7 @@ MonoBehaviour:
   isOpen: 0
   openSprite: {fileID: -1236666252544227623, guid: 870135a14217a1e4eaa99a5f991bd586, type: 3}
   closeSprite: {fileID: -1236666252544227623, guid: 870135a14217a1e4eaa99a5f991bd586, type: 3}
-  otherVent: {fileID: 0}
+  otherVent: {fileID: 5973879885828269595}
   traversalCost: 2
 --- !u!114 &9113226617848169503
 MonoBehaviour:
@@ -331,6 +332,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1705801273347378088}
   - {fileID: 1903209838092362397}
   m_Father: {fileID: 346082018492137348}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -454,7 +456,7 @@ MonoBehaviour:
   isOpen: 0
   openSprite: {fileID: -3838701736104295329, guid: 870135a14217a1e4eaa99a5f991bd586, type: 3}
   closeSprite: {fileID: -3838701736104295329, guid: 870135a14217a1e4eaa99a5f991bd586, type: 3}
-  otherVent: {fileID: 0}
+  otherVent: {fileID: 346082018492137348}
   traversalCost: 2
 --- !u!114 &2905477664519429504
 MonoBehaviour:
@@ -506,3 +508,253 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff81cae7384143b48bc1ba741a2cec50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.DoorController
+--- !u!1001 &3043697901993947078
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5973879885828269595}
+    m_Modifications:
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: title
+      value: Vent
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_Name
+      value: InteractArea
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4051074817030988555}
+    - targetCorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3372573887371968745}
+    - targetCorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6891666062974775107}
+  m_SourcePrefab: {fileID: 100100000, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+--- !u!4 &1705801273347378088 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+  m_PrefabInstance: {fileID: 3043697901993947078}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6779058806304186543 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+  m_PrefabInstance: {fileID: 3043697901993947078}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4051074817030988555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6779058806304186543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8f19881ee25c34f865d6e09fc383ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.InteractionStateManager
+--- !u!114 &3372573887371968745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6779058806304186543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 343dcb480e5c16c4a886b46230a28cf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.TransportInteraction
+  nameOfTransport: Vent
+  tickUsedToTransport: 3
+--- !u!114 &6891666062974775107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6779058806304186543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d63da5f3eb62244a83b9b83076be543, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.DoorInteractions
+  nameOfDoor: Vent
+  openable: 0
+  lockable: 1
+  destroyable: 0
+  tickUsedToOpen: 1
+  tickUsedToLock: 1
+  tickUsedToDestroy: 1
+--- !u!1001 &5231638306701981306
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 346082018492137348}
+    m_Modifications:
+    - target: {fileID: 3513842141065619757, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: title
+      value: Vent
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_Name
+      value: InteractArea
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5591447479297520708}
+    - targetCorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 966790665614968725}
+    - targetCorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3471109295582286749}
+  m_SourcePrefab: {fileID: 100100000, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+--- !u!1 &4374101754736933139 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+  m_PrefabInstance: {fileID: 5231638306701981306}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5591447479297520708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4374101754736933139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8f19881ee25c34f865d6e09fc383ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.InteractionStateManager
+--- !u!114 &966790665614968725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4374101754736933139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 343dcb480e5c16c4a886b46230a28cf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.TransportInteraction
+  nameOfTransport: Vent
+  tickUsedToTransport: 3
+--- !u!114 &3471109295582286749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4374101754736933139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d63da5f3eb62244a83b9b83076be543, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.DoorInteractions
+  nameOfDoor: Vent
+  openable: 0
+  lockable: 1
+  destroyable: 0
+  tickUsedToOpen: 1
+  tickUsedToLock: 1
+  tickUsedToDestroy: 1
+--- !u!4 &8434073835006382612 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+  m_PrefabInstance: {fileID: 5231638306701981306}
+  m_PrefabAsset: {fileID: 0}

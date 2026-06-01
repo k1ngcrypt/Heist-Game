@@ -171,6 +171,14 @@ PrefabInstance:
       propertyPath: turnManager
       value: 
       objectReference: {fileID: 1218184953}
+    - target: {fileID: 1945220594164352747, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1120341669}
+    - target: {fileID: 1945220594164352747, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
     - target: {fileID: 2349068701823055659, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
       propertyPath: otherVent
       value: 
@@ -179,6 +187,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: OutsideVent
       objectReference: {fileID: 0}
+    - target: {fileID: 5542454095095971583, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
     - target: {fileID: 5973879885828269595, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2
@@ -191,6 +203,14 @@ PrefabInstance:
       propertyPath: otherVent
       value: 
       objectReference: {fileID: 988587412}
+    - target: {fileID: 8672014909762936663, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1120341669}
+    - target: {fileID: 8672014909762936663, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -418,12 +438,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7942634349438474353, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7942634349438474353, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 7191459414534536732, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1251773403}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
 --- !u!1 &726567857
@@ -675,6 +700,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 302952293170998611, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1120341669}
+    - target: {fileID: 302952293170998611, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
+    - target: {fileID: 1342584766671120419, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
+      propertyPath: otherStair
+      value: 
+      objectReference: {fileID: 1088800439}
     - target: {fileID: 3955941703509644022, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
       propertyPath: m_Name
       value: Stair (1)
@@ -855,6 +892,14 @@ PrefabInstance:
       propertyPath: turnManager
       value: 
       objectReference: {fileID: 1218184953}
+    - target: {fileID: 1945220594164352747, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1120341669}
+    - target: {fileID: 1945220594164352747, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
     - target: {fileID: 2349068701823055659, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
       propertyPath: otherVent
       value: 
@@ -863,6 +908,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: OutsideVent (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5542454095095971583, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
     - target: {fileID: 5973879885828269595, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15
@@ -875,6 +924,14 @@ PrefabInstance:
       propertyPath: otherVent
       value: 
       objectReference: {fileID: 1746545035}
+    - target: {fileID: 8672014909762936663, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1120341669}
+    - target: {fileID: 8672014909762936663, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -986,90 +1043,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1251773402
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1251773403}
-  - component: {fileID: 1251773404}
-  m_Layer: 0
-  m_Name: Spot Light 2D
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1251773403
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1251773402}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1650024255}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1251773404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1251773402}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
-  m_ComponentVersion: 2
-  m_LightType: 3
-  m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.5
-  m_Color: {r: 1, g: 0.86948067, b: 0.57254905, a: 1}
-  m_Intensity: 1
-  m_LightVolumeIntensity: 1
-  m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000f9b0d95d6510bae81dd7d638
-  m_LightCookieSprite: {fileID: 0}
-  m_DeprecatedPointLightCookieSprite: {fileID: 0}
-  m_LightOrder: 0
-  m_AlphaBlendOnOverlap: 0
-  m_OverlapOperation: 0
-  m_NormalMapDistance: 3
-  m_NormalMapQuality: 2
-  m_UseNormalMap: 0
-  m_ShadowsEnabled: 1
-  m_ShadowIntensity: 0.75
-  m_ShadowSoftness: 0.3
-  m_ShadowSoftnessFalloffIntensity: 0.5
-  m_ShadowVolumeIntensityEnabled: 0
-  m_ShadowVolumeIntensity: 0.75
-  m_LocalBounds:
-    m_Center: {x: 0, y: -0.00000011920929, z: 0}
-    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
-  m_PointLightInnerAngle: 180
-  m_PointLightOuterAngle: 180
-  m_PointLightInnerRadius: 0.2
-  m_PointLightOuterRadius: 2
-  m_ShapeLightParametricSides: 5
-  m_ShapeLightParametricAngleOffset: 0
-  m_ShapeLightParametricRadius: 1
-  m_ShapeLightFalloffSize: 0.5
-  m_ShapeLightFalloffOffset: {x: 0, y: 0}
-  m_ShapePath:
-  - {x: -0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: 0.5, z: 0}
-  - {x: -0.5, y: 0.5, z: 0}
 --- !u!1 &1293719854
 GameObject:
   m_ObjectHideFlags: 0
@@ -5766,11 +5739,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!4 &1650024255 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7191459414534536732, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
-  m_PrefabInstance: {fileID: 532644915}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1746545035 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5973879885828269595, guid: 282b5163ac1cfa444a9702885e96d52e, type: 3}
@@ -6081,6 +6049,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 302952293170998611, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1120341669}
+    - target: {fileID: 302952293170998611, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
+      propertyPath: turnManager
+      value: 
+      objectReference: {fileID: 1218184953}
+    - target: {fileID: 1342584766671120419, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
+      propertyPath: otherStair
+      value: 
+      objectReference: {fileID: 1880950369}
     - target: {fileID: 3955941703509644022, guid: cfc5217baba48dc4fbdb422c5435baf9, type: 3}
       propertyPath: m_Name
       value: Stair

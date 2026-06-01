@@ -23,6 +23,7 @@ namespace HeistGame.Objectives {
                 currentPosition.y > bottomLeft.y - buffer.y && currentPosition.y < topRight.y + buffer.y) {
                 TriggerProgress();
             }
+            await Awaitable.EndOfFrameAsync();
             return;
         }
         public override void TriggerProgress() {
