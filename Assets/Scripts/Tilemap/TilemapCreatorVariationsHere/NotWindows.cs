@@ -9,7 +9,7 @@ public class NotWindows : DuplicateTilemapBase
     public RuleTile Windows;
 
     protected override bool OnCreation() {
-        if (Windows==null) return false;
+        if (Windows==null||!Map.IsInitialized) return false;
         Map.Transparent.CompressBounds();
         bounds = Map.Transparent.cellBounds;
         
