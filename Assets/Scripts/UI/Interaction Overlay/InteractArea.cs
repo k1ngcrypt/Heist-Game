@@ -9,7 +9,7 @@ using UnityEngine.Events;
 public class InteractBtnTemplate
 {
     [SerializeField] public string text;
-    [SerializeField] public UnityEvent onClick;
+    [SerializeField] public UnityEvent onClick = new UnityEvent();
 }
 
 public class InteractArea : MonoBehaviour, ITurnActor
@@ -70,5 +70,17 @@ public class InteractArea : MonoBehaviour, ITurnActor
             //not in area but overlay is active, so destroy it
             Destroy(currentOverlay.gameObject);
         }
+    }
+
+    //for interaction scripts to call to update the buttons when something changes
+    public void RegisterButtons(List<InteractBtnTemplate> newButtons) {
+        buttons.AddRange(newButtons);
+    }
+    public void ClearAllButtons() {
+        buttons.Clear();
+    }
+    public void RefreshActiveOverlayUI() {
+        if (currentOverlay == null) return;
+        currentOverlay.Initialize(title, buttons, transform.position);
     }
 }

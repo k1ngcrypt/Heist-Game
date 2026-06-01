@@ -23,6 +23,16 @@ public class InteractionOverlay : MonoBehaviour
         textRect = titleText.GetComponent<RectTransform>();
         menuRect = menuPanel.GetComponent<RectTransform>();
 
+        bool isInitialSpawn = (allButtons.Count == 0);
+
+        foreach (Button oldBtn in allButtons) {
+            if (oldBtn != null) {
+                oldBtn.transform.SetParent(null); 
+                Destroy(oldBtn.gameObject);
+            }
+        }
+        allButtons.Clear();
+
         menuPanel.gameObject.SetActive(true); //make sure layout is correct and then will close
 
         titleText.text = title;
@@ -42,8 +52,10 @@ public class InteractionOverlay : MonoBehaviour
         ResizeMenu();        
 
         UpdateButtons();
-
-        ToggleMenuStatus(); //close it for start
+        if (isInitialSpawn){
+            miniImage.localRotation = Quaternion.Euler(0, 0, 0);
+            menuPanel.gameObject.SetActive(false);
+        }
     }
 
     private void ResizeMenu()
