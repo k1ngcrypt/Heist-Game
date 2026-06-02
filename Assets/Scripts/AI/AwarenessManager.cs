@@ -137,8 +137,8 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
             return;
         }
 
-        UnityAction suspicionHandler = () => HandleCameraSuspicion(detector);
-        UnityAction detectionHandler = () => HandleCameraDetection(detector);
+        void suspicionHandler() => HandleCameraSuspicion(detector);
+        void detectionHandler() => HandleCameraDetection(detector);
 
         cameraSuspicionHandlers.Add(detector, suspicionHandler);
         cameraDetectionHandlers.Add(detector, detectionHandler);

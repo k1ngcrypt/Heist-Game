@@ -11,7 +11,6 @@
 
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
                 return;
             }
@@ -28,8 +27,6 @@
 
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
-                
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
 
                 if (Manager.IncreaseSuspicion())

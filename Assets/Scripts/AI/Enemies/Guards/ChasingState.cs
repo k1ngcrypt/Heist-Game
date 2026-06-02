@@ -32,7 +32,6 @@ namespace Guards
 
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
                 if (Manager.PlayerTarget != null)
                 {
                     navigator.SetDestination(Manager.PlayerTarget.position, true);

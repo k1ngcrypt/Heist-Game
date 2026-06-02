@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Guards
+﻿namespace Guards
 {
     public class SearchingState : BaseState
     {
@@ -23,7 +21,6 @@ namespace Guards
 
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
                 Manager.UpdateState(Manager.ChasingState);
                 return;
             }

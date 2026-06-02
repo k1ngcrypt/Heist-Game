@@ -1173,7 +1173,7 @@ public class Pathfinder : MonoBehaviour
                 continue;
             }
 
-            HaRoom room = new HaRoom(roomId);
+            HaRoom room = new(roomId);
             roomSearchQueue.Clear();
             roomSearchQueue.Enqueue(index);
             visited[index] = true;
@@ -2087,27 +2087,6 @@ public class Pathfinder : MonoBehaviour
         abstractSearch.Reset(totalNodes);
     }
 
-    private int GetCachedLowLevelCost(int startIndex, int endIndex)
-    {
-        if (startIndex == endIndex)
-        {
-            return 0;
-        }
-
-        int min = Mathf.Min(startIndex, endIndex);
-        int max = Mathf.Max(startIndex, endIndex);
-        long key = ((long)min << 32) | (uint)max;
-
-        if (lowLevelCostCache.TryGetValue(key, out int cachedCost))
-        {
-            return cachedCost;
-        }
-
-        int cost = FindLowLevelCost(startIndex, endIndex);
-        lowLevelCostCache[key] = cost;
-        return cost;
-    }
-
     private LayerMask GetObstacleMask()
         => Obstacles | playerCollisionMask;
 
@@ -2307,7 +2286,7 @@ public class Pathfinder : MonoBehaviour
             int costB = GetPriority(b);
             if (costA == costB)
             {
-                return hCosts[a] < hCosts[b];
+                return hCosts[a] < hCosts[b]; //Tiebreak by heuristic cost
             }
 
             return costA < costB;

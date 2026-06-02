@@ -128,6 +128,11 @@ namespace Guards
                 lineOfSightFilter,
                 hitBuffer,
                 immediateDetectionRange);
+                if (isPlayerDetected)
+                {
+                    playerTarget.position = playerTarget.position;
+                    awarenessManager?.ReportPlayerSeen(LastKnownPlayerPosition);
+                }
             }
             return isPlayerDetected;
         }
@@ -153,17 +158,6 @@ namespace Guards
             }
 
             return transform.up;
-        }
-
-        public void UpdateLastKnownPlayerPosition()
-        {
-            if (playerTarget == null)
-            {
-                return;
-            }
-
-            LastKnownPlayerPosition = playerTarget.position;
-        awarenessManager?.ReportPlayerSeen(LastKnownPlayerPosition);
         }
 
         public void ResetSuspicion()
