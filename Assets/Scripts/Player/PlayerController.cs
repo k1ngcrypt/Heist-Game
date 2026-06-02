@@ -23,8 +23,9 @@ public class PlayerController : MonoBehaviour {
         new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized,
         new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized, Vector2.zero
     };
+    private int combinedMask;
 
-    void Start() { Map.SetPlayer(gameObject); }
+    void Start() { Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); }
     async void Update() {
         // Prevent starting new actions while one is in progress
         if (!isMoving && Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) {
@@ -96,7 +97,6 @@ public class PlayerController : MonoBehaviour {
     }
 
     private async Awaitable InteractWithObject() {
-        int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
         for (int i = 0; i < moveDirections.Length; i++) {
             Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
             Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
@@ -120,7 +120,6 @@ public class PlayerController : MonoBehaviour {
     }
 
     private async Awaitable TryButtonPress(int number) {
-        int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
         for (int i = 0; i < moveDirections.Length; i++) {
             Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
             
