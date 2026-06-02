@@ -17,6 +17,7 @@ public abstract class DuplicateTilemapBase : MonoBehaviour
         if (!OnCreation()) return;
         queued = true;
         EditorApplication.delayCall += () => {
+            if (this==null||Application.isPlaying) return; //Yes, this is intetional, please, do not flag it.
             queued = false;
             if (Map.IsInitialized&&bounds == default)bounds = Map.Bounds;
             var positions = new System.Collections.Generic.List<Vector3Int>();

@@ -32,6 +32,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] private GameObject shadowSpotlight;
     [SerializeField] private GameObject globalRadiance;
     [SerializeField] private GameObject sinRadiance;
+    [SerializeField] private GameObject playerLight;
     [SerializeField] private GameObject tinyCarrotLight;
     [SerializeField] private TurnManager turnManager;
     [HideInInspector] [SerializeField] private List<BoundsInt> layerBounds;
@@ -218,9 +219,11 @@ public class CameraManager : MonoBehaviour, ITurnActor
 
         //Have Camera Blit Alpha of the Floor Onto shadow render texture, then set culling layers to ShadowLayer
         Material m = new(Shader.Find("Custom/allAlpha"));
+        if (sinRadiance) sinRadiance.SetActive(false);
+        if (playerLight) playerLight.SetActive(false);
         for (int i = 0; i < inputRT.Count; i++) {
             coolCameras[i].Render();
-            if (!isTopLocationVents||i!=inputRT.Count-1) Graphics.Blit(inputRT[i], outputRT[i], m);
+            if (!isTopLocationVents||i!=inputRT.Count-1) Graphics.Blit(inputRT[i], outputRT[i]);
 
             coolCameras[i].gameObject.transform.position += new Vector3(0,0.69f,0);
             if (!isTopLocationVents||i!=inputRT.Count-1) {
@@ -229,7 +232,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
                 RenderTexture temppp = new(outputRT[i].width, outputRT[i].height, 1, outputRT[i].graphicsFormat);
                 Graphics.CopyTexture(outputRT[i], temppp);
                 coolCameras[i].Render();
-                Graphics.Blit(inputRT[i], tempp, m);
+                Graphics.Blit(inputRT[i], tempp);
                 addingMaterial.SetTexture("_OtherTex", temppp);
                 Graphics.Blit(tempp, outputRT[i], addingMaterial);
                 tempp.Release();
@@ -240,6 +243,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
             var cameraData = coolCameras[i].GetUniversalAdditionalCameraData();
             cameraData.renderPostProcessing = enabled;
         }
+        if (sinRadiance) sinRadiance.SetActive(true);
+        if (playerLight) playerLight.SetActive(true);
 
         //Setup Blit
         if (globalRadiance) Destroy(globalRadiance);
@@ -253,7 +258,6 @@ public class CameraManager : MonoBehaviour, ITurnActor
         addingMaterial.SetTexture("_OtherTex", temp);
         Graphics.Blit(inputRT[l], outputRT[l], addingMaterial);
         temp.Release();
-        if (sinRadiance) Destroy(sinRadiance);
     }
 
     private void OnDisable() {
