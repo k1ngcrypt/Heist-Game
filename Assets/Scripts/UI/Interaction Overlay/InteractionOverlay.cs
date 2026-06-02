@@ -41,10 +41,15 @@ public class InteractionOverlay : MonoBehaviour
         canvas.worldCamera = Camera.main;
 
         int hotkeyNumber = 1;
+        float basisHeight = btnPrefab.GetComponent<RectTransform>().rect.height - btnPrefab.GetComponentInChildren<TMP_Text>().preferredHeight;
         foreach (var btnData in actions)
         {
             Button btn = Instantiate(btnPrefab, menuPanel);
             btn.GetComponentInChildren<TMP_Text>().text = $"[{hotkeyNumber}] {btnData.text}";
+
+            var btnRect = btn.GetComponent<RectTransform>();
+
+            btnRect.sizeDelta = new Vector2(btnRect.sizeDelta.x, basisHeight + btnRect.GetComponentInChildren<TMP_Text>().preferredHeight);
 
             btn.onClick.AddListener(() => btnData.onClick.Invoke());
             allButtons.Add(btn);

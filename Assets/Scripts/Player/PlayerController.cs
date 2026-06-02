@@ -145,7 +145,7 @@ public class PlayerController : MonoBehaviour {
                 if (overlay == null) overlay = hit.GetComponentInParent<InteractionOverlay>();
 
                 if (interactArea != null && overlay != null) {
-                    //if (!overlay.gameObject.activeInHierarchy) { continue; }
+                    if (!overlay.gameObject.activeInHierarchy) { continue; }
                     List<InteractBtnTemplate> activeButtons = interactArea.GetActiveButtons();
                     int targetIndex = number - 1;
                     if (targetIndex >= 0 && targetIndex < activeButtons.Count) {
