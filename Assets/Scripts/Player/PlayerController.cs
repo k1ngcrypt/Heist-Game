@@ -18,6 +18,12 @@ public class PlayerController : MonoBehaviour {
     private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
+    private readonly Vector2[] moveDirections = new Vector2[] {
+        Vector2.up, Vector2.down, Vector2.left, Vector2.right,
+        new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized,
+        new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized, Vector2.zero
+    };
+
     void Start() { Map.SetPlayer(gameObject); }
     async void Update() {
         // Prevent starting new actions while one is in progress
@@ -38,14 +44,16 @@ public class PlayerController : MonoBehaviour {
     private bool TryGetPressedNumber(out int pressedNumber) {
         pressedNumber = -1;
         if (Keyboard.current == null) return false;
-
-        if (Keyboard.current.digit1Key.wasPressedThisFrame) { pressedNumber = 1; return true; }
-        if (Keyboard.current.digit2Key.wasPressedThisFrame) { pressedNumber = 2; return true; }
-        if (Keyboard.current.digit3Key.wasPressedThisFrame) { pressedNumber = 3; return true; }
-        if (Keyboard.current.digit4Key.wasPressedThisFrame) { pressedNumber = 4; return true; }
-        if (Keyboard.current.digit5Key.wasPressedThisFrame) { pressedNumber = 5; return true; }
+        pressedNumber = Keyboard.current switch {
+            var k when k.digit1Key.wasPressedThisFrame => 1,
+            var k when k.digit2Key.wasPressedThisFrame => 2,
+            var k when k.digit3Key.wasPressedThisFrame => 3,
+            var k when k.digit4Key.wasPressedThisFrame => 4,
+            var k when k.digit5Key.wasPressedThisFrame => 5,
+            _ => -1
+        };
         
-        return false;
+        return pressedNumber != -1;
     }
 
     private async Awaitable Rest() {
@@ -88,19 +96,9 @@ public class PlayerController : MonoBehaviour {
     }
 
     private async Awaitable InteractWithObject() {
-        Vector2[] directions = { 
-            Vector2.up, Vector2.down, 
-            Vector2.left, Vector2.right, 
-            new Vector2(1, 1).normalized,
-            new Vector2(-1, 1).normalized,
-            new Vector2(1, -1).normalized,
-            new Vector2(-1, -1).normalized,
-            Vector2.zero 
-        };
-
         int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
-        for (int i = 0; i < directions.Length; i++) {
-            Vector2 targetPos = (Vector2)transform.position + (directions[i] * gridSize);
+        for (int i = 0; i < moveDirections.Length; i++) {
+            Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
             Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
             if (hit != null) {
@@ -122,19 +120,9 @@ public class PlayerController : MonoBehaviour {
     }
 
     private async Awaitable TryButtonPress(int number) {
-        Vector2[] directions = { 
-            Vector2.up, Vector2.down, 
-            Vector2.left, Vector2.right, 
-            new Vector2(1, 1).normalized,
-            new Vector2(-1, 1).normalized,
-            new Vector2(1, -1).normalized,
-            new Vector2(-1, -1).normalized,
-            Vector2.zero 
-        };
-
         int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
-        for (int i = 0; i < directions.Length; i++) {
-            Vector2 targetPos = (Vector2)transform.position + (directions[i] * gridSize);
+        for (int i = 0; i < moveDirections.Length; i++) {
+            Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
             
             Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
@@ -145,7 +133,7 @@ public class PlayerController : MonoBehaviour {
                 if (overlay == null) overlay = hit.GetComponentInParent<InteractionOverlay>();
 
                 if (interactArea != null && overlay != null) {
-                    if (!overlay.gameObject.activeInHierarchy) { continue; }
+                    if (!overlay.isMenuOpen) { continue; }
                     List<InteractBtnTemplate> activeButtons = interactArea.GetActiveButtons();
                     int targetIndex = number - 1;
                     if (targetIndex >= 0 && targetIndex < activeButtons.Count) {
@@ -156,6 +144,5 @@ public class PlayerController : MonoBehaviour {
                 }
             } 
         }
-        await Awaitable.EndOfFrameAsync();
     }
 }

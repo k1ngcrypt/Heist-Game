@@ -11,6 +11,8 @@ public class InteractionOverlay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private Button btnPrefab;
 
+    public bool isMenuOpen => menuPanel != null && menuPanel.gameObject.activeInHierarchy;
+
     private List<Button> allButtons = new List<Button>();
 
     private VerticalLayoutGroup layout;
@@ -97,7 +99,7 @@ public class InteractionOverlay : MonoBehaviour
 
     public void ToggleMenuStatus()
     {
-        if (menuPanel.gameObject.activeSelf)
+        if (isMenuOpen)
         {
             //close menu
             miniImage.rotation = new Quaternion(0, 0, 0, 1);

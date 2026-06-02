@@ -9,7 +9,7 @@ using UnityEngine.Events;
 public class InteractBtnTemplate
 {
     [SerializeField] public string text;
-    [SerializeField] public UnityEvent onClick = new UnityEvent();
+    [SerializeField] public UnityEvent onClick = new();
 }
 
 public class InteractArea : MonoBehaviour, ITurnActor
