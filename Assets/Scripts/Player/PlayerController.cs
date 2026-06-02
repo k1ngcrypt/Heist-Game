@@ -4,26 +4,31 @@ using HeistGame.Door;
 using HeistGame.Objectives;
 using UnityEditor.Experimental.GraphView;
 using System;
+using System.Collections.Generic;
 
-public class PlayerController : MonoBehaviour
-{
+public class PlayerController : MonoBehaviour {
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
     
     private bool isMoving = false;
-    private bool inVent = false;
+    public bool inVent = false;
 
     private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
-    void Start() {
-        Map.SetPlayer(gameObject);
-    }
+    private readonly Vector2[] moveDirections = new Vector2[] {
+        Vector2.up, Vector2.down, Vector2.left, Vector2.right,
+        new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized,
+        new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized, Vector2.zero
+    };
+    private int combinedMask;
+
+    void Start() { Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); }
     async void Update() {
         // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null) {
+        if (!isMoving && Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
@@ -33,12 +38,28 @@ public class PlayerController : MonoBehaviour
             
             else if (inputHeld(Key.Z)) await Rest();
             else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
+            else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
         }
+    }
+
+    private bool TryGetPressedNumber(out int pressedNumber) {
+        pressedNumber = -1;
+        if (Keyboard.current == null) return false;
+        pressedNumber = Keyboard.current switch {
+            var k when k.digit1Key.wasPressedThisFrame => 1,
+            var k when k.digit2Key.wasPressedThisFrame => 2,
+            var k when k.digit3Key.wasPressedThisFrame => 3,
+            var k when k.digit4Key.wasPressedThisFrame => 4,
+            var k when k.digit5Key.wasPressedThisFrame => 5,
+            _ => -1
+        };
+        
+        return pressedNumber != -1;
     }
 
     private async Awaitable Rest() {
         isMoving = true;
-        Debug.Log("Resting...");
+        //Debug.Log("Resting...");
         if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(1);
         
         await Awaitable.WaitForSecondsAsync(restDuration);
@@ -76,19 +97,16 @@ public class PlayerController : MonoBehaviour
     }
 
     private async Awaitable InteractWithObject() {
-        // Directions check including current tile (Vector2.zero)
-        Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right, Vector2.zero };
-
-        for (int i = 0; i < directions.Length; i++) {
-            Vector2 targetPos = (Vector2)transform.position + (directions[i] * gridSize);
-            int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
+        for (int i = 0; i < moveDirections.Length; i++) {
+            Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
             Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
             if (hit != null) {
-                if (hit.CompareTag("Door")) { await DoorInteraction(hit, 0); break; }
-                else if (hit.CompareTag("Vent")) { await DoorInteraction(hit, 1); break; }
-                else if (hit.CompareTag("Stair")) { await DoorInteraction(hit, 2); break; }
-                else await ObjectiveCheck(hit);
+                InteractionOverlay interactOverlay = hit.GetComponentInChildren<InteractionOverlay>();
+                if (interactOverlay != null) {
+                    interactOverlay.ToggleMenuStatus();
+                    break;
+                }
             } 
         }
     }
@@ -101,42 +119,29 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private async Awaitable DoorInteraction(Collider2D obj, short doorType) {
-        isMoving = true;
-        DoorController doorScript = obj.GetComponent<DoorController>();
-        var openBehavior = obj.GetComponent<IDoorOpenBehavior>();
-        
-        if (openBehavior != null && doorScript != null) {
-            bool success;
+    private async Awaitable TryButtonPress(int number) {
+        for (int i = 0; i < moveDirections.Length; i++) {
+            Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
+            
+            Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
-            if (doorType == 1) inVent = !inVent; 
-            else if (doorType == 2) {
-                doorScript.TryOpenDoor();
-                awarenessManager.MakeSound(transform.position, 1.5f); // Make noise on stair use
-                if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(stairWaitTicks);
-                isMoving = false;
-                return;
-            }
-            if (openBehavior.IsOpen) {
-                success = doorScript.TryCloseDoor();
-                if (success) {
-                    Debug.Log("Object closed!");
-                    awarenessManager.MakeSound(transform.position, 0.5f); // Make noise on door close
-                }
-            } else {
-                success = doorScript.TryOpenDoor();
-                if (success) {
-                    Debug.Log("Object opened!");
-                    awarenessManager.MakeSound(transform.position, 1.5f); // Make noise on door open
-                }
-            }
+            if (hit != null) {
+                InteractArea interactArea = hit.GetComponentInChildren<InteractArea>();
+                if (interactArea == null) interactArea = hit.GetComponentInParent<InteractArea>();
+                InteractionOverlay overlay = hit.GetComponentInChildren<InteractionOverlay>();
+                if (overlay == null) overlay = hit.GetComponentInParent<InteractionOverlay>();
 
-            if (success && TurnManager.Instance != null) {
-                int ticks = (doorType == 0) ? doorWaitTicks : ventWaitTicks; 
-                await TurnManager.Instance.ProcessTicks(ticks);
-            }
+                if (interactArea != null && overlay != null) {
+                    if (!overlay.isMenuOpen) { continue; }
+                    List<InteractBtnTemplate> activeButtons = interactArea.GetActiveButtons();
+                    int targetIndex = number - 1;
+                    if (targetIndex >= 0 && targetIndex < activeButtons.Count) {
+                        activeButtons[targetIndex].onClick.Invoke();
+                        await Awaitable.WaitForSecondsAsync(interactionDuration);
+                    }
+                    break;
+                }
+            } 
         }
-        
-        isMoving = false;
     }
 }
