@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 9186650598749027858}
   - component: {fileID: 2512692909694270317}
   - component: {fileID: 7309080889987900486}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Stair
   m_TagString: Stair
   m_Icon: {fileID: 0}
@@ -249,6 +249,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: InteractArea
       objectReference: {fileID: 0}
+    - target: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -295,4 +299,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.TransportInteraction
   nameOfTransport: Stair
-  tickUsedToTransport: 4
+  ticksUsedToTransport: 1

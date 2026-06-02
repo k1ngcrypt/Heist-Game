@@ -613,7 +613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.TransportInteraction
   nameOfTransport: Vent
-  tickUsedToTransport: 3
+  ticksUsedToTransport: 1
 --- !u!114 &6891666062974775107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -630,9 +630,9 @@ MonoBehaviour:
   openable: 0
   lockable: 1
   destroyable: 0
-  tickUsedToOpen: 1
-  tickUsedToLock: 1
-  tickUsedToDestroy: 1
+  ticksUsedToOpen: 1
+  ticksUsedToLock: 1
+  ticksUsedToDestroy: 1
 --- !u!1001 &5231638306701981306
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -733,7 +733,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Interactions.TransportInteraction
   nameOfTransport: Vent
-  tickUsedToTransport: 3
+  ticksUsedToTransport: 1
 --- !u!114 &3471109295582286749
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -750,9 +750,9 @@ MonoBehaviour:
   openable: 0
   lockable: 1
   destroyable: 0
-  tickUsedToOpen: 1
-  tickUsedToLock: 1
-  tickUsedToDestroy: 1
+  ticksUsedToOpen: 1
+  ticksUsedToLock: 1
+  ticksUsedToDestroy: 1
 --- !u!4 &8434073835006382612 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}

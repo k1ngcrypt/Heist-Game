@@ -77,14 +77,11 @@ public class InteractArea : MonoBehaviour, ITurnActor
     }
 
     //for interaction scripts to call to update the buttons when something changes
-    public void RegisterButtons(List<InteractBtnTemplate> newButtons) {
-        buttons.AddRange(newButtons);
-    }
-    public void ClearAllButtons() {
-        buttons.Clear();
-    }
+    public void RegisterButtons(List<InteractBtnTemplate> newButtons) { buttons.AddRange(newButtons); }
+    public void ClearAllButtons() { buttons.Clear(); }
     public void RefreshActiveOverlayUI() {
         if (currentOverlay == null) return;
         currentOverlay.Initialize(title, buttons, transform.position);
     }
+    public List<InteractBtnTemplate> GetActiveButtons() { return buttons; }
 }

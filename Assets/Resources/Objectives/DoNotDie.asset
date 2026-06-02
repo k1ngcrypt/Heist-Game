@@ -16,6 +16,6 @@ MonoBehaviour:
   title: Don't Die
   description: Do Not Die
   requiredAmount: 1
-  isHidden: 0
+  isHidden: 1
   isOptional: 0
   failable: 1

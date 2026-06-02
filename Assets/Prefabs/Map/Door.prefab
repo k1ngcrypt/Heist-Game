@@ -252,7 +252,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
       propertyPath: m_Layer
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -298,6 +298,9 @@ MonoBehaviour:
   openable: 1
   lockable: 1
   destroyable: 1
+  ticksUsedToOpen: 1
+  ticksUsedToLock: 1
+  ticksUsedToDestroy: 1
 --- !u!4 &7942634349438474353 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}

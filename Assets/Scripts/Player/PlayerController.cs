@@ -4,9 +4,9 @@ using HeistGame.Door;
 using HeistGame.Objectives;
 using UnityEditor.Experimental.GraphView;
 using System;
+using System.Collections.Generic;
 
-public class PlayerController : MonoBehaviour
-{
+public class PlayerController : MonoBehaviour {
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
@@ -18,9 +18,7 @@ public class PlayerController : MonoBehaviour
     private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
-    void Start() {
-        Map.SetPlayer(gameObject);
-    }
+    void Start() { Map.SetPlayer(gameObject); }
     async void Update() {
         // Prevent starting new actions while one is in progress
         if (!isMoving && Keyboard.current != null) {
@@ -33,7 +31,21 @@ public class PlayerController : MonoBehaviour
             
             else if (inputHeld(Key.Z)) await Rest();
             else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
+            else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
         }
+    }
+
+    private bool TryGetPressedNumber(out int pressedNumber) {
+        pressedNumber = -1;
+        if (Keyboard.current == null) return false;
+
+        if (Keyboard.current.digit1Key.wasPressedThisFrame) { pressedNumber = 1; return true; }
+        if (Keyboard.current.digit2Key.wasPressedThisFrame) { pressedNumber = 2; return true; }
+        if (Keyboard.current.digit3Key.wasPressedThisFrame) { pressedNumber = 3; return true; }
+        if (Keyboard.current.digit4Key.wasPressedThisFrame) { pressedNumber = 4; return true; }
+        if (Keyboard.current.digit5Key.wasPressedThisFrame) { pressedNumber = 5; return true; }
+        
+        return false;
     }
 
     private async Awaitable Rest() {
@@ -76,19 +88,27 @@ public class PlayerController : MonoBehaviour
     }
 
     private async Awaitable InteractWithObject() {
-        // Directions check including current tile (Vector2.zero)
-        Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right, Vector2.zero };
+        Vector2[] directions = { 
+            Vector2.up, Vector2.down, 
+            Vector2.left, Vector2.right, 
+            new Vector2(1, 1).normalized,
+            new Vector2(-1, 1).normalized,
+            new Vector2(1, -1).normalized,
+            new Vector2(-1, -1).normalized,
+            Vector2.zero 
+        };
 
+        int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
         for (int i = 0; i < directions.Length; i++) {
             Vector2 targetPos = (Vector2)transform.position + (directions[i] * gridSize);
-            int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
             Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
             if (hit != null) {
-                if (hit.CompareTag("Door")) { await DoorInteraction(hit, 0); break; }
-                else if (hit.CompareTag("Vent")) { await DoorInteraction(hit, 1); break; }
-                else if (hit.CompareTag("Stair")) { await DoorInteraction(hit, 2); break; }
-                else await ObjectiveCheck(hit);
+                InteractionOverlay interactOverlay = hit.GetComponentInChildren<InteractionOverlay>();
+                if (interactOverlay != null) {
+                    interactOverlay.ToggleMenuStatus();
+                    break;
+                }
             } 
         }
     }
@@ -101,42 +121,41 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private async Awaitable DoorInteraction(Collider2D obj, short doorType) {
-        isMoving = true;
-        DoorController doorScript = obj.GetComponent<DoorController>();
-        var openBehavior = obj.GetComponent<IDoorOpenBehavior>();
-        
-        if (openBehavior != null && doorScript != null) {
-            bool success;
+    private async Awaitable TryButtonPress(int number) {
+        Vector2[] directions = { 
+            Vector2.up, Vector2.down, 
+            Vector2.left, Vector2.right, 
+            new Vector2(1, 1).normalized,
+            new Vector2(-1, 1).normalized,
+            new Vector2(1, -1).normalized,
+            new Vector2(-1, -1).normalized,
+            Vector2.zero 
+        };
 
-            if (doorType == 1) inVent = !inVent; 
-            else if (doorType == 2) {
-                doorScript.TryOpenDoor();
-                awarenessManager.MakeSound(transform.position, 1.5f); // Make noise on stair use
-                if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(stairWaitTicks);
-                isMoving = false;
-                return;
-            }
-            if (openBehavior.IsOpen) {
-                success = doorScript.TryCloseDoor();
-                if (success) {
-                    Debug.Log("Object closed!");
-                    awarenessManager.MakeSound(transform.position, 0.5f); // Make noise on door close
-                }
-            } else {
-                success = doorScript.TryOpenDoor();
-                if (success) {
-                    Debug.Log("Object opened!");
-                    awarenessManager.MakeSound(transform.position, 1.5f); // Make noise on door open
-                }
-            }
+        int combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
+        for (int i = 0; i < directions.Length; i++) {
+            Vector2 targetPos = (Vector2)transform.position + (directions[i] * gridSize);
+            
+            Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
 
-            if (success && TurnManager.Instance != null) {
-                int ticks = (doorType == 0) ? doorWaitTicks : ventWaitTicks; 
-                await TurnManager.Instance.ProcessTicks(ticks);
-            }
+            if (hit != null) {
+                InteractArea interactArea = hit.GetComponentInChildren<InteractArea>();
+                if (interactArea == null) interactArea = hit.GetComponentInParent<InteractArea>();
+                InteractionOverlay overlay = hit.GetComponentInChildren<InteractionOverlay>();
+                if (overlay == null) overlay = hit.GetComponentInParent<InteractionOverlay>();
+
+                if (interactArea != null && overlay != null) {
+                    //if (!overlay.gameObject.activeInHierarchy) { continue; }
+                    List<InteractBtnTemplate> activeButtons = interactArea.GetActiveButtons();
+                    int targetIndex = number - 1;
+                    if (targetIndex >= 0 && targetIndex < activeButtons.Count) {
+                        activeButtons[targetIndex].onClick.Invoke();
+                        await Awaitable.WaitForSecondsAsync(interactionDuration);
+                    }
+                    break;
+                }
+            } 
         }
-        
-        isMoving = false;
+        await Awaitable.EndOfFrameAsync();
     }
 }

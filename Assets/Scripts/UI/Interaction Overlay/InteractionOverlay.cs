@@ -40,13 +40,15 @@ public class InteractionOverlay : MonoBehaviour
         menuPanel.GetComponent<Transform>().position = worldPosition - new Vector3(0, 0.5f, 0); // One tile down;
         canvas.worldCamera = Camera.main;
 
+        int hotkeyNumber = 1;
         foreach (var btnData in actions)
         {
             Button btn = Instantiate(btnPrefab, menuPanel);
-            btn.GetComponentInChildren<TMP_Text>().text = btnData.text;
+            btn.GetComponentInChildren<TMP_Text>().text = $"[{hotkeyNumber}] {btnData.text}";
 
             btn.onClick.AddListener(() => btnData.onClick.Invoke());
             allButtons.Add(btn);
+            hotkeyNumber++;
         }
 
         ResizeMenu();        
