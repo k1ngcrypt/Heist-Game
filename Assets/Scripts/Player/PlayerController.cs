@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour {
 
     private async Awaitable Rest() {
         isMoving = true;
-        Debug.Log("Resting...");
+        //Debug.Log("Resting...");
         if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(1);
         
         await Awaitable.WaitForSecondsAsync(restDuration);
