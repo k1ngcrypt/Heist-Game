@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour {
     void Start() { Map.SetPlayer(gameObject); }
     async void Update() {
         // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null) {
+        if (!isMoving && Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour {
 
     private async Awaitable Rest() {
         isMoving = true;
-        Debug.Log("Resting...");
+        //Debug.Log("Resting...");
         if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(1);
         
         await Awaitable.WaitForSecondsAsync(restDuration);
