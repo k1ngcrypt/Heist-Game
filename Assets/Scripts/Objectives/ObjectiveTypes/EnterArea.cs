@@ -10,7 +10,7 @@ namespace HeistGame.Objectives {
         [SerializeField] private Transform playerPos;
         [SerializeField] private TurnManager turnManager;
 
-        private readonly Vector2 buffer = new Vector2(0.5f, 0.5f);
+        private readonly Vector2 buffer = new(0.5f, 0.5f);
 
         private void OnEnable() { turnManager.Register(this); }
         private void OnDisable() { turnManager.Unregister(this); }
