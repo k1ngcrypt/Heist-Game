@@ -36,12 +36,14 @@ public class InteractionOverlay : MonoBehaviour
         menuPanel.gameObject.SetActive(true); //make sure layout is correct and then will close
 
         titleText.text = title;
+        var txtRt = titleText.GetComponent<RectTransform>();
+        txtRt.sizeDelta = new Vector2(btnPrefab.GetComponent<RectTransform>().sizeDelta.x, txtRt.sizeDelta.y);
         canvas.GetComponent<Transform>().position = worldPosition;
         menuPanel.GetComponent<Transform>().position = worldPosition - new Vector3(0, 0.5f, 0); // One tile down;
         canvas.worldCamera = Camera.main;
 
         int hotkeyNumber = 1;
-        float basisHeight = btnPrefab.GetComponent<RectTransform>().rect.height - btnPrefab.GetComponentInChildren<TMP_Text>().preferredHeight;
+        float basisHeight = btnPrefab.GetComponent<RectTransform>().rect.height - btnPrefab.GetComponentInChildren<TMP_Text>().preferredHeight - 5;
         foreach (var btnData in actions)
         {
             Button btn = Instantiate(btnPrefab, menuPanel);
@@ -68,6 +70,8 @@ public class InteractionOverlay : MonoBehaviour
     private void ResizeMenu()
     {
         float paddingBottom = layout.padding.bottom;
+        float paddingLeft = layout.padding.left;
+        float paddingRight = layout.padding.right;
         LayoutRebuilder.ForceRebuildLayoutImmediate(menuRect);
 
         RectTransform lastElement;
@@ -83,7 +87,7 @@ public class InteractionOverlay : MonoBehaviour
         float height = lastElement.rect.height;
 
 
-        menuRect.sizeDelta = new Vector2(menuRect.sizeDelta.x, -(pos - (height*0.5f) - paddingBottom));
+        menuRect.sizeDelta = new Vector2(lastElement.sizeDelta.x + paddingLeft + paddingRight, -(pos - (height*0.5f) - paddingBottom));
     }
 
     public void UpdateButtons()
