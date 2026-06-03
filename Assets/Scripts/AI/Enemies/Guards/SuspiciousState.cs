@@ -11,6 +11,8 @@ namespace Guards
                 return;
             }
 
+            _icon.TriggerSuspicious();
+
             if (Manager.IsPlayerDetected())
             {
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
@@ -18,7 +20,6 @@ namespace Guards
             }
 
             Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
-            _icon.TriggerSuspicious();
         }
 
         public override void TickState()

@@ -8,9 +8,8 @@
             {
                 return;
             }
-
-            Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
             _icon.TriggerSuspicious();
+            Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
         }
 
         public override void TickState()
