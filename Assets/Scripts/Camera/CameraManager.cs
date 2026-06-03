@@ -27,13 +27,15 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] [Range(0f,360f)] private float sunDirection = 0f;
     [SerializeField] [Range(0f,1f)] private float sunLowering = 0.6f;
     [SerializeField] [Range(0f,100f)] private float sunExtraDistanceFromTilemap = 14;
+    [Header("Backround Removal")]
+    [SerializeField] private GameObject sinRadiance;
+    [SerializeField] private GameObject playerLight;
+    [SerializeField] private GameObject BaseWall;
     [Header("References")]
     [SerializeField] private GameObject shadowCam;
     [SerializeField] private GameObject cam;
     [SerializeField] private GameObject shadowSpotlight;
     [SerializeField] private GameObject globalRadiance;
-    [SerializeField] private GameObject sinRadiance;
-    [SerializeField] private GameObject playerLight;
     [SerializeField] private GameObject tinyCarrotLight;
     [SerializeField] private TurnManager turnManager;
     [HideInInspector] [SerializeField] private List<BoundsInt> layerBounds;
@@ -226,6 +228,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
         Material m = new(Shader.Find("Custom/allAlpha"));
         if (sinRadiance) sinRadiance.SetActive(false);
         if (playerLight) playerLight.SetActive(false);
+        if (BaseWall) BaseWall.SetActive(false);
         for (int i = 0; i < inputRT.Count; i++) {
             coolCameras[i].Render();
             if (!isTopLocationVents||i!=inputRT.Count-1) Graphics.Blit(inputRT[i], outputRT[i]);
@@ -250,6 +253,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
         }
         if (sinRadiance) sinRadiance.SetActive(true);
         if (playerLight) playerLight.SetActive(true);
+        if (BaseWall) BaseWall.SetActive(true);
 
         //Setup Blit
         if (globalRadiance) Destroy(globalRadiance);
