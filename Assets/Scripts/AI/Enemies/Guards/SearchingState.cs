@@ -10,6 +10,7 @@
             }
 
             Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
+            _icon.TriggerSuspicious();
         }
 
         public override void TickState()
@@ -40,6 +41,7 @@
 
         public override void ExitState()
         {
+            _icon.HideIcon();
         }
     }
 }

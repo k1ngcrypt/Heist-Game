@@ -4,10 +4,12 @@ using UnityEngine;
 public abstract class BaseState : MonoBehaviour
 {
     protected GuardStateManager Manager { get; private set; }
+    protected GuardIcon _icon;
 
     protected virtual void Awake()
     {
         Manager = GetComponent<GuardStateManager>();
+        _icon = GetComponentInChildren<GuardIcon>();
     }
 
     // Logic to run when first entering the state

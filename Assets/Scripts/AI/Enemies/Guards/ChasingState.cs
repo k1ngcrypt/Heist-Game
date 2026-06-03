@@ -15,6 +15,7 @@ namespace Guards
             {
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
             }
+            _icon.TriggerAlerted();
         }
 
         public override void TickState()
@@ -46,6 +47,7 @@ namespace Guards
 
         public override void ExitState()
         {
+            _icon.HideIcon();
         }
     }
 }
