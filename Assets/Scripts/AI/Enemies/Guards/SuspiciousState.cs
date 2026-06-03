@@ -20,6 +20,7 @@ namespace Guards
             }
 
             Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
+            Manager.Navigator.TickAdvance();
         }
 
         public override void TickState()

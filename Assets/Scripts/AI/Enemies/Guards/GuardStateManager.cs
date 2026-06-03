@@ -130,7 +130,7 @@ namespace Guards
                 immediateDetectionRange);
                 if (isPlayerDetected)
                 {
-                    playerTarget.position = playerTarget.position;
+                    LastKnownPlayerPosition = playerTarget.position;
                     awarenessManager?.ReportPlayerSeen(LastKnownPlayerPosition);
                 }
             }
@@ -139,7 +139,7 @@ namespace Guards
 
         private Vector2 ResolveDetectionForward(bool preferPlayerFocus)
         {
-            if (preferPlayerFocus && playerTarget != null)
+            if ((preferPlayerFocus || IsChasing) && playerTarget != null)
             {
                 Vector2 toPlayer = (Vector2)playerTarget.position - (Vector2)transform.position;
                 if (toPlayer.sqrMagnitude > MinDirectionSqrMagnitude)

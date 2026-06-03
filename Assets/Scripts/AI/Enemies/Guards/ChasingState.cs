@@ -38,11 +38,13 @@ namespace Guards
                     navigator.SetDestination(Manager.PlayerTarget.position, true);
                 }
 
-                navigator.TickAdvance();
+            } else if (navigator.ReachedDestination)
+            {
+                Manager.UpdateState(Manager.SearchingState);
                 return;
             }
+            navigator.TickAdvance();
 
-            Manager.UpdateState(Manager.SearchingState);
         }
 
         public override void ExitState()
