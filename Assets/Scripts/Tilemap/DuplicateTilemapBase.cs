@@ -13,7 +13,7 @@ public abstract class DuplicateTilemapBase : MonoBehaviour
     void OnValidate()
     {
         _thisTilemap = GetComponent<Tilemap>();
-        if (_thisTilemap == null||queued) return;
+        if (_thisTilemap == null||Application.isPlaying||queued) return;
         if (!OnCreation()) return;
         queued = true;
         EditorApplication.delayCall += () => {

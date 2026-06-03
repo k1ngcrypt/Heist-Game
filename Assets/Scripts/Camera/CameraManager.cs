@@ -22,6 +22,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [Header("The Sun")]
     [SerializeField] private bool hasSun = true;
     [SerializeField] private GameObject sunLight;
+    [SerializeField] private GameObject sunLightLocations;
     [SerializeField] [Range(0,10)] private int sunAmount = 3;
     [SerializeField] [Range(0f,360f)] private float sunDirection = 0f;
     [SerializeField] [Range(0f,1f)] private float sunLowering = 0.6f;
@@ -52,7 +53,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     public int TickDebt { get; set; }
     void OnValidate() {
         //Setup Locations
-        if (!Map.IsInitialized||queued) return;
+        if (!Map.IsInitialized||Application.isPlaying||queued) return;
         queued = true;
         EditorApplication.delayCall += () => {
             queued = false;
@@ -63,13 +64,36 @@ public class CameraManager : MonoBehaviour, ITurnActor
             layerBounds = Map.LayerBounds;
             
             //Setup Vents if needed
-            if (!isTopLocationVents||vents==null) return;
-            for (int i = 0; i<vents.transform.childCount; i++) {
-                Transform t = vents.transform.GetChild(i), vent = t.GetChild(0);
-                vent.parent = t;
-                vent.localPosition = (Vector3)(layerLocations[^1] - Map.layerLocations[Map.LayerByPos(t.position)]+Vector2.up);
-                vent.gameObject.GetComponent<Vent>().otherVent = t;
-                t.gameObject.GetComponent<Vent>().otherVent = vent;
+            if (isTopLocationVents||vents!=null) {
+                for (int i = 0; i<vents.transform.childCount; i++) {
+                    Transform t = vents.transform.GetChild(i), vent = t.GetChild(0);
+                    vent.parent = t;
+                    vent.localPosition = (Vector3)(layerLocations[^1] - Map.layerLocations[Map.LayerByPos(t.position)]+Vector2.up);
+                    vent.gameObject.GetComponent<Vent>().otherVent = t;
+                    t.gameObject.GetComponent<Vent>().otherVent = vent;
+                }
+            }
+
+            //The Sun
+            if (hasSun&&sunAmount>0&&sunLight!=null&&sunLightLocations!=null) {
+                for (int i = sunLightLocations.transform.childCount-1; i >= 0; i--) 
+                    DestroyImmediate(sunLightLocations.transform.GetChild(i).gameObject);
+                int suns = 0;
+                for (int i = 0; i<Map.layerLocations.Count; i++) {
+                    if (isTopLocationVents&&i==Map.layerLocations.Count-1) continue;
+                    float distance = Map.LayerBounds[i].size.magnitude*0.5f+sunExtraDistanceFromTilemap, dir = 2*Mathf.PI/sunAmount;
+                    Vector2 center = Map.LayerBounds[i].center;
+                    for (int ii = 0; ii < sunAmount; ii++) {
+                        float direction = ii*dir+sunDirection*AC;
+                        GameObject sun = Instantiate(sunLight, center+new Vector2(Mathf.Sin(direction)*distance,Mathf.Cos(ii*dir+sunDirection*AC)*distance), Quaternion.identity);
+                        sun.transform.parent = sunLightLocations.transform;
+                        sun.GetComponent<Light2D>().intensity*=sunLowering+Mathf.Abs((1-2*((float)ii)/sunAmount)*(1-sunLowering));
+                        sun.transform.eulerAngles = new Vector3(0,0,180f -ii*360f/sunAmount-sunDirection);
+                        suns++;
+                    }
+                }
+                Debug.Log(Map.layerLocations.Count);
+                Debug.Log("[CameraManager] Created "+suns+" Suns in Scene");
             }
         };
     }
@@ -182,25 +206,6 @@ public class CameraManager : MonoBehaviour, ITurnActor
             coolCameras.Add(cool);
         }
         Debug.Log("[CameraManager] Shadow Cameras Created.");
-
-        //The Sun
-        if (!hasSun||sunAmount<=0||sunLight==null) return;
-        int suns = 0;
-        for (int i = 0; i<Map.layerLocations.Count; i++)
-        {
-            if (isTopLocationVents&&i==Map.layerLocations.Count-1) continue;
-            float distance = Map.LayerBounds[i].size.magnitude*0.5f+sunExtraDistanceFromTilemap, dir = 2*Mathf.PI/sunAmount;
-            Vector2 center = Map.LayerBounds[i].center;
-            for (int ii = 0; ii < sunAmount; ii++) {
-                float direction = ii*dir+sunDirection*AC;
-                GameObject sun = Instantiate(sunLight, center+new Vector2(Mathf.Sin(direction)*distance,Mathf.Cos(ii*dir+sunDirection*AC)*distance), Quaternion.identity);
-                sun.GetComponent<Light2D>().intensity*=sunLowering+Mathf.Abs((1-2*((float)ii)/sunAmount)*(1-sunLowering));
-                sun.transform.eulerAngles = new Vector3(0,0,180f -ii*360f/sunAmount-sunDirection);
-                suns++;
-            }
-        }
-        Debug.Log(Map.layerLocations.Count);
-        Debug.Log("[CameraManager] Created "+suns+" Suns in Scene");
     }
 
     private void OnEnable() {
