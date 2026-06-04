@@ -1,0 +1,585 @@
+fileFormatVersion: 2
+guid: 87732061d2a1d894c80048e31023d3a0
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3926632013649694894
+    second: Tile_Wall_Base_MarbleV1.1_0
+  - first:
+      213: -6077455706449309576
+    second: Tile_Wall_Base_MarbleV1.1_1
+  - first:
+      213: 2423397753371076478
+    second: Tile_Wall_Base_MarbleV1.1_2
+  - first:
+      213: -8320561617492475949
+    second: Tile_Wall_Base_MarbleV1.1_3
+  - first:
+      213: -5012820174857595853
+    second: Tile_Wall_Base_MarbleV1.1_4
+  - first:
+      213: -606592048701237308
+    second: Tile_Wall_Base_MarbleV1.1_5
+  - first:
+      213: 5770483573227382468
+    second: Tile_Wall_Base_MarbleV1.1_6
+  - first:
+      213: -1519771727173424843
+    second: Tile_Wall_Base_MarbleV1.1_7
+  - first:
+      213: 6359134439049532191
+    second: Tile_Wall_Base_MarbleV1.1_8
+  - first:
+      213: -8738418581484985559
+    second: Tile_Wall_Base_MarbleV1.1_9
+  - first:
+      213: 5596005099300121260
+    second: Tile_Wall_Base_MarbleV1.1_10
+  - first:
+      213: -189577387027973498
+    second: Tile_Wall_Base_MarbleV1.1_11
+  - first:
+      213: -8454553879836812199
+    second: Tile_Wall_Base_MarbleV1.1_12
+  - first:
+      213: 5222765216013501250
+    second: Tile_Wall_Base_MarbleV1.1_13
+  - first:
+      213: -8547071858384478765
+    second: Tile_Wall_Base_MarbleV1.1_14
+  - first:
+      213: -2616871836266904248
+    second: Tile_Wall_Base_MarbleV1.1_15
+  - first:
+      213: -3595455562742555595
+    second: Tile_Wall_Base_MarbleV1.1_16
+  - first:
+      213: 5852306087549596836
+    second: Tile_Wall_Base_MarbleV1.1_17
+  - first:
+      213: 1844463716558069699
+    second: Tile_Wall_Base_MarbleV1.1_18
+  - first:
+      213: 3744281487798185948
+    second: Tile_Wall_Base_MarbleV1.1_19
+  - first:
+      213: 2339673751347784300
+    second: Tile_Wall_Base_MarbleV1.1_20
+  - first:
+      213: -138069148689081730
+    second: Tile_Wall_Base_MarbleV1.1_21
+  - first:
+      213: -4534558851239371648
+    second: Tile_Wall_Base_MarbleV1.1_22
+  - first:
+      213: -6873854121513204165
+    second: Tile_Wall_Base_MarbleV1.1_23
+  - first:
+      213: 2979979355180429862
+    second: Tile_Wall_Base_MarbleV1.1_24
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 15
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 68
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea0544123033e7630800000000000000
+      internalID: 3926632013649694894
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_1
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 68
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8701be61c3a88aba0800000000000000
+      internalID: -6077455706449309576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_2
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 68
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e77a92fba63a1a120800000000000000
+      internalID: 2423397753371076478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_3
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 68
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3df7c990b4d678c80800000000000000
+      internalID: -8320561617492475949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 51
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33493ba2c92ee6ab0800000000000000
+      internalID: -5012820174857595853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_5
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 51
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c7169ddeb3f497f0800000000000000
+      internalID: -606592048701237308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_6
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 51
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c6e17c8c30e41050800000000000000
+      internalID: 5770483573227382468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_7
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 51
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 539652e8aafa8eae0800000000000000
+      internalID: -1519771727173424843
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 34
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f131086841f204850800000000000000
+      internalID: 6359134439049532191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_9
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 34
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9232ae72996eab680800000000000000
+      internalID: -8738418581484985559
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_10
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 34
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: caaee092df009ad40800000000000000
+      internalID: 5596005099300121260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_11
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 34
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68a30c4fe5c7e5df0800000000000000
+      internalID: -189577387027973498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 17
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95c1de95a046baa80800000000000000
+      internalID: -8454553879836812199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_13
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24340c5ea4dfa7840800000000000000
+      internalID: 5222765216013501250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_14
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 0
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3dd514bdd63b26980800000000000000
+      internalID: -8547071858384478765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_15
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 0
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84546900ee00fabd0800000000000000
+      internalID: -2616871836266904248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Wall_Base_MarbleV1.1_16
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 0
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53c170917306a1ec0800000000000000
+      internalID: -3595455562742555595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: a5c15ac809574d04dad0a876e2e8c7b6
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":17.0,"y":17.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Tile_Wall_Base_MarbleV1.1_0: 3926632013649694894
+      Tile_Wall_Base_MarbleV1.1_1: -6077455706449309576
+      Tile_Wall_Base_MarbleV1.1_10: 5596005099300121260
+      Tile_Wall_Base_MarbleV1.1_11: -189577387027973498
+      Tile_Wall_Base_MarbleV1.1_12: -8454553879836812199
+      Tile_Wall_Base_MarbleV1.1_13: 5222765216013501250
+      Tile_Wall_Base_MarbleV1.1_14: -8547071858384478765
+      Tile_Wall_Base_MarbleV1.1_15: -2616871836266904248
+      Tile_Wall_Base_MarbleV1.1_16: -3595455562742555595
+      Tile_Wall_Base_MarbleV1.1_2: 2423397753371076478
+      Tile_Wall_Base_MarbleV1.1_3: -8320561617492475949
+      Tile_Wall_Base_MarbleV1.1_4: -5012820174857595853
+      Tile_Wall_Base_MarbleV1.1_5: -606592048701237308
+      Tile_Wall_Base_MarbleV1.1_6: 5770483573227382468
+      Tile_Wall_Base_MarbleV1.1_7: -1519771727173424843
+      Tile_Wall_Base_MarbleV1.1_8: 6359134439049532191
+      Tile_Wall_Base_MarbleV1.1_9: -8738418581484985559
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
