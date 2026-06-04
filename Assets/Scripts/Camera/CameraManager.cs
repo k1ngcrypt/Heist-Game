@@ -153,6 +153,13 @@ public class CameraManager : MonoBehaviour, ITurnActor
                     cool.orthographicSize = (bounds.size.y+SHADOWEXTRASIDESIZES)*0.5f;
                     cool.targetTexture = rt;
                     cool.cullingMask = ~((1 << LayerMask.NameToLayer("ShadowLayer"))|(1 << LayerMask.NameToLayer("UI")));
+
+                    //RENDER!!!!
+                    //SceneView sceneView = SceneView.lastActiveSceneView;
+                    //sceneView.pivot = Map.layerLocations[i];
+                    //sceneView.size = 20f;
+                    //sceneView.Repaint();
+
                     UniversalRenderPipeline.SingleCameraRequest request = new UniversalRenderPipeline.SingleCameraRequest();
                     request.destination = rt;
                     if (RenderPipeline.SupportsRenderRequest(cool, request))
