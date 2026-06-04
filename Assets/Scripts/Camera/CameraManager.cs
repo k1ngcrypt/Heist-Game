@@ -44,6 +44,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] private GameObject shadowSpotlight;
     [SerializeField] private GameObject globalRadiance;
     [SerializeField] private GameObject tinyCarrotLight;
+    [SerializeField] private Volume volume;
     [SerializeField] private TurnManager turnManager;
     [HideInInspector] [SerializeField] private List<BoundsInt> layerBounds;
     private readonly List<RenderTexture> inputRT = new();
@@ -54,7 +55,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     private Camera mainCamera;
     private Shader shader;
     private readonly List<RenderTexture> textures = new();
-    private const int SHADOWEXTRASIDESIZES = 2;
+    private const int SHADOWEXTRASIDESIZES = 4;
     private const float AC = Mathf.PI/180f;
     private readonly List<Camera> cameras = new(), coolCameras = new();
     private const float camFixer = 0.7f;
@@ -134,6 +135,12 @@ public class CameraManager : MonoBehaviour, ITurnActor
                 }
                 if (playerLight) playerLight.SetActive(false);
                 if (mainCamera) mainCamera.enabled = false;
+                DepthOfField blur = null;
+                float coolblur = 1.2f;
+                if (volume) if (volume.profile.TryGet<DepthOfField>(out blur)) {
+                    coolblur = blur.gaussianMaxRadius.value;
+                    blur.gaussianMaxRadius.value = 0.1f;
+                }
                 for (int i = 0; i<Map.layerLocations.Count; i++) {
                     var bounds = Map.LayerBounds[i];
 
@@ -153,6 +160,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
                     cool.orthographicSize = (bounds.size.y+SHADOWEXTRASIDESIZES)*0.5f;
                     cool.targetTexture = rt;
                     cool.cullingMask = ~((1 << LayerMask.NameToLayer("ShadowLayer"))|(1 << LayerMask.NameToLayer("UI")));
+                    var cameraData = cool.GetUniversalAdditionalCameraData();
+                    cameraData.renderPostProcessing = true;
 
                     //RENDER!!!!
                     //SceneView sceneView = SceneView.lastActiveSceneView;
@@ -186,6 +195,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
                 }
                 if (playerLight) playerLight.SetActive(true);
                 if (mainCamera) mainCamera.enabled = true;
+                if (blur) blur.gaussianMaxRadius.Override(coolblur);
             }
             
             //The Sun
@@ -341,6 +351,10 @@ public class CameraManager : MonoBehaviour, ITurnActor
         if (sinRadiance) {
             sinRadiance.SetActive(false);
             Destroy(sinRadiance); //The reason for both of these is because Destroy isn't immediate, and DestroyImmediate isn't safe to use during runtime. Let it be.
+        }
+        if (vents) for (int i = 0; i<vents.transform.childCount; i++) {
+            GameObject vent = vents.transform.GetChild(i).GetChild(0).GetChild(0).gameObject;
+            if (vent) Destroy(vent);
         }
         if (playerLight) playerLight.SetActive(false);
         if (BaseWall) BaseWall.SetActive(false);
