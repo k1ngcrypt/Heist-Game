@@ -17,7 +17,6 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
     [SerializeField, Min(0f)] private float maxAwareness = 100f;
     [SerializeField, Min(0f)] private float awarenessDecayPerTick = 2f;
     [SerializeField, Min(0f)] private float guardSuspicionWeight = 8f;
-    [SerializeField, Range(0f, 2f)] private float corroborationMultiplier = 0.25f;
 
     [Header("Levels")]
     [SerializeField, Range(0f, 100f)] private float suspiciousThreshold = 25f;
@@ -33,8 +32,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
     private readonly List<GuardStateManager> guards = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraSuspicionHandlers = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraDetectionHandlers = new();
-    private float awareness;
-    private float pendingAwarenessBoost;
+    public float awareness { get; private set; }
     private AwarenessLevel currentLevel;
     private int tickCount;
     private int lastDispatchTick = -1;
@@ -43,7 +41,6 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
     private Vector2 lastKnownPlayerPosition;
 
     public static AwarenessManager Instance { get; private set; }
-    public float Awareness => awareness;
     public AwarenessLevel CurrentLevel => currentLevel;
     public int TickDebt { get; set; }
 
@@ -184,55 +181,14 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         }
 
         tickCount++;
-        float guardContribution = CalculateGuardContribution();
-        awareness = Mathf.Clamp(
-            awareness + guardContribution + pendingAwarenessBoost - awarenessDecayPerTick,
-            0f,
-            maxAwareness);
-        pendingAwarenessBoost = 0f;
-        UpdateAwarenessLevel();
         if (playerSeenThisTick || HasActiveGuardChase())
         {
             TryDispatchFromChase();
         }
-
+        if (awareness - awarenessDecayPerTick >= 0) awareness -= awarenessDecayPerTick; else awareness = 0f;
         playerSeenThisTick = false;
         TickDebt--;
         return;
-    }
-
-    private float CalculateGuardContribution()
-    {
-        float sumSuspicion = 0f;
-        int mildSuspicionCount = 0;
-
-        foreach (GuardStateManager guard in guards)
-        {
-            if (guard == null)
-            {
-                continue;
-            }
-
-            float ratio = guard.SuspicionRatio;
-            if (ratio <= 0f)
-            {
-                continue;
-            }
-
-            sumSuspicion += ratio;
-            if (ratio < 1f)
-            {
-                mildSuspicionCount++;
-            }
-        }
-
-        if (sumSuspicion <= 0f)
-        {
-            return 0f;
-        }
-
-        float compound = 1f + Mathf.Max(0, mildSuspicionCount - 1) * corroborationMultiplier;
-        return sumSuspicion * compound * guardSuspicionWeight;
     }
 
     private void HandleCameraSuspicion(CameraDetector detector)
@@ -242,7 +198,8 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
             return;
         }
 
-        pendingAwarenessBoost += cameraSuspicionBoost;
+        awareness += cameraSuspicionBoost;
+        Mathf.Clamp(awareness, 0f, maxAwareness);
     }
 
     private void HandleCameraDetection(CameraDetector detector)
@@ -252,7 +209,8 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
             return;
         }
 
-        pendingAwarenessBoost += cameraDetectionBoost;
+        awareness += cameraDetectionBoost;
+        Mathf.Clamp(awareness, 0f, maxAwareness);
     }
 
     public void ReportPlayerSeen(Vector2 position)
@@ -374,5 +332,11 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         {
             nearest.InvestigatePosition(position);
         }
+    }
+    public void ReportGuardSuspicion(float suspicion)
+    {
+        awareness += suspicion * guardSuspicionWeight;
+        Mathf.Clamp(awareness, 0f, maxAwareness);
+        UpdateAwarenessLevel();
     }
 }

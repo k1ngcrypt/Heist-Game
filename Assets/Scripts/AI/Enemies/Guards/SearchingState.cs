@@ -32,9 +32,10 @@
             }
 
             navigator.TickAdvance();
-            if (navigator.ReachedDestination)
+            if (navigator.ReachedDestination && Manager.Suspicion <= 0f)
             {
                 Manager.UpdateState(Manager.PatrollingState);
+                return;
             }
         }
 

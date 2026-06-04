@@ -1,6 +1,4 @@
-﻿using Unity.VisualScripting;
-
-namespace Guards
+﻿namespace Guards
 {
     public class SuspiciousState : BaseState
     {
@@ -12,6 +10,7 @@ namespace Guards
             }
 
             _icon.TriggerSuspicious();
+            Manager.SetBaseSuspicion();
 
             if (Manager.IsPlayerDetected())
             {
@@ -34,11 +33,7 @@ namespace Guards
             {
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
 
-                if (Manager.IncreaseSuspicion())
-                {
-                    Manager.UpdateState(Manager.ChasingState);
-                    return;
-                }
+                Manager.IncreaseSuspicion();
 
                 Manager.Navigator.TickAdvance();
                 return;
@@ -47,7 +42,9 @@ namespace Guards
             Manager.Navigator.TickAdvance();
             if (Manager.Navigator.ReachedDestination)
             {
-                Manager.UpdateState(Manager.SearchingState);
+                if (Manager.AwarenessLevel() >= AwarenessLevel.Alert) Manager.UpdateState(Manager.SearchingState);
+                Manager.ResetSuspicion();
+                Manager.UpdateState(Manager.PatrollingState);
             }
         }
 

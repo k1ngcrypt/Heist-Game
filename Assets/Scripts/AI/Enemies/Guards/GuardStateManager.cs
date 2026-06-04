@@ -93,6 +93,8 @@ namespace Guards
             // Tick debt lets the turn system catch up without skipping intermediate guard decisions.
             while (TickDebt > 0)
             {
+                awarenessManager.ReportGuardSuspicion(Mathf.Min(suspicionPerTick, Suspicion));
+                if (!IsChasing) Suspicion = Mathf.Max(0f, Suspicion - suspicionPerTick);
                 currentState.TickState();
                 TickDebt--;
             }
@@ -165,11 +167,15 @@ namespace Guards
             Suspicion = 0f;
         }
 
-        public bool IncreaseSuspicion()
+        public void IncreaseSuspicion()
         {
             // Suspicion is clamped so the state machine can rely on a predictable max threshold.
             Suspicion = Mathf.Min(maxSuspicion, Suspicion + suspicionPerTick);
-            return Suspicion >= maxSuspicion;
+            if (Suspicion >= maxSuspicion)
+            {
+                awarenessManager.ReportGuardSuspicion(Suspicion);
+                UpdateState(chasingState);
+            }
         }
 
         public Vector2? GetCurrentPatrolPoint()
@@ -263,5 +269,14 @@ namespace Guards
             Gizmos.DrawLine(origin, origin + rightDirection * detectionRange);
         }
 
+        public void SetBaseSuspicion()
+        {
+            Suspicion += awarenessManager.awareness;
+        }
+
+        public AwarenessLevel AwarenessLevel()
+        {
+            return awarenessManager.CurrentLevel;
+        }
     }
 }
