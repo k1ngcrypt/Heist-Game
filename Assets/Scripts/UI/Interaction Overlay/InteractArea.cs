@@ -34,7 +34,12 @@ public class InteractArea : MonoBehaviour, ITurnActor
 
     public void OnEnable()
     {
-        
+        if (player==null) {
+            if (Map.IsInitialized) player=Map.Player.transform;
+            //else player = GameObject.FindByType<PlayerController>().transform;
+        }
+        if (turnManager == null) turnManager = TurnManager.Instance;
+        if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
         if (FindAnyObjectByType<EventSystem>() == null)
         {
             GameObject obj = new GameObject("EventSystem");
