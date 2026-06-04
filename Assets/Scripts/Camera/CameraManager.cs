@@ -160,6 +160,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
                     //sceneView.size = 20f;
                     //sceneView.Repaint();
 
+                    cool.cameraType = CameraType.Game;
                     UniversalRenderPipeline.SingleCameraRequest request = new UniversalRenderPipeline.SingleCameraRequest();
                     request.destination = rt;
                     if (RenderPipeline.SupportsRenderRequest(cool, request))
