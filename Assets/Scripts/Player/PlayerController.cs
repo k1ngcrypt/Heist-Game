@@ -5,12 +5,12 @@ using HeistGame.Objectives;
 using UnityEditor.Experimental.GraphView;
 using System;
 using System.Collections.Generic;
-
 public class PlayerController : MonoBehaviour {
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
+    private PlayerStats playerStats;
     
     private bool isMoving = false;
     public bool inVent = false;
@@ -25,10 +25,13 @@ public class PlayerController : MonoBehaviour {
     };
     private int combinedMask;
 
-    void Start() { Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); }
+    void Start() { 
+        Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
+        playerStats = GetComponent<PlayerStats>();
+    }
     async void Update() {
         // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) {
+        if (!isMoving) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
@@ -59,7 +62,6 @@ public class PlayerController : MonoBehaviour {
 
     private async Awaitable Rest() {
         isMoving = true;
-        //Debug.Log("Resting...");
         if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(1);
         
         await Awaitable.WaitForSecondsAsync(restDuration);
@@ -93,6 +95,8 @@ public class PlayerController : MonoBehaviour {
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
+        //playerStats.additionalArmour += 5;
+        //playerStats.takeDamage(10);
         isMoving = false;
     }
 

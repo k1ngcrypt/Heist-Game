@@ -32,7 +32,7 @@ namespace HeistGame.Objectives {
         }
 
         // Called when the player completes an action
-        public void UpdateObjectiveProgress(string objectiveID, int progressAmount = 1) {
+        public void UpdateObjectiveProgress(int objectiveID, int progressAmount = 1) {
             
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
             if (target != null) {
@@ -49,7 +49,7 @@ namespace HeistGame.Objectives {
         }
 
         // Call this when the player fails an objective (e.g., gets caught by a guard)
-        public void FailObjective(string objectiveID) {
+        public void FailObjective(int objectiveID) {
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
 
             if (target != null) {
@@ -69,7 +69,7 @@ namespace HeistGame.Objectives {
         }
 
         // Call this to reveal "additional/hidden" objectives
-        public void RevealObjective(string objectiveID) {
+        public void RevealObjective(int objectiveID) {
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
             if (target != null && target.IsHidden) {
                 target.Reveal();
