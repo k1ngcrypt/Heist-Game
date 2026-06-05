@@ -53,6 +53,7 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     {
         if (myItem.itemTitle == "Empty")
         {
+            eventData.pointerDrag = null;
             return;
         }
         canvasGroup.blocksRaycasts = false;
@@ -67,6 +68,7 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     {
         if (myItem.itemTitle == "Empty")
         {
+            eventData.pointerDrag = null;
             return;
         }
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
@@ -86,6 +88,12 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
             InventoryManager.Instance.BagItem(this);
         }
         canvasGroup.blocksRaycasts = true;
+
+        if(InventoryManager.currentBag != null)
+        {
+            InventoryManager.currentBag.DebugBag();
+        }
+        InventoryManager.Instance.DebugLoadout();
     }
 
     public void HasBeenDropped()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,10 +19,13 @@ public class BagUI : MonoBehaviour, ITurnActor
 
     private List<ItemUI> bagItems;
     public List<ItemUI> allItems;
+    public List<SlotUI> allSlots;
 
     private ItemUI itemPrefab;
     private SlotUI slotPrefab;
     private LoadoutItems emptyItem;
+
+    private int rowSize;
 
     private Vector2 baseSize = new Vector2(275, 80);
 
@@ -39,10 +43,15 @@ public class BagUI : MonoBehaviour, ITurnActor
 
         bagItems = new List<ItemUI>();
         allItems = new List<ItemUI>();
+        allSlots = new List<SlotUI>();
 
         this.itemPrefab = itemPrefab;
         this.slotPrefab = slotPrefab;
         this.emptyItem = emptyItem;
+
+        rowSize = InventoryManager.bagInv.GetComponent<GridLayoutGroup>().constraintCount;
+
+        InventoryManager.bagInv.gameObject.SetActive(true);
     }
 
     public async Awaitable OnTick()
@@ -60,14 +69,13 @@ public class BagUI : MonoBehaviour, ITurnActor
         }
     }
 
-    public void AddToBag(ItemUI item)
+    public void DroppedItem(ItemUI item)
     {
         if (item == null)
         {
             if (bagItems.Count == 0)
             {
-                HideInv();
-                Destroy(this.gameObject);
+                DestroyBag();
             } 
             return;
         }
@@ -75,18 +83,17 @@ public class BagUI : MonoBehaviour, ITurnActor
         {
             if (bagItems.Count == 0)
             {
-                HideInv();
                 Destroy(item.gameObject);
-                Destroy(this.gameObject);
+                DestroyBag();
             } 
             return;
         }
         bagItems.Add(item);
         if (bagItems.Count > allItems.Count)
         {
-            //full bag, resize to make more room
+            //full bag or new bag, resize to make more room & create rows
             var layout = InventoryManager.bagInv.GetComponent<GridLayoutGroup>();
-            for(int i = 0; i < layout.constraintCount; i++)
+            for(int i = 0; i < rowSize; i++)
             {
                 SlotUI slot = Instantiate(slotPrefab, InventoryManager.bagInv);
                 slot.Initialize(emptyItem.itemType, -1);
@@ -96,13 +103,23 @@ public class BagUI : MonoBehaviour, ITurnActor
                 itm.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
 
                 slot.UpdateItem(itm);
+
+                allSlots.Add(slot);
                 allItems.Add(itm);
             }
             
             float spacing = layout.spacing.y;
             float cellSize = layout.cellSize.y;
 
-            InventoryManager.bagInv.GetComponent<RectTransform>().sizeDelta += new Vector2(0, spacing+cellSize);
+            if (allItems.Count == rowSize)
+            {
+                //new bag, make base size
+                InventoryManager.bagInv.GetComponent<RectTransform>().sizeDelta = baseSize;
+            } else
+            {
+                //made new row, increase size
+                InventoryManager.bagInv.GetComponent<RectTransform>().sizeDelta += new Vector2(0, spacing+cellSize);
+            }
         }
 
         for(int i = 0; i < allItems.Count; i++)
@@ -123,23 +140,6 @@ public class BagUI : MonoBehaviour, ITurnActor
         }
     }
 
-    public void RemoveFromBag(ItemUI item)
-    {
-        if (item == null)
-        {
-            return;
-        }
-        if (bagItems.Contains(item) && item.myItem.itemTitle != "Empty")
-        {
-           bagItems.Remove(item);
-            if (bagItems.Count == 0)
-            {
-                HideInv();
-                Destroy(this.gameObject);
-            } 
-        }
-    }
-
     public void MakeInv()
     {
         HideInv(); //just in case its already occupied
@@ -149,7 +149,7 @@ public class BagUI : MonoBehaviour, ITurnActor
 
         if (allItems == null || allItems.Count == 0)
         {
-            for(int i = 0; i < layout.constraintCount; i++)
+            for(int i = 0; i < rowSize; i++)
             {
                 SlotUI slot = Instantiate(slotPrefab, InventoryManager.bagInv);
                 slot.Initialize(emptyItem.itemType, -1);
@@ -159,10 +159,13 @@ public class BagUI : MonoBehaviour, ITurnActor
                 item.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
 
                 slot.UpdateItem(item);
+
+                allSlots.Add(slot);
             }
             InventoryManager.bagInv.GetComponent<RectTransform>().sizeDelta = baseSize;
         } else
         {
+            bagItems = new List<ItemUI>();
             for(int i = 0; i < allItems.Count; i++)
             {
                 SlotUI slot = Instantiate(slotPrefab, InventoryManager.bagInv);
@@ -173,8 +176,17 @@ public class BagUI : MonoBehaviour, ITurnActor
                 item.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
 
                 slot.UpdateItem(item);
+                
+                allSlots.Add(slot);
+                
+                //fix null by redefining them
+                allItems[i] = item;
+                if (item.myItem.itemTitle != "Empty")
+                {
+                    bagItems.Add(item);
+                }
             }
-            int count = allItems.Count / layout.constraintCount;
+            int count = allItems.Count / rowSize;
             float spacing = layout.spacing.y;
             float cellSize = layout.cellSize.y;
             float paddingTop = layout.padding.top;
@@ -192,18 +204,142 @@ public class BagUI : MonoBehaviour, ITurnActor
             Destroy(child.gameObject);
         }
         InventoryManager.bagInv.GetComponent<RectTransform>().sizeDelta = baseSize;
+        allSlots = new List<SlotUI>();
     }
 
     public void ReplaceFromSlot(ItemUI newItm, SlotUI targetSlot)
     {
-        for (int i = 0; i < allItems.Count; i++)
+        if (newItm == null)
         {
-            if (allItems[i].slotOrigin == targetSlot)
+            return;
+        }
+        for (int i = 0; i < allSlots.Count; i++)
+        {
+            if (allSlots[i] == targetSlot)
             {
+                ItemUI oldItm = allItems[i];
                 allItems[i] = newItm;
+                if(oldItm.myItem.itemTitle != "Empty")
+                {
+                    //remove item from bag
+                    bagItems.Remove(oldItm);
+                    if (newItm.myItem.itemTitle == "Empty")
+                    {
+                        //size check
+                        if(bagItems.Count == 0)
+                        {
+                            DestroyBag();
+                            return;
+                        }
+                        if (allItems.Count - rowSize >= bagItems.Count)
+                        {
+                            //delete a row
+                            var layout = InventoryManager.bagInv.GetComponent<GridLayoutGroup>();
+                            int deleted = 0;
+                            for(int j = 0; j < allItems.Count + deleted; j++)
+                            {
+                                if (deleted == rowSize)
+                                {
+                                    break;
+                                }
+                                if (allItems[j-deleted].myItem.itemTitle == "Empty")
+                                {
+                                    Destroy(allSlots[j-deleted].gameObject);
+                                    Destroy(allItems[j-deleted].gameObject);
+
+                                    allItems.Remove(allItems[j-deleted]);
+                                    allSlots.Remove(allSlots[j-deleted]);
+                                    deleted++;
+                                }
+                            }
+                            
+                            float spacing = layout.spacing.y;
+                            float cellSize = layout.cellSize.y;
+
+                            InventoryManager.bagInv.GetComponent<RectTransform>().sizeDelta -= new Vector2(0, spacing+cellSize);
+
+                        }
+                    }
+                    
+                }
+                if (newItm.myItem.itemTitle != "Empty")
+                {
+                    bagItems.Add(newItm);  
+                }
                 return;
             }
         }
+    }
+
+    public void SwapItemsInList(ItemUI newItm, ItemUI oldItm)
+    {
+        int idx1 = -1;
+        int idx2 = -1;
+        for (int i = 0; i < allItems.Count; i++)
+        {
+            if (allItems[i] == newItm)
+            {
+                idx1 = i;
+            } 
+            if (allItems[i] == oldItm)
+            {
+                idx2 = i;
+            }
+        }
+        if (idx1 == -1)
+        {
+            Debug.Log("No item found for old item");
+            return;
+        }
+        if (idx2 == -1)
+        {
+            Debug.Log("No item found for old item");
+            return;
+        }
+        ItemUI temp = allItems[idx1];
+        allItems[idx1] = allItems[idx2];
+        allItems[idx2] = temp;
+    }
+
+    public void DestroyBag()
+    {
+        HideInv();
+        Destroy(this.gameObject);
+        turnManager.Unregister(this);
+        bagItems.Clear();
+        allItems.Clear();
+        allSlots.Clear();
+        InventoryManager.currentBag = null;
+    }
+
+    public void DebugBag()
+    {
+        string str = "Bag Inv: ";
+        for (int i = 0; i < allItems.Count; i++)
+        {
+            if(allItems[i] == null)
+            {
+                str += "null, ";
+            } else
+            {
+               str += allItems[i].myItem.itemTitle + ", "; 
+            }
+            
+        }
+        Debug.Log(str);
+
+        str = "Bag Items:";
+        for (int i = 0; i < bagItems.Count; i++)
+        {
+            if(bagItems[i] == null)
+            {
+                str += "null, ";
+            } else
+            {
+               str += bagItems[i].myItem.itemTitle + ", "; 
+            }
+        }
+        Debug.Log(str);
     }
 
 }
