@@ -153,6 +153,7 @@ GameObject:
   - component: {fileID: 2158216583460147030}
   - component: {fileID: 6742366044173191699}
   - component: {fileID: 2285991409280199463}
+  - component: {fileID: 8272595305687908810}
   m_Layer: 5
   m_Name: ItemOverlay
   m_TagString: Untagged
@@ -259,6 +260,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &8272595305687908810
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5286081034561684127}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &5312925202603455362
 GameObject:
   m_ObjectHideFlags: 0

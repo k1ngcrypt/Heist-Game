@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private Image iconImage;
 
@@ -28,6 +28,7 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
 
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
+        gameObject.name = $"Item_{item.itemTitle}";
     }
 
     public void UpdateSlot(SlotUI newSlot)
@@ -48,31 +49,23 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     }
 
     //drag & drop
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (myItem.name == "Empty")
-        {
-            return;
-        }
-    }
-
-    //drag & drop
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (myItem.name == "Empty")
+        if (myItem.itemTitle == "Empty")
         {
             return;
         }
-        InventoryManager.Instance.DestroyOverlay();
-        InventoryManager.Instance.StartDrag(slotOrigin);
         canvasGroup.blocksRaycasts = false;
         hasDropped = false;
+        InventoryManager.Instance.DestroyOverlay();
+        InventoryManager.Instance.StartDrag(slotOrigin);
+        
     }
 
     //drag & drop
     public void OnDrag(PointerEventData eventData)
     {
-        if (myItem.name == "Empty")
+        if (myItem.itemTitle == "Empty")
         {
             return;
         }
@@ -82,7 +75,7 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     //drag & drop
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (myItem.name == "Empty")
+        if (myItem.itemTitle == "Empty")
         {
             return;
         }
@@ -90,10 +83,9 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
         if (!hasDropped)
         {
             // Bag it
-            Debug.Log("Dropped in nowhere");
-            Destroy(gameObject);
-            InventoryManager.Instance.ConfirmFiller();
+            InventoryManager.Instance.BagItem(this);
         }
+        canvasGroup.blocksRaycasts = true;
     }
 
     public void HasBeenDropped()

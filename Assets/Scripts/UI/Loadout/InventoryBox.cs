@@ -8,13 +8,17 @@ public class InventoryBox : MonoBehaviour, IDropHandler
     [SerializeField] private GameObject slotsArea;
     [SerializeField] private GameObject equipArea;
     [SerializeField] private Transform divider;
+    [SerializeField] private Transform bagInv;
     [SerializeField] private Canvas canvas;
+    [SerializeField] private Transform player;
+    [SerializeField] private TurnManager turnManager;
 
     void Start()
     {
+        bagInv.gameObject.SetActive(false);
         if (InventoryManager.Instance != null)
         {
-            InventoryManager.Instance.CreateInventory(inventoryArea, spawnArea, slotsArea, equipArea, divider, canvas);
+            InventoryManager.Instance.CreateInventory(player, turnManager, inventoryArea, spawnArea, slotsArea, equipArea, divider, canvas, bagInv);
         } else
         {
             Debug.LogWarning("InventoryManager instance not found. Please ensure an InventoryManager is present in the scene.", this);
@@ -28,11 +32,9 @@ public class InventoryBox : MonoBehaviour, IDropHandler
             ItemUI draggedItem = eventData.pointerDrag.GetComponent<ItemUI>();
             if (draggedItem != null)
             {
-                // let go in inv
-                Debug.Log("Dropped in inventory box");
+                // drop in inv
                 draggedItem.HasBeenDropped();
-                draggedItem.GetComponent<RectTransform>().position = draggedItem.slotOrigin.GetComponent<RectTransform>().position;
-                InventoryManager.Instance.RemoveFiller();
+                InventoryManager.Instance.ReturnItem(draggedItem);
             }
         }
     }

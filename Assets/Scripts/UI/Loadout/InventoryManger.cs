@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI; 
 
@@ -7,11 +8,15 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private ItemUI itemPrefab;
     [SerializeField] private SlotUI slotPrefab;
     [SerializeField] private ItemOverlay itemOverlayPrefab;
+    [SerializeField] private BagUI bagPrefab;
     [SerializeField] private LoadoutItems emptyArmour;
     [SerializeField] private LoadoutItems emptyWeapon;
     [SerializeField] private LoadoutItems emptyGadget;
     
     [SerializeField] public int extraSlots = 1;
+
+    private Transform player;
+    private TurnManager turnManager;
 
     public int startingArmour = 1;
     public int startingWeapons = 1;
@@ -30,6 +35,14 @@ public class InventoryManager : MonoBehaviour
 
     public static InventoryManager Instance { get; private set; }
 
+    public static BagUI currentBag;
+    public static Transform bagInv;
+
+    [Header("Set Inv (ONLY IF IT ISNT SET, FOR TESTING)")]
+    [SerializeField] private List<LoadoutItems> testingLoadout;
+
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -41,11 +54,9 @@ public class InventoryManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        allItems = new List<LoadoutItems>{ emptyArmour, emptyWeapon };
-        for(int i = 0; i < extraSlots; i++)
+        if (testingLoadout != null && testingLoadout.Count > 0)
         {
-            allItems.Add(emptyGadget);
+            InitializeInventory(testingLoadout);
         }
     }
 
@@ -62,8 +73,11 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void CreateInventory(GameObject inventoryArea, GameObject spawnArea, GameObject slotsArea, GameObject equipArea, Transform div, Canvas canvas)
+    public void CreateInventory(Transform player, TurnManager turnManager, GameObject inventoryArea, GameObject spawnArea, GameObject slotsArea, GameObject equipArea, Transform div, Canvas canvas, Transform bagInv)
     {
+        this.player = player;
+        this.turnManager = turnManager;
+        
         this.spawnArea = spawnArea.transform;
         inventoryBox = inventoryArea;
         divider = div.GetComponent<RectTransform>();
@@ -74,11 +88,14 @@ public class InventoryManager : MonoBehaviour
         int countEquipped = 0;
         int countInv = 0;
 
+        InventoryManager.bagInv = bagInv;
+
         allSlots = new List<SlotUI>();
 
         for(int idx = 0; idx < allItems.Count; idx++)
         {
             LoadoutItems item = allItems[idx];
+
             SlotUI itemSlot;
             if (item.itemType != ItemType.Gadget)
             {
@@ -160,8 +177,7 @@ public class InventoryManager : MonoBehaviour
 
     public void StartDrag(SlotUI slot)
     {
-        SetAllItemsRaycast(false);
-        
+        //create filler
         ItemUI itemUI = Instantiate(itemPrefab, this.spawnArea);
         LoadoutItems item;
         if (slot.itemType == ItemType.Armour)
@@ -178,6 +194,8 @@ public class InventoryManager : MonoBehaviour
         itemUI.GetComponent<RectTransform>().position = slot.transform.position;
 
         fillerItem = itemUI;
+        
+        SetAllItemsRaycast(false);
     }
 
     public void EndDrag()
@@ -189,14 +207,30 @@ public class InventoryManager : MonoBehaviour
     {
         foreach (Transform child in spawnArea)
         {
+            if (child == null) continue;
             var cg = child.GetComponent<CanvasGroup>();
             if (cg != null) {
                 cg.blocksRaycasts = value;
             }
         }
+        if (fillerItem != null)
+        {
+            fillerItem.GetComponent<CanvasGroup>().blocksRaycasts = value;
+        }
+        if (bagInv.gameObject.activeSelf)
+        {
+            foreach (ItemUI child in currentBag.allItems)
+            {
+                if (child == null) continue;
+                var cg = child.GetComponent<CanvasGroup>();
+                if (cg != null) {
+                    cg.blocksRaycasts = value;
+                }
+            }
+        }
     }
 
-    public void RemoveFiller()
+    private void RemoveFiller()
     {
         if (fillerItem != null)
         {
@@ -205,42 +239,127 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void ConfirmFiller()
+    private void ConfirmFiller()
     {
         if (fillerItem != null)
         {
             fillerItem.slotOrigin.UpdateItem(fillerItem);
+            if (fillerItem.slotOrigin.idx == -1)
+            {
+                fillerItem.transform.SetParent(fillerItem.slotOrigin.transform, true);
+                currentBag.ReplaceFromSlot(fillerItem, fillerItem.slotOrigin);
+            }
         }
     }
 
-    public void AddItem(ItemUI item, int idx)
+    public void SwapItems(ItemUI newItm, ItemUI oldItm) //note newItm is the item being dragged into the slot, oldItm is the item in that slot
     {
-        allItems[idx] = item.myItem;
-    }
-
-    public void RemoveItem(int idx)
-    {
-        LoadoutItems emptyItem;
-        if (idx >= startingArmour + startingWeapons)
+        SlotUI newSlot = null;
+        SlotUI oldSlot = null;
+        if (newItm != null)
         {
-            emptyItem = emptyGadget;
-        } else if (allItems[idx].itemType == ItemType.Armour)
+            oldSlot = newItm.slotOrigin; //its old slot as its where the new item is comming from
+        }
+        if (oldItm != null)
         {
-            emptyItem = emptyArmour;           
-        } else if (allItems[idx].itemType == ItemType.Weapon)
+            newSlot = oldItm.slotOrigin; //its new slot as its where new item is going to
+        }
+        
+        //adjust loadout and bag items
+        if(oldSlot.idx != -1 && newSlot.idx != -1)
         {
-            emptyItem = emptyWeapon;   
+            //swap two items in the inventory
+            allItems[newSlot.idx] = newItm.myItem;
+            allItems[oldSlot.idx] = oldItm.myItem;
+        } else if (oldSlot.idx == -1 && newSlot.idx != -1)
+        {
+            //swap adds to inventory
+            allItems[newSlot.idx] = newItm.myItem;
+            currentBag.ReplaceFromSlot(oldItm, oldSlot);
+            newItm.transform.SetParent(spawnArea);
+            oldItm.transform.SetParent(oldSlot.transform);
+        } else if (newSlot.idx == -1 && oldSlot.idx != -1)
+        {
+            //swap removes from inventory
+            allItems[oldSlot.idx] = oldItm.myItem;
+            currentBag.ReplaceFromSlot(newItm, newSlot);
+            oldItm.transform.SetParent(spawnArea);
+            newItm.transform.SetParent(newSlot.transform);
         } else
         {
-            emptyItem = emptyGadget;
+            //swap from bag to bag
+            currentBag.ReplaceFromSlot(newItm, newSlot);
+            currentBag.ReplaceFromSlot(newItm, newSlot);
         }
-        allItems[idx] = emptyItem;
+
+        //swap items
+        if (oldItm != null && oldItm.myItem.itemTitle != "Empty")
+        {
+            oldSlot.UpdateItem(oldItm);
+            oldItm.GetComponent<RectTransform>().position = oldSlot.GetComponent<RectTransform>().position;
+            oldItm.UpdateSlot(oldSlot);
+            RemoveFiller();
+        } else if (oldItm != null)
+        {
+            //empty, instead of swap, destroy current, and replace with filler
+            Destroy(oldItm.gameObject);
+            oldItm = null;
+            ConfirmFiller();
+        }
+        newSlot.UpdateItem(newItm);
+        newItm.GetComponent<RectTransform>().position = newSlot.GetComponent<RectTransform>().position;
+        newItm.UpdateSlot(newSlot);
+
+        //for safety, the bag updates are at the end
+        if (newSlot.idx == -1 && oldSlot.idx != -1)
+        {
+            if (oldItm != null)
+            {
+                currentBag.AddToBag(oldItm);
+            } else
+            {
+                currentBag.AddToBag(fillerItem);
+            }
+            currentBag.RemoveFromBag(newItm);
+        }
+        if (oldSlot.idx == -1 && newSlot.idx != -1)
+        {
+            currentBag.AddToBag(newItm);
+            if (oldItm != null)
+            {
+                currentBag.RemoveFromBag(oldItm);
+            } else
+            {
+                currentBag.RemoveFromBag(fillerItem);
+            }
+        }
+        fillerItem = null;
     }
 
-    public void SwapItems(int idx1, int idx2)
+    public void ReturnItem(ItemUI rtnItm)
     {
-        var temp = allItems[idx1];
-        allItems[idx1] = allItems[idx2];
-        allItems[idx2] = temp;    
+        rtnItm.GetComponent<RectTransform>().position = rtnItm.slotOrigin.GetComponent<RectTransform>().position;
+        RemoveFiller();
+    }
+
+    public void BagItem(ItemUI item)
+    {
+        if (item.slotOrigin.idx == -1)
+        {
+            //alr in bag, just return it
+            ReturnItem(item);
+            return;
+        }
+        if (currentBag == null)
+        {
+            //no bag, create new one
+            BagUI bag = Instantiate(bagPrefab);
+            bag.Initialize(player.position, player, turnManager, canvas, itemPrefab, slotPrefab, emptyGadget);
+            currentBag = bag;
+            bagInv.gameObject.SetActive(true);
+        }
+        currentBag.AddToBag(item);
+        ConfirmFiller();
+        fillerItem = null;
     }
 }
