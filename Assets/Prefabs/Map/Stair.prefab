@@ -83,7 +83,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -390459291
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2660968328804394481, guid: f7cb2fec8c9c8c344b70c7427ea29afa, type: 3}
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Stair
   otherStair: {fileID: 0}
-  traversalCost: 10
+  traversalCost: 9
 --- !u!114 &8035896566059632399
 MonoBehaviour:
   m_ObjectHideFlags: 0

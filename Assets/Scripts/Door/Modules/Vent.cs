@@ -7,7 +7,7 @@ namespace HeistGame.Door {
         [SerializeField] private Sprite openSprite;
         [SerializeField] private Sprite closeSprite;
         public Transform otherVent;
-        [SerializeField] private int traversalCost = 10;
+        [SerializeField] private int traversalCost = 10000;
         private GameObject player;
 
         private SpriteRenderer spriteRenderer;
