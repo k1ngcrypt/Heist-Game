@@ -15,7 +15,7 @@ TagManager:
   - Water
   - UI
   - ShadowLayer
-  - 
+  - LightLayer
   - 
   - 
   - 
@@ -55,6 +55,9 @@ TagManager:
     locked: 0
   - name: Walls 1
     uniqueID: 3904508005
+    locked: 0
+  - name: Walls 2
+    uniqueID: 3363313495
     locked: 0
   - name: Uppys
     uniqueID: 953603869

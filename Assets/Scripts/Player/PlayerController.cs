@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Tilemaps;
 using HeistGame.Door;
 using HeistGame.Objectives;
 using UnityEditor.Experimental.GraphView;
@@ -11,6 +12,8 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
+    [SerializeField] private Tilemap floorTilemap;
+    [SerializeField] private Tilemap baseTilemap;
     
     private bool isMoving = false;
     public bool inVent = false;
@@ -28,7 +31,7 @@ public class PlayerController : MonoBehaviour {
     void Start() { Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); }
     async void Update() {
         // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) {
+        if (!isMoving && Keyboard.current != null && Keyboard.current.anyKey.isPressed) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
@@ -90,6 +93,7 @@ public class PlayerController : MonoBehaviour {
         }
 
         transform.position = endPosition;
+        CheckGround();
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
@@ -142,6 +146,17 @@ public class PlayerController : MonoBehaviour {
                     break;
                 }
             } 
+        }
+    }
+
+    private void CheckGround() {
+        if (floorTilemap == null || baseTilemap == null || !Map.IsInitialized) return;
+        Vector3Int pos = floorTilemap.WorldToCell(transform.position);
+        if (!floorTilemap.HasTile(pos) && !baseTilemap.HasTile(pos)) {
+            int layer = Map.CurrentLayer();
+            if (layer==0) return;
+            Vector3Int lPos = pos + new Vector3Int((int)(Map.layerLocations[layer-1].x - Map.layerLocations[layer].x), (int)(Map.layerLocations[layer-1].y - Map.layerLocations[layer].y), 0);
+            if (Map.IsNull(lPos)) transform.position = lPos + new Vector3(0.5f, 0.5f, 0);
         }
     }
 }
