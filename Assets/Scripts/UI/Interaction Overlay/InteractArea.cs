@@ -85,12 +85,10 @@ public class InteractArea : MonoBehaviour, ITurnActor
                 currentOverlay = Instantiate(overlayPrefab, this.transform);
                 currentOverlay.Initialize(title, buttons, GetComponent<Transform>().position);
             }
-        } else if (currentOverlay != null)
-        {
+        } else if (currentOverlay != null) {
             //not in area but overlay is active, so destroy it
             Destroy(currentOverlay.gameObject);
         }
-        await Awaitable.EndOfFrameAsync();
     }
 
     //for interaction scripts to call to update the buttons when something changes

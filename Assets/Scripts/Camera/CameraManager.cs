@@ -73,7 +73,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
             Map.layerLocations = locations;
             Map.ReloadLayerBounds();
             layerBounds = Map.LayerBounds;
-            mainCamera = GetComponent<Camera>();
+            mainCamera ??= GetComponent<Camera>();
             if (Application.isPlaying) return;
             
             //Setup Vents if needed
@@ -353,8 +353,8 @@ public class CameraManager : MonoBehaviour, ITurnActor
             Destroy(sinRadiance); //The reason for both of these is because Destroy isn't immediate, and DestroyImmediate isn't safe to use during runtime. Let it be.
         }
         if (vents) for (int i = 0; i<vents.transform.childCount; i++) {
-            GameObject vent = vents.transform.GetChild(i).GetChild(0).GetChild(0).gameObject;
-            if (vent) Destroy(vent);
+            Light2D vent = vents.GetComponentInChildren<Light2D>();
+            if (vent) Destroy(vent.gameObject);
         }
         if (playerLight) playerLight.SetActive(false);
         if (BaseWall) BaseWall.SetActive(false);
