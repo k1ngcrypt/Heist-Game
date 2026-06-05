@@ -9,7 +9,7 @@ using UnityEngine.Events;
 public class InteractBtnTemplate
 {
     [SerializeField] public string text;
-    [SerializeField] public UnityEvent onClick;
+    [SerializeField] public UnityEvent onClick = new();
 }
 
 public class InteractArea : MonoBehaviour, ITurnActor
@@ -31,10 +31,27 @@ public class InteractArea : MonoBehaviour, ITurnActor
     private Vector3 topRight;
     private Vector3 bottomLeft;
     private Vector3 buffer = new Vector3(0.25f, 0.25f, 0); //incase to make sure it will still call player
+    public void OnValidate() {
+        if (player == null) {
+            if (Map.Player) player=Map.Player.transform;
+            if (player == null) player = FindAnyObjectByType<PlayerController>().transform;
+        }
+        if (turnManager == null) {
+            turnManager = TurnManager.Instance;
+            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>();
+        }
+    }
 
     public void OnEnable()
     {
-        
+        if (player == null) {
+            player=Map.Player.transform;
+            if (player == null) player = FindAnyObjectByType<PlayerController>().transform;
+        }
+        if (turnManager == null) {
+            turnManager = TurnManager.Instance;
+            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
+        }
         if (FindAnyObjectByType<EventSystem>() == null)
         {
             GameObject obj = new GameObject("EventSystem");
@@ -47,6 +64,9 @@ public class InteractArea : MonoBehaviour, ITurnActor
         topRight = worldPosition + new Vector3(radius, radius, 0) + buffer;
         bottomLeft = worldPosition - new Vector3(radius, radius, 0) - buffer;
         
+    }
+    public void OnDisable() {
+        turnManager.Unregister(this);
     }
 
     public async Awaitable OnTick()
@@ -65,10 +85,18 @@ public class InteractArea : MonoBehaviour, ITurnActor
                 currentOverlay = Instantiate(overlayPrefab, this.transform);
                 currentOverlay.Initialize(title, buttons, GetComponent<Transform>().position);
             }
-        } else if (currentOverlay != null)
-        {
+        } else if (currentOverlay != null) {
             //not in area but overlay is active, so destroy it
             Destroy(currentOverlay.gameObject);
         }
     }
+
+    //for interaction scripts to call to update the buttons when something changes
+    public void RegisterButtons(List<InteractBtnTemplate> newButtons) { buttons.AddRange(newButtons); }
+    public void ClearAllButtons() { buttons.Clear(); }
+    public void RefreshActiveOverlayUI() {
+        if (currentOverlay == null) return;
+        currentOverlay.Initialize(title, buttons, transform.position);
+    }
+    public List<InteractBtnTemplate> GetActiveButtons() { return buttons; }
 }

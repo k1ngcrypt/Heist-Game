@@ -9,6 +9,7 @@ public class VentWalls : DuplicateTilemapBase
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private RuleTile floorTile;
     [SerializeField] private RuleTile wallTile;
+    [SerializeField] private GameObject wallTop;
 
     protected override bool OnCreation() {
         if (floorTilemap==null||floorTile==null||wallTile==null) return false;
@@ -32,10 +33,13 @@ public class VentWalls : DuplicateTilemapBase
                     bounds.yMax = Mathf.Max(bounds.yMax, y);
                 }
         }
-        bounds.xMin-=2;
-        bounds.yMin-=2;
-        bounds.xMax+=2;
-        bounds.yMax+=2;
+        bounds.xMin-=1;
+        bounds.yMin-=1;
+        bounds.xMax+=1;
+        bounds.yMax+=1;
+        if (wallTop==null) return true;
+        wallTop.transform.position = bounds.center;
+        wallTop.transform.localScale = bounds.size+Vector3.one*21;
         return true;
     }
     

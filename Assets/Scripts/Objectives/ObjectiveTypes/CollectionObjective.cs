@@ -6,6 +6,7 @@ namespace HeistGame.Objectives {
             base.TriggerProgress();
 
             Debug.Log($"{gameObject.name} added to inventory.");
+            gameObject.transform.SetParent(null); 
             Destroy(gameObject);
         }
     }

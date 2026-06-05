@@ -10,7 +10,7 @@ public class ObjectiveItem : MonoBehaviour {
     public void Setup(string title, int current, int required, bool isCompleted, bool isFailed) {
         tittleText.text = title;
         tittleText.color = activeColor;
-        if (required>0) tittleText.text += $" ({current}/{required})";
+        if (required>1) tittleText.text += $" ({current}/{required})";
         if (isCompleted) {
             tittleText.color = completedColor;
             tittleText.text += " (Completed)";
