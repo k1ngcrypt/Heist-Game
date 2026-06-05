@@ -31,15 +31,27 @@ public class InteractArea : MonoBehaviour, ITurnActor
     private Vector3 topRight;
     private Vector3 bottomLeft;
     private Vector3 buffer = new Vector3(0.25f, 0.25f, 0); //incase to make sure it will still call player
+    public void OnValidate() {
+        if (player == null) {
+            if (Map.Player) player=Map.Player.transform;
+            if (player == null) player = FindAnyObjectByType<PlayerController>().transform;
+        }
+        if (turnManager == null) {
+            turnManager = TurnManager.Instance;
+            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
+        }
+    }
 
     public void OnEnable()
     {
-        if (player==null) {
-            if (Map.IsInitialized) player=Map.Player.transform;
-            //else player = GameObject.FindByType<PlayerController>().transform;
+        if (player == null) {
+            player=Map.Player.transform;
+            if (player == null) player = FindAnyObjectByType<PlayerController>().transform;
         }
-        if (turnManager == null) turnManager = TurnManager.Instance;
-        if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
+        if (turnManager == null) {
+            turnManager = TurnManager.Instance;
+            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
+        }
         if (FindAnyObjectByType<EventSystem>() == null)
         {
             GameObject obj = new GameObject("EventSystem");
