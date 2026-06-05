@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour {
     void Start() { Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); }
     async void Update() {
         // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null) {
+        if (!isMoving && Keyboard.current != null && Keyboard.current.anyKey.isPressed) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
