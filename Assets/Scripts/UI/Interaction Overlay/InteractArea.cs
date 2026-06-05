@@ -38,7 +38,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
         }
         if (turnManager == null) {
             turnManager = TurnManager.Instance;
-            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
+            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>();
         }
     }
 
