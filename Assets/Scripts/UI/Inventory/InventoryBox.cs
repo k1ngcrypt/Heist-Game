@@ -12,13 +12,14 @@ public class InventoryBox : MonoBehaviour, IDropHandler
     [SerializeField] private Canvas canvas;
     [SerializeField] private Transform player;
     [SerializeField] private TurnManager turnManager;
+    [SerializeField] private Transform topLayer;
 
     void Start()
     {
         bagInv.gameObject.SetActive(false);
         if (InventoryManager.Instance != null)
         {
-            InventoryManager.Instance.CreateInventory(player, turnManager, inventoryArea, spawnArea, slotsArea, equipArea, divider, canvas, bagInv);
+            InventoryManager.Instance.CreateInventory(player, turnManager, inventoryArea, spawnArea, slotsArea, equipArea, divider, canvas, bagInv, topLayer);
         } else
         {
             Debug.LogWarning("InventoryManager instance not found. Please ensure an InventoryManager is present in the scene.", this);

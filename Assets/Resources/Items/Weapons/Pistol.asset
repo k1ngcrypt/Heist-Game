@@ -15,4 +15,4 @@ MonoBehaviour:
   itemType: 1
   itemTitle: Pistol
   itemDescription: Pew Pew
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: -1425015239, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}

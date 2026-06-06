@@ -59,7 +59,7 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
         canvasGroup.blocksRaycasts = false;
         hasDropped = false;
         InventoryManager.Instance.DestroyOverlay();
-        InventoryManager.Instance.StartDrag(slotOrigin);
+        InventoryManager.Instance.StartDrag(this, slotOrigin);
         
     }
 
@@ -88,12 +88,6 @@ public class ItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
             InventoryManager.Instance.BagItem(this);
         }
         canvasGroup.blocksRaycasts = true;
-
-        if(InventoryManager.currentBag != null)
-        {
-            InventoryManager.currentBag.DebugBag();
-        }
-        InventoryManager.Instance.DebugLoadout();
     }
 
     public void HasBeenDropped()

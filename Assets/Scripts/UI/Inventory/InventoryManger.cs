@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI; 
 
@@ -33,6 +32,7 @@ public class InventoryManager : MonoBehaviour
     private Canvas canvas;
     private RectTransform divider;
     private ItemUI fillerItem;
+    private Transform topLayer;
 
     public static InventoryManager Instance { get; private set; }
 
@@ -74,7 +74,7 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void CreateInventory(Transform player, TurnManager turnManager, GameObject inventoryArea, GameObject spawnArea, GameObject slotsArea, GameObject equipArea, Transform div, Canvas canvas, Transform bagInv)
+    public void CreateInventory(Transform player, TurnManager turnManager, GameObject inventoryArea, GameObject spawnArea, GameObject slotsArea, GameObject equipArea, Transform div, Canvas canvas, Transform bagInv, Transform top)
     {
         this.player = player;
         this.turnManager = turnManager;
@@ -85,6 +85,7 @@ public class InventoryManager : MonoBehaviour
         inventorySlots = slotsArea.transform;
         equippedSlots = equipArea.transform;
         this.canvas = canvas;
+        topLayer = top;
 
         int countEquipped = 0;
         int countInv = 0;
@@ -162,7 +163,7 @@ public class InventoryManager : MonoBehaviour
             parent = btnOrigin.slotOrigin.transform;
         } else
         {
-            parent = spawnArea;
+            parent = topLayer;
         }
         DestroyOverlay();
         currentOverlay = Instantiate(itemOverlayPrefab, parent);
@@ -184,7 +185,7 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void StartDrag(SlotUI slot)
+    public void StartDrag(ItemUI itm, SlotUI slot)
     {
         //create filler
         Transform parent;
@@ -211,6 +212,9 @@ public class InventoryManager : MonoBehaviour
         itemUI.GetComponent<RectTransform>().position = slot.transform.position;
 
         fillerItem = itemUI;
+
+        //put item on top
+        itm.transform.SetParent(topLayer);
         
         SetAllItemsRaycast(false);
     }
@@ -287,6 +291,20 @@ public class InventoryManager : MonoBehaviour
             return;
         }
 
+        //check to see if item can go in that slot
+        if (newSlot.itemType != newItm.myItem.itemType && newSlot.itemType != ItemType.Gadget)
+        {
+            NotificationManager.Instance.SendNotification($"Can't move {newItm.myItem.itemTitle} item to {newSlot.itemType} slot");
+            ReturnItem(newItm);
+            return;
+        }
+        if (oldItm.myItem.itemTitle != "Empty" && oldSlot.itemType != oldItm.myItem.itemType && oldSlot.itemType != ItemType.Gadget)
+        {
+            NotificationManager.Instance.SendNotification($"Can't move {oldItm.myItem.itemTitle} item to {oldSlot.itemType} slot");
+            ReturnItem(newItm);
+            return;
+        }
+
         //swap items visually
         if (oldItm != null && oldItm.myItem.itemTitle != "Empty")
         {
@@ -339,6 +357,7 @@ public class InventoryManager : MonoBehaviour
         } else
         {
             //swap two items in the inventory
+            newItm.transform.SetParent(spawnArea, true);
             allItems[newSlot.idx] = newItm.myItem;
             allItems[oldSlot.idx] = (oldItm ?? fillerItem).myItem;
         }
@@ -348,6 +367,13 @@ public class InventoryManager : MonoBehaviour
     public void ReturnItem(ItemUI rtnItm)
     {
         rtnItm.GetComponent<RectTransform>().position = rtnItm.slotOrigin.GetComponent<RectTransform>().position;
+        if (rtnItm.slotOrigin.idx == -1)
+        {
+            rtnItm.transform.SetParent(rtnItm.slotOrigin.GetComponent<Transform>());
+        } else
+        {
+            rtnItm.transform.SetParent(spawnArea);
+        }
         RemoveFiller();
     }
 

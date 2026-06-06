@@ -15,4 +15,4 @@ MonoBehaviour:
   itemType: 1
   itemTitle: Empty
   itemDescription: 
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: -255769237, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}
