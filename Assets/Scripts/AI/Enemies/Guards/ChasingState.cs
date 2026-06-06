@@ -15,6 +15,7 @@ namespace Guards
             {
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
             }
+            _icon.TriggerAlerted();
         }
 
         public override void TickState()
@@ -32,21 +33,23 @@ namespace Guards
 
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
                 if (Manager.PlayerTarget != null)
                 {
                     navigator.SetDestination(Manager.PlayerTarget.position, true);
                 }
 
-                navigator.TickAdvance();
+            } else if (navigator.ReachedDestination)
+            {
+                Manager.UpdateState(Manager.SearchingState);
                 return;
             }
+            navigator.TickAdvance();
 
-            Manager.UpdateState(Manager.SearchingState);
         }
 
         public override void ExitState()
         {
+            _icon.HideIcon();
         }
     }
 }

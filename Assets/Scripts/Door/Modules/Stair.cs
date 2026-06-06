@@ -3,7 +3,7 @@ using UnityEngine;
 namespace HeistGame.Door {
     public class Stair : MonoBehaviour, IDoorOpenBehavior, IHaSpecialLink {
         [SerializeField] private Transform otherStair;
-        [SerializeField] private int traversalCost = 10;
+        [SerializeField] private int traversalCost = 9;
         private GameObject player;
         public bool IsOpen => true;
         public Transform LinkTransform => transform;

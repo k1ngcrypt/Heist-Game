@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Guards
+﻿namespace Guards
 {
     public class SearchingState : BaseState
     {
@@ -10,7 +8,7 @@ namespace Guards
             {
                 return;
             }
-
+            _icon.TriggerSuspicious();
             Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
         }
 
@@ -23,7 +21,6 @@ namespace Guards
 
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
                 Manager.UpdateState(Manager.ChasingState);
                 return;
             }
@@ -35,14 +32,16 @@ namespace Guards
             }
 
             navigator.TickAdvance();
-            if (navigator.ReachedDestination)
+            if (navigator.ReachedDestination && Manager.Suspicion <= 0f)
             {
                 Manager.UpdateState(Manager.PatrollingState);
+                return;
             }
         }
 
         public override void ExitState()
         {
+            _icon.HideIcon();
         }
     }
 }

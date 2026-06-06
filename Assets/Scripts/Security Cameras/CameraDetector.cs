@@ -85,16 +85,17 @@ public class CameraDetector : MonoBehaviour
             {
                 lastSeenPosition = player.position;
                 hasLastSeenPosition = true;
-                AwarenessManager.Instance?.ReportPlayerSeen(lastSeenPosition);
+                AwarenessManager.Instance.ReportPlayerSeen(lastSeenPosition);
             }
 
-            Debug.Log($"Player detected by {name} at distance {Vector2.Distance(transform.position, player.position):F2}");
+            //Debug.Log($"Player detected by {name} at distance {Vector2.Distance(transform.position, player.position):F2}");
             float normalizedDistance = Mathf.Clamp01(Vector2.Distance(transform.position, player.position) / detectionRange);
             float fillRate = Mathf.Lerp(suspicionFillPerTickAtClosest, suspicionFillPerTickAtMaxRange, normalizedDistance);
             suspicion = Mathf.Min(100f, suspicion + fillRate);
         }
         else
         {
+            AwarenessManager.Instance.ReportGuardSuspicion(Mathf.Min(suspicionDecayPerTick, suspicion));
             suspicion = Mathf.Max(0f, suspicion - suspicionDecayPerTick);
         }
 

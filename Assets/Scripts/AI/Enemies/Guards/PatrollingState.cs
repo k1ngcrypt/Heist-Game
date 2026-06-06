@@ -29,8 +29,6 @@ namespace Guards
 
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
-                Manager.ResetSuspicion();
                 Manager.UpdateState(Manager.SuspiciousState);
                 return;
             }

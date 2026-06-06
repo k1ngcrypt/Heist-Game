@@ -9,14 +9,17 @@
                 return;
             }
 
+            _icon.TriggerSuspicious();
+            Manager.SetBaseSuspicion();
+
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
                 return;
             }
 
             Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
+            Manager.Navigator.TickAdvance();
         }
 
         public override void TickState()
@@ -28,15 +31,9 @@
 
             if (Manager.IsPlayerDetected())
             {
-                Manager.UpdateLastKnownPlayerPosition();
-                
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
 
-                if (Manager.IncreaseSuspicion())
-                {
-                    Manager.UpdateState(Manager.ChasingState);
-                    return;
-                }
+                Manager.IncreaseSuspicion();
 
                 Manager.Navigator.TickAdvance();
                 return;
@@ -45,12 +42,15 @@
             Manager.Navigator.TickAdvance();
             if (Manager.Navigator.ReachedDestination)
             {
-                Manager.UpdateState(Manager.SearchingState);
+                if (Manager.AwarenessLevel() >= AwarenessLevel.Alert) Manager.UpdateState(Manager.SearchingState);
+                Manager.ResetSuspicion();
+                Manager.UpdateState(Manager.PatrollingState);
             }
         }
 
         public override void ExitState()
         {
+            _icon.HideIcon();
         }
     }
 }
