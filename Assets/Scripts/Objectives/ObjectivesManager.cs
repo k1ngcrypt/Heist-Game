@@ -44,7 +44,7 @@ namespace HeistGame.Objectives {
                 bool newlyCompleted = target.AdvanceProgress(progressAmount);
                 OnObjectivesChanged?.Invoke();
 
-                if (newlyCompleted) Debug.Log($"Logic: {target.Data.title} is complete.");
+                if (newlyCompleted) NotificationManager.Instance.SendNotification($"Objective completed: {target.Data.title}", Color.green);
             }
         }
 
@@ -62,8 +62,8 @@ namespace HeistGame.Objectives {
                 OnObjectivesChanged?.Invoke();
 
                 if (newlyFailed) {
-                    if (!target.Data.isOptional) Debug.Log($"Logic: {target.Data.title} has failed. Player has failed the level."); //Edit code to make it fail level when this happens
-                    else Debug.Log($"Logic: {target.Data.title} has failed. However Player can still pass the level");
+                    if (!target.Data.isOptional) NotificationManager.Instance.SendNotification($"Objective failed: {target.Data.title}", Color.red);
+                    else NotificationManager.Instance.SendNotification($"Objective failed: {target.Data.title}", Color.yellow);
                 }
             }
         }
