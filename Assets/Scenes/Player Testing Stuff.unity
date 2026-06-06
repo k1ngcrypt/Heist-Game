@@ -7005,7 +7005,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ac8348099476474a98a0d2cf3cbf46e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  notificationPrefab: {fileID: 1990017454784062834, guid: dcc991fe2d3ef4146a11f991af70f42a, type: 3}
+  notificationPrefab: {fileID: 7400460982426495889, guid: dcc991fe2d3ef4146a11f991af70f42a, type: 3}
   spawnArea: {fileID: 861175099071391438}
   time: 3
 --- !u!114 &6587332119016000703
