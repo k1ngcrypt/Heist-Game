@@ -195,6 +195,7 @@ public class BagUI : MonoBehaviour, ITurnActor
 
     public void HideInv()
     {
+        InventoryManager.Instance.CheckHeldItem();
         InventoryManager.bagInv.gameObject.SetActive(false);
         foreach (Transform  child in InventoryManager.bagInv)
         {
@@ -202,7 +203,6 @@ public class BagUI : MonoBehaviour, ITurnActor
         }
         InventoryManager.bagInv.GetComponent<RectTransform>().sizeDelta = baseSize;
         allSlots = new List<SlotUI>();
-        InventoryManager.Instance.CheckHeldItem();
     }
 
     public void ReplaceFromSlot(ItemUI newItm, SlotUI targetSlot)

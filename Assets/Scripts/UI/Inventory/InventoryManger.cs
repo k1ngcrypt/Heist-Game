@@ -409,6 +409,7 @@ public class InventoryManager : MonoBehaviour
                 {
                     if (item.slotOrigin.idx == -1)
                     {
+                        EndDrag();
                         Destroy(item.gameObject);
                     }
                 }
