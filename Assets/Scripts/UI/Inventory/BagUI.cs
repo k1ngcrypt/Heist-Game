@@ -9,10 +9,10 @@ public class BagUI : MonoBehaviour, ITurnActor
     private Canvas canvas;
     
     public int TickDebt { get; set; }
-    private Vector3 worldPosition;
-    private Vector3 topRight;
-    private Vector3 bottomLeft;
-    private Vector3 buffer = new Vector3(0.25f, 0.25f, 0); //incase to make sure it will still call player
+    private Vector2 worldPosition;
+    private Vector2 topRight;
+    private Vector2 bottomLeft;
+    private Vector2 buffer = new Vector2(0.25f, 0.25f); //incase to make sure it will still call player
 
     private List<ItemUI> bagItems;
     public List<ItemUI> allItems;
@@ -310,9 +310,21 @@ public class BagUI : MonoBehaviour, ITurnActor
         InventoryManager.currentBag = null;
     }
 
+    /*
     public void DebugBag()
     {
-        string str = "Bag Inv: ";
+        string str = "Bag Items:";
+        for (int i = 0; i < bagItems.Count; i++)
+        {
+            if(bagItems[i] == null)
+            {
+                str += "null, ";
+            } else
+            {
+               str += bagItems[i].myItem.itemTitle + ", "; 
+            }
+        }
+        str += " | All Items: ";
         for (int i = 0; i < allItems.Count; i++)
         {
             if(allItems[i] == null)
@@ -324,20 +336,8 @@ public class BagUI : MonoBehaviour, ITurnActor
             }
             
         }
-        Debug.Log(str);
-
-        str = "Bag Items:";
-        for (int i = 0; i < bagItems.Count; i++)
-        {
-            if(bagItems[i] == null)
-            {
-                str += "null, ";
-            } else
-            {
-               str += bagItems[i].myItem.itemTitle + ", "; 
-            }
-        }
-        Debug.Log(str);
+        Debug.Log(str);        
     }
+    */
 
 }

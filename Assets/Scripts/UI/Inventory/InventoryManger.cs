@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
 using UnityEngine;
 using UnityEngine.UI; 
 
@@ -417,6 +418,109 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
+    //API for developer interaction
+    public bool HasItem(LoadoutItems item)
+    {
+        foreach(LoadoutItems check in allItems)
+        {
+            if (check == item)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public LoadoutItems ReturnEquipArmour()
+    {
+        for(int i = 0; i < allSlots.Count; i++)
+        {
+            SlotUI slot = allSlots[i];
+            if (slot.itemType == ItemType.Armour)
+            {
+                return allItems[i];
+            }
+        }
+        return emptyArmour;
+    }
+    public LoadoutItems ReturnEquipWeapon()
+    {
+        SlotUI slot;
+        for(int i = 0; i < allSlots.Count; i++)
+        {
+            slot = allSlots[i];
+            if (slot.itemType == ItemType.Weapon)
+            {
+                return allItems[i];
+            }
+        }
+        return emptyWeapon;
+    }
+
+    public bool TryAddItem(LoadoutItems item)
+    {
+        LoadoutItems check = emptyGadget;
+        for(int i = 0; i < allItems.Count; i++)
+        {
+            check = allItems[i];
+            if (check.itemTitle == "Empty" && (check.itemType == item.itemType || check.itemType == ItemType.Gadget))
+            {
+                SlotUI slot = allSlots[i];
+                ItemUI oldItem = slot.currentItem;
+                ItemUI newItem = Instantiate(itemPrefab, spawnArea);
+                newItem.Initialize(item, slot, canvas);
+                newItem.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
+
+                slot.UpdateItem(newItem);
+
+                allItems[i] = item;
+
+                Destroy(oldItem.gameObject);
+                
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool TryRemoveItem(LoadoutItems item)
+    {
+        LoadoutItems check = emptyGadget;
+        for(int i = 0; i < allItems.Count; i++)
+        {
+            check = allItems[i];
+            if (check == item)
+            {
+                SlotUI slot = allSlots[i];
+                ItemUI oldItem = slot.currentItem;
+                ItemUI replaceEmpty = Instantiate(itemPrefab, spawnArea);
+                LoadoutItems empty;
+                if (item.itemType == ItemType.Armour)
+                {
+                    empty = emptyArmour;
+                } else if (item.itemType == ItemType.Armour) 
+                {
+                    empty = emptyWeapon;
+                } else
+                {
+                    empty = emptyGadget;
+                }
+                replaceEmpty.Initialize(empty, slot, canvas);
+                replaceEmpty.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
+
+                slot.UpdateItem(replaceEmpty);
+
+                allItems[i] = empty;
+
+                Destroy(oldItem.gameObject);
+                
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
     public void DebugLoadout()
     {
         string str = "Player Inv: ";
@@ -433,4 +537,5 @@ public class InventoryManager : MonoBehaviour
         }
         Debug.Log(str);
     }
+    */
 }

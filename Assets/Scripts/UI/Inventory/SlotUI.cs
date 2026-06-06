@@ -5,7 +5,7 @@ public class SlotUI : MonoBehaviour, IDropHandler
 {
     public ItemType itemType;
     public int idx;
-    private ItemUI currentItem;
+    public ItemUI currentItem;
 
     public void Initialize(ItemType itemType, int idx)
     {
