@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4ae6eee71b3bfb4ba0f41932ae29afb, type: 3}
   m_Name: _EmptyArmour
   m_EditorClassIdentifier: Assembly-CSharp::LoadoutItems
+  itemType: 0
   itemTitle: Empty
   itemDescription: 
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 1942225260, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}

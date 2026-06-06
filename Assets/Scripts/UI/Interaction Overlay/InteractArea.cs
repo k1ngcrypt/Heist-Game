@@ -31,10 +31,33 @@ public class InteractArea : MonoBehaviour, ITurnActor
     private Vector3 topRight;
     private Vector3 bottomLeft;
     private Vector3 buffer = new Vector3(0.25f, 0.25f, 0); //incase to make sure it will still call player
+    public void OnValidate() {
+        if (player == null) {
+            if (Map.Player) player=Map.Player.transform;
+            if (player == null) {
+                PlayerController foundPlayer = FindAnyObjectByType<PlayerController>();
+                if (foundPlayer != null) player = foundPlayer.transform;
+            }
+        }
+        if (turnManager == null) {
+            turnManager = TurnManager.Instance;
+            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>();
+        }
+    }
 
     public void OnEnable()
     {
-        
+        if (player == null) {
+            player=Map.Player.transform;
+            if (player == null) {
+                PlayerController foundPlayer = FindAnyObjectByType<PlayerController>();
+                if (foundPlayer != null) player = foundPlayer.transform;
+            }
+        }
+        if (turnManager == null) {
+            turnManager = TurnManager.Instance;
+            if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
+        }
         if (FindAnyObjectByType<EventSystem>() == null)
         {
             GameObject obj = new GameObject("EventSystem");
@@ -68,12 +91,10 @@ public class InteractArea : MonoBehaviour, ITurnActor
                 currentOverlay = Instantiate(overlayPrefab, this.transform);
                 currentOverlay.Initialize(title, buttons, GetComponent<Transform>().position);
             }
-        } else if (currentOverlay != null)
-        {
+        } else if (currentOverlay != null) {
             //not in area but overlay is active, so destroy it
             Destroy(currentOverlay.gameObject);
         }
-        await Awaitable.EndOfFrameAsync();
     }
 
     //for interaction scripts to call to update the buttons when something changes
