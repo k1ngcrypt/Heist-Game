@@ -22,9 +22,10 @@ public class NotificationManager : MonoBehaviour
         }
     }
 
-    public void SendNotification(string message)
+    public void SendNotification(string message, Color? color = null)
     {
+        Color finalColor = color ?? Color.white;
         var notification = Instantiate(notificationPrefab, spawnArea);
-        notification.Initialize(message, time);
+        notification.Initialize(message, time, finalColor);
     }
 }

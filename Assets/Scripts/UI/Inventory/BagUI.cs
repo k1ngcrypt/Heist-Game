@@ -202,6 +202,7 @@ public class BagUI : MonoBehaviour, ITurnActor
         }
         InventoryManager.bagInv.GetComponent<RectTransform>().sizeDelta = baseSize;
         allSlots = new List<SlotUI>();
+        InventoryManager.Instance.CheckHeldItem();
     }
 
     public void ReplaceFromSlot(ItemUI newItm, SlotUI targetSlot)

@@ -398,6 +398,24 @@ public class InventoryManager : MonoBehaviour
         currentBag.DroppedItem(item);
     }
 
+    public void CheckHeldItem()
+    {
+        foreach (Transform child in topLayer)
+        {
+            if (child.GetComponent<ItemUI>() != null)
+            {
+                ItemUI item = child.GetComponent<ItemUI>();
+                if (item != null)
+                {
+                    if (item.slotOrigin.idx == -1)
+                    {
+                        Destroy(item.gameObject);
+                    }
+                }
+            }
+        }
+    }
+
     public void DebugLoadout()
     {
         string str = "Player Inv: ";
