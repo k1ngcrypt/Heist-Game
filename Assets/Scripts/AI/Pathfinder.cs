@@ -865,9 +865,10 @@ public class Pathfinder : MonoBehaviour
         RestoreAbstractNodeToGridIndex();
         RestorePortalMappings();
         RestoreRoomAbstractNodes();
+        AppendSpecialLinksToCachedGraph();
         EnsureAbstractNeighbors();
         RestoreRoomPortalCosts();
-        AppendSpecialLinksToCachedGraph();
+        
         lowLevelCostCache.Clear();
         roomLowLevelCostCache.Clear();
         return true;
@@ -1173,7 +1174,7 @@ public class Pathfinder : MonoBehaviour
                 continue;
             }
 
-            HaRoom room = new HaRoom(roomId);
+            HaRoom room = new(roomId);
             roomSearchQueue.Clear();
             roomSearchQueue.Enqueue(index);
             visited[index] = true;
@@ -1477,35 +1478,56 @@ public class Pathfinder : MonoBehaviour
 
     private void BuildRoomPortalCosts()
     {
-        if (roomAbstractNodes == null)
-        {
-            return;
-        }
+        if (roomAbstractNodes == null) return;
 
         for (int roomId = 0; roomId < roomAbstractNodes.Length; roomId++)
         {
             List<int> roomNodes = roomAbstractNodes[roomId];
-            if (roomNodes == null || roomNodes.Count < 2)
-            {
-                continue;
-            }
+            if (roomNodes == null || roomNodes.Count < 2) continue;
 
             for (int i = 0; i < roomNodes.Count; i++)
             {
                 int abstractIndexA = roomNodes[i];
                 int nodeA = abstractNodeToGridIndex[abstractIndexA];
+                int portalIndexA = abstractNodes[abstractIndexA].PortalIndex;
+                bool aIsSpecialLink = portalIndexA >= 0 && portalIndexA < portals.Count
+                    && portals[portalIndexA].Type == HaPortalType.SpecialLink;
+
                 for (int j = i + 1; j < roomNodes.Count; j++)
                 {
                     int abstractIndexB = roomNodes[j];
                     int nodeB = abstractNodeToGridIndex[abstractIndexB];
-                    int cost = FindLowLevelCostInRoom(nodeA, nodeB, roomId);
-                    if (cost == int.MaxValue)
-                    {
-                        continue;
-                    }
+                    int portalIndexB = abstractNodes[abstractIndexB].PortalIndex;
+                    bool bIsSpecialLink = portalIndexB >= 0 && portalIndexB < portals.Count
+                        && portals[portalIndexB].Type == HaPortalType.SpecialLink;
 
-                    long key = GetPortalCostKey(abstractIndexA, abstractIndexB);
-                    roomPortalCostCache[key] = cost;
+                    int cost = FindLowLevelCostInRoom(nodeA, nodeB, roomId);
+                    if (cost == int.MaxValue) continue;
+
+                    // A→B means the agent walks from A's grid node to B's grid node
+                    // inside this room, then exits via B's portal. If B is a special
+                    // link, the agent must also pay that link's traversal cost as part
+                    // of committing to this inter-portal route.
+                    if (bIsSpecialLink)
+                        cost += portals[portalIndexB].Cost;
+
+                    long keyAB = GetPortalCostKey(abstractIndexA, abstractIndexB);
+                    roomPortalCostCache[keyAB] = cost;
+
+                    // Store the reverse separately — A and B are asymmetric when
+                    // either is a special link, so a single symmetric entry is wrong.
+                    int reverseCost = FindLowLevelCostInRoom(nodeB, nodeA, roomId);
+                    if (reverseCost != int.MaxValue)
+                    {
+                        if (aIsSpecialLink)
+                            reverseCost += portals[portalIndexA].Cost;
+
+                        // Only write the reverse key if it differs from the forward key,
+                        // otherwise GetPortalCostKey's min/max ordering will collide.
+                        // Use a directed key instead.
+                        long keyBA = GetDirectedPortalCostKey(abstractIndexB, abstractIndexA);
+                        roomPortalCostCache[keyBA] = reverseCost;
+                    }
                 }
             }
         }
@@ -1520,8 +1542,12 @@ public class Pathfinder : MonoBehaviour
 
     private int GetRoomPortalCost(int abstractIndexA, int abstractIndexB)
     {
-        long key = GetPortalCostKey(abstractIndexA, abstractIndexB);
-        return roomPortalCostCache.TryGetValue(key, out int cost) ? cost : int.MaxValue;
+        long directedKey = GetDirectedPortalCostKey(abstractIndexA, abstractIndexB);
+        if (roomPortalCostCache.TryGetValue(directedKey, out int directedCost))
+            return directedCost;
+
+        long symmetricKey = GetPortalCostKey(abstractIndexA, abstractIndexB);
+        return roomPortalCostCache.TryGetValue(symmetricKey, out int cost) ? cost : int.MaxValue;
     }
 
     private int GetCachedRoomCost(int startIndex, int endIndex, int roomId)
@@ -1579,10 +1605,7 @@ public class Pathfinder : MonoBehaviour
 
     private void BuildAbstractNeighbors()
     {
-        if (roomAbstractNodes == null)
-        {
-            return;
-        }
+        if (roomAbstractNodes == null) return;
 
         for (int i = 0; i < abstractNodes.Count; i++)
         {
@@ -1590,11 +1613,15 @@ public class Pathfinder : MonoBehaviour
             List<int> neighbors = new();
 
             int portalIndex = node.PortalIndex;
-            PortalAbstractPair pair = portalAbstractPairs[portalIndex];
-            int paired = pair.A == i ? pair.B : pair.A;
-            if (paired >= 0)
+            if (portalIndex >= 0 && portalIndex < portalAbstractPairs.Length) // guard added
             {
-                neighbors.Add(paired);
+                PortalAbstractPair pair = portalAbstractPairs[portalIndex];
+                int paired = pair.A == i ? pair.B : pair.A;
+                //Debug.Log($"Abstract node {i}: portalIndex={portalIndex} paired={paired} roomId={node.RoomId}");
+                if (paired >= 0)
+                {
+                    neighbors.Add(paired);
+                }
             }
 
             List<int> roomNodes = roomAbstractNodes[node.RoomId];
@@ -1791,6 +1818,7 @@ public class Pathfinder : MonoBehaviour
 
             if (currentIndex == virtualEnd)
             {
+                //Debug.Log($"Path found, total gCost={abstractSearch.GCosts[virtualEnd]}");
                 return RetraceAbstractPath(virtualStart, virtualEnd);
             }
 
@@ -1836,6 +1864,7 @@ public class Pathfinder : MonoBehaviour
 
         if (nodeIndex == virtualStart)
         {
+            //Debug.Log($"VirtualStart: startRoom={startRoom} neighbors={string.Join(",", roomAbstractNodes[startRoom])}");
             abstractNeighborBuffer.AddRange(roomAbstractNodes[startRoom]);
             return;
         }
@@ -1846,6 +1875,7 @@ public class Pathfinder : MonoBehaviour
         }
 
         HaAbstractNode node = abstractNodes[nodeIndex];
+        //Debug.Log($"Expanding abstract node {nodeIndex}: roomId={node.RoomId} portalIndex={node.PortalIndex} portalType={portals[node.PortalIndex].Type} neighbors={string.Join(",", node.Neighbors)}");
         abstractNeighborBuffer.AddRange(node.Neighbors);
         if (node.RoomId == endRoom)
         {
@@ -1864,7 +1894,7 @@ public class Pathfinder : MonoBehaviour
         {
             return GetCachedRoomCost(GetAbstractNodeGridIndex(fromIndex, startIndex, endIndex), endIndex, endRoom);
         }
-
+        
         if (fromIndex >= abstractNodes.Count || toIndex >= abstractNodes.Count)
         {
             return int.MaxValue;
@@ -1872,13 +1902,17 @@ public class Pathfinder : MonoBehaviour
 
         HaAbstractNode fromNode = abstractNodes[fromIndex];
         HaAbstractNode toNode = abstractNodes[toIndex];
+        //Debug.Log("Cost: " + portals[fromNode.PortalIndex].Cost);
         if (fromNode.PortalIndex == toNode.PortalIndex && fromNode.RoomId != toNode.RoomId)
         {
+            //int totalSoFar = abstractSearch.GCosts[fromIndex];
+            //Debug.Log($"Crossing special link portal {fromNode.PortalIndex}, gCost so far={totalSoFar}, link cost={portals[fromNode.PortalIndex].Cost}, total would be={totalSoFar + portals[fromNode.PortalIndex].Cost}");
             return portals[fromNode.PortalIndex].Cost;
         }
 
         if (fromNode.RoomId != toNode.RoomId)
         {
+            //Debug.Log($"Cross-room transition blocked: from portal {fromNode.PortalIndex} to portal {toNode.PortalIndex}, same portal = {fromNode.PortalIndex == toNode.PortalIndex}");
             return int.MaxValue;
         }
 
@@ -2087,27 +2121,6 @@ public class Pathfinder : MonoBehaviour
         abstractSearch.Reset(totalNodes);
     }
 
-    private int GetCachedLowLevelCost(int startIndex, int endIndex)
-    {
-        if (startIndex == endIndex)
-        {
-            return 0;
-        }
-
-        int min = Mathf.Min(startIndex, endIndex);
-        int max = Mathf.Max(startIndex, endIndex);
-        long key = ((long)min << 32) | (uint)max;
-
-        if (lowLevelCostCache.TryGetValue(key, out int cachedCost))
-        {
-            return cachedCost;
-        }
-
-        int cost = FindLowLevelCost(startIndex, endIndex);
-        lowLevelCostCache[key] = cost;
-        return cost;
-    }
-
     private LayerMask GetObstacleMask()
         => Obstacles | playerCollisionMask;
 
@@ -2233,6 +2246,12 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
+    private long GetDirectedPortalCostKey(int from, int to)
+    {
+        // High bit set = directed key, avoids collision with symmetric keys
+        return unchecked((long)1 << 63) | ((long)(uint)from << 32) | (uint)to;
+    }
+
     private sealed class MinHeap
     {
         private readonly List<int> heap = new();
@@ -2307,7 +2326,7 @@ public class Pathfinder : MonoBehaviour
             int costB = GetPriority(b);
             if (costA == costB)
             {
-                return hCosts[a] < hCosts[b];
+                return hCosts[a] < hCosts[b]; //Tiebreak by heuristic cost
             }
 
             return costA < costB;

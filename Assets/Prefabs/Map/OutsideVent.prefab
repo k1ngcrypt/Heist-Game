@@ -245,7 +245,7 @@ MonoBehaviour:
   openSprite: {fileID: -1236666252544227623, guid: 870135a14217a1e4eaa99a5f991bd586, type: 3}
   closeSprite: {fileID: -1236666252544227623, guid: 870135a14217a1e4eaa99a5f991bd586, type: 3}
   otherVent: {fileID: 5973879885828269595}
-  traversalCost: 2
+  traversalCost: 10000
 --- !u!114 &9113226617848169503
 MonoBehaviour:
   m_ObjectHideFlags: 0
