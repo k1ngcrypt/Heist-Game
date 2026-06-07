@@ -6,6 +6,7 @@ using HeistGame.Objectives;
 using UnityEditor.Experimental.GraphView;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 public class PlayerController : MonoBehaviour {
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
@@ -16,7 +17,8 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private Tilemap baseTilemap;
     
     private bool isMoving = false;
-    public bool isPaused = false; // For Ed once he makes pause menu
+    private bool isPaused = false;
+    private TaskCompletionSource<bool> _pauseSignal;
     public bool inVent = false;
 
     private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
@@ -29,13 +31,22 @@ public class PlayerController : MonoBehaviour {
     };
     private int combinedMask;
 
+    public void SetPaused(bool paused) {
+        isPaused = paused;
+        if (!isPaused) {
+            _pauseSignal?.TrySetResult(true);
+        } else {
+            _pauseSignal = new TaskCompletionSource<bool>();
+        }
+    }
+
     void Start() { 
         Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
         playerStats = GetComponent<PlayerStats>();
     }
     async void Update() {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame) { isPaused = !isPaused; }
-
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) { SetPaused(!isPaused); return; }
+        
         // Prevent starting new actions while one is in progress
         if (!isMoving && Keyboard.current != null && !isPaused) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
@@ -91,7 +102,7 @@ public class PlayerController : MonoBehaviour {
         float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
 
         while (elapsedTime < currentMoveDuration) {
-            if (isPaused) {await Awaitable.EndOfFrameAsync(); continue;}
+            if (isPaused) await _pauseSignal.Task;
             elapsedTime += Time.deltaTime;
             float percent = elapsedTime / currentMoveDuration;
             transform.position = Vector2.Lerp(startPosition, endPosition, percent);
@@ -157,9 +168,11 @@ public class PlayerController : MonoBehaviour {
                     if (targetIndex >= 0 && targetIndex < activeButtons.Count) {
                         activeButtons[targetIndex].onClick.Invoke();
                         await Awaitable.WaitForSecondsAsync(interactionDuration);
+                        isMoving = false;
                         return;
                     } 
                     else NotificationManager.Instance.SendNotification($"No button assigned to {number} in this menu.", Color.yellow);
+                    isMoving = false;
                     return;
                 }
             } 

@@ -25,9 +25,13 @@ public class PlayerStats : MonoBehaviour {
     public void increaseBaseArmour(int amount) { baseArmour += amount; }
     public int getTotalArmour() { return baseArmour + additionalArmour; }
 
-    public void takeDamage(float damage) {
+    private float armourReductionPercentage() {
         int effectiveArmour = baseArmour + additionalArmour;
-        float damageAfterArmour = Mathf.Round((damage - (damage * (1 - Mathf.Exp(-(effectiveArmour*effectiveArmour/2809f)) * 0.95f))) * 100f) / 100.0f;
+        return 1 - Mathf.Exp(-(effectiveArmour*effectiveArmour/2809f)) * 0.95f;
+    }
+
+    public void takeDamage(float damage) {
+        float damageAfterArmour = Mathf.Round((damage - (damage * armourReductionPercentage()))*100f) / 100.0f;
         health = Mathf.Max(0, health - damageAfterArmour);
         if (!healthWarningTriggered && health <= maxHealth * loweHealthThreshold) {
             healthWarningTriggered = true;
