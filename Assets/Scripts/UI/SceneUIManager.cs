@@ -16,10 +16,12 @@ public class SceneUIManager : MonoBehaviour
     #if UNITY_EDITOR
     [SerializeField] private SceneAsset mainMenu;
     #endif
+    [SerializeField] private PlayerController playerController;
 
     public static SceneUIManager Instance;
     
     private bool paused = false;
+    private bool gameEnd = false;
 
     public void Start()
     {
@@ -33,9 +35,10 @@ public class SceneUIManager : MonoBehaviour
 
     public void TogglePause()
     {
-        //TODO prevent player from moving
+        if (gameEnd) return;
         inGameOverlays.SetActive(paused);
         pauseOverlay.SetActive(!paused);
+        playerController.SetPaused(!paused);
         paused = !paused;
     }
 
@@ -51,18 +54,20 @@ public class SceneUIManager : MonoBehaviour
 
     public void MissionComplete()
     {
-        //TODO stop player from moving
+        playerController.SetPaused(true);
         inGameOverlays.SetActive(false);
         allPauseOverlays.SetActive(false);
         victoryScreen.SetActive(true);
+        gameEnd = true;
     }
 
     public void MissionFailed(string cause)
     {
-        //TODO stop player from moving
+        playerController.SetPaused(true);
         inGameOverlays.SetActive(false);
         allPauseOverlays.SetActive(false);
         defeatScreen.SetActive(true);
         causeDefeatTxt.text = cause;
+        gameEnd = true;
     }
 }

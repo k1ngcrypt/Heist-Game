@@ -17,8 +17,9 @@ public class PlayerStats : MonoBehaviour {
     public void heal(float amount) { 
         health = Mathf.Min(health + amount, maxHealth);
         if (health > maxHealth * loweHealthThreshold) healthWarningTriggered = false;
+        HealthBarUI.Instance.UpdateHealthUI();
     }
-    public void fullHeal() { health = maxHealth; healthWarningTriggered = false; }
+    public void fullHeal() { health = maxHealth; healthWarningTriggered = false; HealthBarUI.Instance.UpdateHealthUI(); }
     public float getCurrentHealth() { return health; }
     public int getMaxHealth() { return maxHealth; }
 
@@ -39,6 +40,7 @@ public class PlayerStats : MonoBehaviour {
         }
         //Debug.Log($"Player took {damageAfterArmour} damage after armour reduction. Current health: {health}. Current Armour: {effectiveArmour}");
         if (health == 0) ObjectiveManager.Instance.FailObjective(0);
+        HealthBarUI.Instance.UpdateHealthUI();
     }
 
 }

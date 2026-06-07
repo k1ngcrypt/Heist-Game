@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour {
         //playerStats = GetComponent<PlayerStats>();
     }
     async void Update() {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) { SetPaused(!isPaused); return; }
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) { SceneUIManager.Instance.TogglePause(); return; }
         
         // Prevent starting new actions while one is in progress
         if (!isMoving && Keyboard.current != null && !isPaused) {
