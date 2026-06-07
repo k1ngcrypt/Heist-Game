@@ -1,27 +1,24 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using HeistGame.Door;
 using HeistGame.Objectives;
-using UnityEditor.Experimental.GraphView;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 public class PlayerController : MonoBehaviour {
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
-    private PlayerStats playerStats;
+    //private PlayerStats playerStats; May be used later, but is not currently used in the PlayerController script, so is commented out to avoid confusion. Stats are currently only managed through the PlayerStats script.
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
     
     private bool isMoving = false;
     private bool isPaused = false;
-    private TaskCompletionSource<bool> _pauseSignal;
+    private AwaitableCompletionSource<bool> _pauseSignal;
     public bool inVent = false;
 
-    private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
+    private const int ventMoveTicks = 2;
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
     private readonly Vector2[] moveDirections = new Vector2[] {
@@ -34,15 +31,18 @@ public class PlayerController : MonoBehaviour {
     public void SetPaused(bool paused) {
         isPaused = paused;
         if (!isPaused) {
-            _pauseSignal?.TrySetResult(true);
+            if (_pauseSignal != null) {
+                _pauseSignal.SetResult(true);
+                _pauseSignal = null;
+            }
         } else {
-            _pauseSignal = new TaskCompletionSource<bool>();
+            _pauseSignal = new AwaitableCompletionSource<bool>();
         }
     }
 
     void Start() { 
         Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
-        playerStats = GetComponent<PlayerStats>();
+        //playerStats = GetComponent<PlayerStats>();
     }
     async void Update() {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) { SetPaused(!isPaused); return; }
@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour {
         float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
 
         while (elapsedTime < currentMoveDuration) {
-            if (isPaused) await _pauseSignal.Task;
+            if (isPaused && _pauseSignal != null) await _pauseSignal.Awaitable;
             elapsedTime += Time.deltaTime;
             float percent = elapsedTime / currentMoveDuration;
             transform.position = Vector2.Lerp(startPosition, endPosition, percent);
