@@ -4,7 +4,7 @@ namespace HeistGame.Objectives {
     [CreateAssetMenu(fileName = "NewObjective", menuName = "Heist Game/Objective")]
     public class ObjectiveData : ScriptableObject {
         [Header("Display Information")]
-        public string objectiveID;
+        public int objectiveID;
         public string title;
         [TextArea] public string description;
 
