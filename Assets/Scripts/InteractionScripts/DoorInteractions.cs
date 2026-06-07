@@ -72,7 +72,7 @@ namespace HeistGame.Interactions {
                     stateManager.RebuildActiveMenu();
                     await TurnManager.Instance.ProcessTicks(ticksUsedToOpen);
                 } else {
-                    Debug.LogWarning($"Failed to close {nameOfDoor}. Check if it's locked or destroyed.");
+                    NotificationManager.Instance.SendNotification($"Failed to close {nameOfDoor}. The door might be stuck.", Color.yellow);
                 }
             } else {
                 success = door.TryOpenDoor();
@@ -80,10 +80,9 @@ namespace HeistGame.Interactions {
                     stateManager.RebuildActiveMenu();
                     await TurnManager.Instance.ProcessTicks(ticksUsedToOpen);
                 } else {
-                    Debug.LogWarning($"Failed to open {nameOfDoor}. Check if it's locked or destroyed.");
+                    NotificationManager.Instance.SendNotification($"Failed to open {nameOfDoor}. The door might be locked.", Color.yellow);
                 }
             }
-            await Awaitable.EndOfFrameAsync();
         }
 
         private async void UnlockDoor() {
@@ -95,7 +94,7 @@ namespace HeistGame.Interactions {
                         stateManager.RebuildActiveMenu();
                         await TurnManager.Instance.ProcessTicks(ticksUsedToLock);
                     }else {
-                        Debug.LogWarning($"Failed to unlock {nameOfDoor}. It might already be unlocked.");
+                        NotificationManager.Instance.SendNotification($"Failed to unlock {nameOfDoor}. You might need a key or the right tool.", Color.yellow);
                     }
                 } else {
                     success = lockBehavior.TryLock();
@@ -103,11 +102,10 @@ namespace HeistGame.Interactions {
                         stateManager.RebuildActiveMenu();
                         await TurnManager.Instance.ProcessTicks(ticksUsedToLock);
                     } else {
-                        Debug.LogWarning($"Failed to lock {nameOfDoor}. It might already be locked.");
+                        NotificationManager.Instance.SendNotification($"Failed to lock {nameOfDoor}. You might need a key or the right tool.", Color.yellow);
                     }
                 }
             }
-            await Awaitable.EndOfFrameAsync();
         }
 
         private async void DestroyDoor() {
@@ -118,10 +116,9 @@ namespace HeistGame.Interactions {
                     await TurnManager.Instance.ProcessTicks(ticksUsedToDestroy);
                     Destroy(door.gameObject);
                 } else {
-                    Debug.LogWarning($"Failed to destroy {nameOfDoor}.");
+                    NotificationManager.Instance.SendNotification($"Failed to break {nameOfDoor}. You need the right tool.", Color.yellow);
                 }
             }
-            await Awaitable.EndOfFrameAsync();
         }
     }
 }

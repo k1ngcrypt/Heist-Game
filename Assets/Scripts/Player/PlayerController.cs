@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private Tilemap baseTilemap;
     
     private bool isMoving = false;
+    public bool isPaused = false; // For Ed once he makes pause menu
     public bool inVent = false;
 
     private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
@@ -33,8 +34,10 @@ public class PlayerController : MonoBehaviour {
         playerStats = GetComponent<PlayerStats>();
     }
     async void Update() {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame) { isPaused = !isPaused; }
+
         // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null) {
+        if (!isMoving && Keyboard.current != null && !isPaused) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
@@ -88,6 +91,7 @@ public class PlayerController : MonoBehaviour {
         float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
 
         while (elapsedTime < currentMoveDuration) {
+            if (isPaused) {await Awaitable.EndOfFrameAsync(); continue;}
             elapsedTime += Time.deltaTime;
             float percent = elapsedTime / currentMoveDuration;
             transform.position = Vector2.Lerp(startPosition, endPosition, percent);
@@ -105,9 +109,10 @@ public class PlayerController : MonoBehaviour {
     }
 
     private async Awaitable InteractWithObject() {
+        isMoving = true;
         for (int i = 0; i < moveDirections.Length; i++) {
             Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
-            Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
+            Collider2D hit = Physics2D.OverlapPoint(targetPos, combinedMask);
 
             if (hit != null) {
                 InteractionOverlay interactOverlay = hit.GetComponentInChildren<InteractionOverlay>();
@@ -117,28 +122,34 @@ public class PlayerController : MonoBehaviour {
                 }
             } 
         }
+        isMoving = false;
     }
 
     private async Awaitable ObjectiveCheck(Collider2D obj) {
+        isMoving = true;
         var trigger = obj.GetComponent<ObjectiveTrigger>();
         if (trigger != null) {
             trigger.TriggerProgress();
             await Awaitable.WaitForSecondsAsync(interactionDuration);
         }
+        isMoving = false;
     }
 
     private async Awaitable TryButtonPress(int number) {
+        isMoving = true;
         for (int i = 0; i < moveDirections.Length; i++) {
             Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
             
-            Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
+            Collider2D hit = Physics2D.OverlapPoint(targetPos, combinedMask);
 
             if (hit != null) {
-                InteractArea interactArea = hit.GetComponentInChildren<InteractArea>();
-                if (interactArea == null) interactArea = hit.GetComponentInParent<InteractArea>();
-                InteractionOverlay overlay = hit.GetComponentInChildren<InteractionOverlay>();
-                if (overlay == null) overlay = hit.GetComponentInParent<InteractionOverlay>();
-
+                InteractArea interactArea = null;
+                InteractionOverlay overlay = null;
+                foreach (Transform child in hit.transform) {
+                    interactArea = child.GetComponent<InteractArea>();
+                    if (interactArea != null) break;
+                }
+                if (interactArea != null) overlay = interactArea.GetComponentInChildren<InteractionOverlay>();
                 if (interactArea != null && overlay != null) {
                     if (!overlay.isMenuOpen) { continue; }
                     List<InteractBtnTemplate> activeButtons = interactArea.GetActiveButtons();
@@ -146,11 +157,14 @@ public class PlayerController : MonoBehaviour {
                     if (targetIndex >= 0 && targetIndex < activeButtons.Count) {
                         activeButtons[targetIndex].onClick.Invoke();
                         await Awaitable.WaitForSecondsAsync(interactionDuration);
-                    }
-                    break;
+                        return;
+                    } 
+                    else NotificationManager.Instance.SendNotification($"No button assigned to {number} in this menu.", Color.yellow);
+                    return;
                 }
             } 
         }
+        isMoving = false;
     }
 
     private void CheckGround() {
