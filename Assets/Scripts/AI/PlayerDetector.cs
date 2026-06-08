@@ -33,6 +33,6 @@ public static class DetectionUtils
         float distance = Mathf.Sqrt(sqrDistance);
         int hitCount = Physics2D.Raycast(observerPos, toTarget.normalized, filter, hitBuffer, distance);
 
-        return hitCount == 0;
+        return hitCount > 0 && hitBuffer[0].collider.CompareTag("Player");
     }
 }

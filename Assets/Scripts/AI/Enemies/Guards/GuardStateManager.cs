@@ -8,6 +8,7 @@ namespace Guards
     [RequireComponent(typeof(ChasingState))]
     [RequireComponent(typeof(SearchingState))]
     [RequireComponent(typeof(GuardNavigator))]
+    [RequireComponent(typeof(GuardAttacker))]
     //[RequireComponent(typeof(HealthManager))]
     public class GuardStateManager : MonoBehaviour, ITurnActor
     {
@@ -32,6 +33,7 @@ namespace Guards
         private SuspiciousState suspiciousState;
         private ChasingState chasingState;
         private SearchingState searchingState;
+        public GuardAttacker attacker { get; private set; }
 
         private RaycastHit2D[] hitBuffer;
         private int patrolIndex;
@@ -68,6 +70,7 @@ namespace Guards
             chasingState = GetComponent<ChasingState>();
             searchingState = GetComponent<SearchingState>();
             Navigator = GetComponent<GuardNavigator>();
+            attacker = GetComponent<GuardAttacker>();
             //healthManager = GetComponent<HealthManager>();
 
             hitBuffer = new RaycastHit2D[Mathf.Max(1, lineOfSightBufferSize)];

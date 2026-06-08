@@ -9,7 +9,6 @@ public class CameraDetector : MonoBehaviour
     [Header("Detection")]
     [SerializeField, Min(0f)] private float detectionRange;
     [SerializeField, Range(1f, 360f)] private float viewAngle;
-    [SerializeField] private LayerMask environmentMask;
 
     [Header("Suspicion")]
     [SerializeField, Min(0f)] private float suspicionFillPerTickAtClosest;
@@ -26,7 +25,7 @@ public class CameraDetector : MonoBehaviour
     private float suspicion = 0f;
     private Vector2 lastSeenPosition;
     private bool hasLastSeenPosition;
-    private ContactFilter2D losFilter;
+    [SerializeField] private ContactFilter2D losFilter;
     private readonly RaycastHit2D[] losHits = new RaycastHit2D[4];
 
     public float Suspicion => suspicion;
@@ -47,8 +46,6 @@ public class CameraDetector : MonoBehaviour
         {
             player = playerObject.transform;
         }
-
-        InitializeLineOfSightFilter();
     }
 
     private void OnEnable()
@@ -128,25 +125,6 @@ public class CameraDetector : MonoBehaviour
         hasDetectedPlayer = false;
         hadSuspicionLastFrame = false;
         hasLastSeenPosition = false;
-    }
-
-    private void InitializeLineOfSightFilter()
-    {
-        losFilter = new ContactFilter2D
-        {
-            useLayerMask = true,
-            useTriggers = true
-        };
-        UpdateLineOfSightMask();
-    }
-    private void UpdateLineOfSightMask()
-    {
-        if (player == null)
-        {
-            return;
-        }
-
-        losFilter.layerMask = environmentMask;
     }
 
     private void OnDrawGizmos()
