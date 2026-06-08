@@ -110,7 +110,7 @@ public class InventoryManager : MonoBehaviour
             LoadoutItems item = startingLoadout[idx];
 
             SlotUI itemSlot;
-            if (item.itemType != ItemType.Gadget)
+            if (item.GetType() == typeof(GadgetItem))
             {
                 itemSlot = Instantiate(slotPrefab, equippedSlots);
                 countEquipped++;
@@ -119,7 +119,7 @@ public class InventoryManager : MonoBehaviour
                 itemSlot = Instantiate(slotPrefab, inventorySlots);
                 countInv++;
             }
-            itemSlot.Initialize(item.itemType, idx);
+            itemSlot.Initialize(idx);
             allSlots.Add(itemSlot);
         }
         
@@ -202,10 +202,10 @@ public class InventoryManager : MonoBehaviour
         Transform parent = slot.transform;
         ItemUI itemUI = Instantiate(itemPrefab, parent);
         LoadoutItems item;
-        if (slot.itemType == ItemType.Armour)
+        if (slot.currentItem != null && slot.currentItem.GetType() == typeof(ArmourItem))
         {
             item = emptyArmour;           
-        } else if (slot.itemType == ItemType.Weapon)
+        } else if (slot.currentItem != null && slot.currentItem.GetType() == typeof(WeaponItem))
         {
             item = emptyWeapon;   
         } else
@@ -297,15 +297,15 @@ public class InventoryManager : MonoBehaviour
         }
 
         //check to see if item can go in that slot
-        if (newSlot.itemType != newItm.myItem.itemType && newSlot.itemType != ItemType.Gadget)
+        if (newSlot.currentItem != null && newSlot.currentItem.GetType() != typeof(newItm.myItem) && newSlot.currentItem.GetType() != typeof(GadgetItem))
         {
-            NotificationManager.Instance.SendNotification($"Can't move {newItm.myItem.itemTitle} item to {newSlot.itemType} slot");
+            NotificationManager.Instance.SendNotification($"Can't move {newItm.myItem.GetType().Name} item to {newSlot.currentItem.GetType().Name} slot");
             ReturnItem(newItm);
             return;
         }
-        if (oldItm.myItem.itemTitle != "Empty" && oldSlot.itemType != oldItm.myItem.itemType && oldSlot.itemType != ItemType.Gadget)
+        if (oldItm.myItem.itemTitle != "Empty" && oldSlot.currentItem.GetType() != typeof(oldItm.myItem) && oldSlot.currentItem.GetType() != typeof(GadgetItem))
         {
-            NotificationManager.Instance.SendNotification($"Can't move {oldItm.myItem.itemTitle} item to {oldSlot.itemType} slot");
+            NotificationManager.Instance.SendNotification($"Can't move {oldItm.myItem.GetType().Name} item to {oldSlot.currentItem.GetType().Name} slot");
             ReturnItem(newItm);
             return;
         }
@@ -431,7 +431,7 @@ public class InventoryManager : MonoBehaviour
         for(int i = 0; i < allSlots.Count; i++)
         {
             SlotUI slot = allSlots[i];
-            if (slot.itemType == ItemType.Armour)
+            if (slot == ArmourItem)
             {
                 return allItems[i];
             }
@@ -444,7 +444,7 @@ public class InventoryManager : MonoBehaviour
         for(int i = 0; i < allSlots.Count; i++)
         {
             slot = allSlots[i];
-            if (slot.itemType == ItemType.Weapon)
+            if (slot == WeaponItem)
             {
                 return allItems[i];
             }
@@ -458,7 +458,7 @@ public class InventoryManager : MonoBehaviour
         for(int i = 0; i < allItems.Count; i++)
         {
             check = allItems[i];
-            if (check.itemTitle == "Empty" && (check.itemType == item.itemType || check.itemType == ItemType.Gadget))
+            if (check.itemTitle == "Empty" && (check == item || check == GadgetItem))
             {
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
@@ -490,10 +490,10 @@ public class InventoryManager : MonoBehaviour
                 ItemUI oldItem = slot.currentItem;
                 ItemUI replaceEmpty = Instantiate(itemPrefab, allSlots[i].transform);
                 LoadoutItems empty;
-                if (item.itemType == ItemType.Armour)
+                if (item== ArmourItem)
                 {
                     empty = emptyArmour;
-                } else if (item.itemType == ItemType.Armour) 
+                } else if (item == WeaponItem) 
                 {
                     empty = emptyWeapon;
                 } else
