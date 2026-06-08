@@ -22,19 +22,22 @@ namespace Guards
 
         public override void TickState()
         {
-            if (Manager == null)
+            if (Manager == null || Manager.Navigator == null)
             {
                 return;
             }
 
             if (Manager.IsPlayerDetected())
             {
+                Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
                 Manager.UpdateState(Manager.SuspiciousState);
                 return;
             }
 
-            if (Manager.Navigator == null)
+            if (Manager.CheckForAnomalies() != null)
             {
+                Manager.Navigator.SetDestination(Manager.LastKnownAnomalyPosition, true);
+                Manager.UpdateState(Manager.SuspiciousState);
                 return;
             }
 

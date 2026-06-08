@@ -259,7 +259,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Guards.GuardNavigator
   pathfinder: {fileID: 0}
-  arrivalThreshold: 0.05
+  arrivalThreshold: 0.4
   repathOnBlocked: 1
 --- !u!212 &3713465338528146934
 SpriteRenderer:

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Guards;
 using UnityEngine;
 using UnityEngine.Events;
@@ -14,14 +15,14 @@ public enum AwarenessLevel
 public class AwarenessManager : MonoBehaviour, ITurnActor
 {
     [Header("Awareness")]
-    [SerializeField, Min(0f)] private float maxAwareness = 100f;
-    [SerializeField, Min(0f)] private float awarenessDecayPerTick = 2f;
-    [SerializeField, Min(0f)] private float guardSuspicionWeight = 8f;
+    [SerializeField, Min(0f)] private float maxAwareness = 1000f;
+    [SerializeField, Min(0f)] private float awarenessDecayPerTick = 0.1f;
+    [SerializeField, Min(0f)] private float guardSuspicionWeight = 1f;
 
     [Header("Levels")]
-    [SerializeField, Range(0f, 100f)] private float suspiciousThreshold = 25f;
-    [SerializeField, Range(0f, 100f)] private float alertThreshold = 60f;
-    [SerializeField, Range(0f, 100f)] private float lockdownThreshold = 90f;
+    [SerializeField, Range(0f, 1000f)] private float suspiciousThreshold = 75f;
+    [SerializeField, Range(0f, 1000f)] private float alertThreshold = 100f;
+    [SerializeField, Range(0f, 1000f)] private float lockdownThreshold = 200f;
 
     [Header("Dispatch")]
     [SerializeField, Min(0f)] private float cameraSuspicionBoost = 10f;
@@ -33,6 +34,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
     private readonly Dictionary<CameraDetector, UnityAction> cameraSuspicionHandlers = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraDetectionHandlers = new();
     public float awareness { get; private set; }
+    public List<Transform> anomalies { get; private set; } = new List<Transform>();
     private AwarenessLevel currentLevel;
     private int tickCount;
     private int lastDispatchTick = -1;
@@ -173,6 +175,24 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         }
     }
 
+    public void RegisterAnomaly(Transform anomaly)
+    {
+        if (anomaly == null || anomalies.Contains(anomaly))
+        {
+            return;
+        }
+        anomalies.Add(anomaly);
+    }
+
+    public void UnregisterAnomaly(Transform anomaly)
+    {
+        if (anomaly == null || !anomalies.Contains(anomaly))
+        {
+            return;
+        }
+        anomalies.Remove(anomaly);
+    }
+
     public async Awaitable OnTick()
     {
         if (!enabled)
@@ -306,22 +326,30 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
 
     private void UpdateAwarenessLevel()
     {
-        AwarenessLevel newLevel = AwarenessLevel.Calm;
-
         if (awareness >= lockdownThreshold)
         {
-            newLevel = AwarenessLevel.Lockdown;
+            if (currentLevel != AwarenessLevel.Lockdown)
+            {
+                NotificationManager.Instance.SendNotification("Lockdown initiated!", Color.red);
+                currentLevel = AwarenessLevel.Lockdown;
+            }
         }
         else if (awareness >= alertThreshold)
         {
-            newLevel = AwarenessLevel.Alert;
+            if (currentLevel != AwarenessLevel.Alert)
+            {
+                NotificationManager.Instance.SendNotification("Alert level reached!", Color.orange);
+                currentLevel = AwarenessLevel.Alert;
+            }
         }
         else if (awareness >= suspiciousThreshold)
         {
-            newLevel = AwarenessLevel.Suspicious;
+            if (currentLevel != AwarenessLevel.Suspicious)
+            {
+                NotificationManager.Instance.SendNotification("Guards are catching on!", Color.yellow);
+                currentLevel = AwarenessLevel.Suspicious;
+            }
         }
-
-        currentLevel = newLevel;
     }
 
     public void MakeSound(Vector2 position, float intensity)
@@ -330,12 +358,21 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
 
         if (nearest != null && Vector2.Distance(nearest.transform.position, position) <= intensity)
         {
+            NotificationManager.Instance.SendNotification("Footsteps Approach...", Color.gray);
             nearest.InvestigatePosition(position);
         }
     }
     public void ReportGuardSuspicion(float suspicion)
     {
         awareness += suspicion * guardSuspicionWeight;
+        Mathf.Clamp(awareness, 0f, maxAwareness);
+        UpdateAwarenessLevel();
+    }
+
+    public void AnomalyIncrement(List<ItemUI> items)
+    {
+        float increment = items.Sum(item => item.myItem.suspicionModifier);
+        awareness += increment;
         Mathf.Clamp(awareness, 0f, maxAwareness);
         UpdateAwarenessLevel();
     }

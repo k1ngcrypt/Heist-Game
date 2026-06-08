@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Guards
@@ -41,6 +42,8 @@ namespace Guards
         private bool detectionCheckedThisTick = false;
 
         public Vector2 LastKnownPlayerPosition { get; private set; }
+        public Vector2 LastKnownAnomalyPosition { get; private set; }
+        public GameObject CurrentAnomaly { get; private set; } = null;
         public float Suspicion { get; private set; }
         public float MaxSuspicion => maxSuspicion;
         public float SuspicionRatio => maxSuspicion <= 0f ? 0f : Suspicion / maxSuspicion;
@@ -129,7 +132,7 @@ namespace Guards
                 fieldOfView,
                 lineOfSightFilter,
                 hitBuffer,
-                immediateDetectionRange);
+                immediateDetectionRange) || Vector2.Distance(transform.position, playerTarget.position) <= 0.4f; //epsilon
                 if (isPlayerDetected)
                 {
                     LastKnownPlayerPosition = playerTarget.position;
@@ -272,11 +275,35 @@ namespace Guards
         public void SetBaseSuspicion()
         {
             Suspicion += awarenessManager.awareness;
+            Suspicion = Mathf.Clamp(Suspicion, 0f, maxSuspicion);
         }
 
         public AwarenessLevel AwarenessLevel()
         {
             return awarenessManager.CurrentLevel;
+        }
+
+        public Transform CheckForAnomalies()
+        {
+            var anomalies = awarenessManager.anomalies;
+            foreach (var anomaly in anomalies)
+            {
+                if (DetectionUtils.IsDetected(
+                    transform.position,
+                    ResolveDetectionForward(false),
+                    anomaly,
+                    detectionRange,
+                    fieldOfView,
+                    lineOfSightFilter,
+                    hitBuffer))
+                {
+                    LastKnownAnomalyPosition = anomaly.position;
+                    CurrentAnomaly = anomaly.gameObject;
+                    return anomaly;
+                }
+            }
+
+            return null;
         }
     }
 }

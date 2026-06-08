@@ -1,4 +1,6 @@
-﻿namespace Guards
+﻿using UnityEngine;
+
+namespace Guards
 {
     public class SuspiciousState : BaseState
     {
@@ -18,7 +20,6 @@
                 return;
             }
 
-            Manager.Navigator.SetDestination(Manager.LastKnownPlayerPosition, true);
             Manager.Navigator.TickAdvance();
         }
 
@@ -34,14 +35,17 @@
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
 
                 Manager.IncreaseSuspicion();
-
-                Manager.Navigator.TickAdvance();
-                return;
             }
 
             Manager.Navigator.TickAdvance();
             if (Manager.Navigator.ReachedDestination)
             {
+                if (Vector2.Distance(Manager.Navigator.transform.position, Manager.LastKnownAnomalyPosition) < 0.4f)
+                { //epsilon
+                    var bag = Manager.CurrentAnomaly.GetComponent<BagUI>();
+                    AwarenessManager.Instance.AnomalyIncrement(bag.bagItems);
+                    bag.DestroyBag();
+                }
                 if (Manager.AwarenessLevel() >= AwarenessLevel.Alert) Manager.UpdateState(Manager.SearchingState);
                 Manager.ResetSuspicion();
                 Manager.UpdateState(Manager.PatrollingState);

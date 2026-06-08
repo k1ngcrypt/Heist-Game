@@ -86,6 +86,10 @@ public class CameraDetector : MonoBehaviour
                 lastSeenPosition = player.position;
                 hasLastSeenPosition = true;
                 AwarenessManager.Instance.ReportPlayerSeen(lastSeenPosition);
+                if (!hadSuspicionLastFrame)
+                {
+                    NotificationManager.Instance.SendNotification("You're being watched!", Color.yellow);
+                }
             }
 
             //Debug.Log($"Player detected by {name} at distance {Vector2.Distance(transform.position, player.position):F2}");
