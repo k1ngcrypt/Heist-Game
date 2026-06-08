@@ -16,12 +16,12 @@ public class SceneUIManager : MonoBehaviour
     #if UNITY_EDITOR
     [SerializeField] private SceneAsset mainMenu;
     #endif
-    [SerializeField] private PlayerController playerController;
 
     public static SceneUIManager Instance;
     
     private bool paused = false;
     private bool gameEnd = false;
+    private AwaitableCompletionSource<bool> _pauseSignal;
 
     public void Start()
     {
@@ -38,8 +38,30 @@ public class SceneUIManager : MonoBehaviour
         if (gameEnd) return;
         inGameOverlays.SetActive(paused);
         pauseOverlay.SetActive(!paused);
-        playerController.SetPaused(!paused);
-        paused = !paused;
+        SetPause(!paused);
+    }
+
+    public bool IsPaused()
+    {
+        return paused;
+    }
+
+    public AwaitableCompletionSource<bool> GetPauseSignal()
+    {
+        return _pauseSignal;
+    }
+
+    public void SetPause(bool pauseSignal)
+    {
+        paused = pauseSignal;
+        if (!paused) {
+            if (_pauseSignal != null) {
+                _pauseSignal.SetResult(true);
+                _pauseSignal = null;
+            }
+        } else {
+            _pauseSignal = new AwaitableCompletionSource<bool>();
+        }
     }
 
     public void BackToMainMenu()
@@ -54,7 +76,7 @@ public class SceneUIManager : MonoBehaviour
 
     public void MissionComplete()
     {
-        playerController.SetPaused(true);
+        SetPause(true);
         inGameOverlays.SetActive(false);
         allPauseOverlays.SetActive(false);
         victoryScreen.SetActive(true);
@@ -63,7 +85,7 @@ public class SceneUIManager : MonoBehaviour
 
     public void MissionFailed(string cause)
     {
-        playerController.SetPaused(true);
+        SetPause(true);
         inGameOverlays.SetActive(false);
         allPauseOverlays.SetActive(false);
         defeatScreen.SetActive(true);

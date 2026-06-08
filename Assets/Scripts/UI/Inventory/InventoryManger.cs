@@ -515,7 +515,7 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
-    
+    /*
     public void DebugLoadout()
     {
         string str = "Player Inv: ";
@@ -545,5 +545,6 @@ public class InventoryManager : MonoBehaviour
         }
         Debug.Log(str);
     }
+    */
     
 }

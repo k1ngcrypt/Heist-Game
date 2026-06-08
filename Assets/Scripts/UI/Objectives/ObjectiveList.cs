@@ -21,9 +21,7 @@ public class ObjectiveList : MonoBehaviour {
     private void Start() { RefreshObjectiveList(); }
 
     private void RefreshObjectiveList() {
-        if (objectiveManager == null || containerParent == null || objectiveItemPrefab == null || titleArea == null) return;
-
-        if (!isOpen) return;
+        if (objectiveManager == null || containerParent == null || objectiveItemPrefab == null || titleArea == null || !isOpen) return;
 
         // 1. Wipe old text UI elements cleanly
         List<GameObject> toDestroy = new List<GameObject>();

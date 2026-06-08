@@ -39,8 +39,8 @@ public class PlayerStats : MonoBehaviour {
             NotificationManager.Instance.SendNotification("Health is low!", Color.red);
         }
         //Debug.Log($"Player took {damageAfterArmour} damage after armour reduction. Current health: {health}. Current Armour: {effectiveArmour}");
-        if (health == 0) ObjectiveManager.Instance.FailObjective(0);
         HealthBarUI.Instance.UpdateHealthUI();
+        if (health == 0) ObjectiveManager.Instance.FailObjective(0);
     }
 
 }
