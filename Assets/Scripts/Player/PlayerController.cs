@@ -25,6 +25,9 @@ public class PlayerController : MonoBehaviour {
         new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized, Vector2.zero
     };
     private int combinedMask;
+    void Awake() {
+        Map.SetPlayer(gameObject);
+    }
 
     void Start() { 
         Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
