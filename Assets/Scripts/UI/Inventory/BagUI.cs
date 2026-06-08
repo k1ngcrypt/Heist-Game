@@ -61,8 +61,8 @@ public class BagUI : MonoBehaviour, ITurnActor
             MakeInv();
         } else if (InventoryManager.currentBag == this)
         {
-            InventoryManager.currentBag = null;
             HideInv();
+            InventoryManager.currentBag = null;
         }
     }
 

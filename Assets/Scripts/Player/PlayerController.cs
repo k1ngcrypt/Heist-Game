@@ -14,8 +14,6 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private Tilemap baseTilemap;
     
     private bool isMoving = false;
-    private bool isPaused = false;
-    private AwaitableCompletionSource<bool> _pauseSignal;
     public bool inVent = false;
 
     private const int ventMoveTicks = 2;
@@ -28,27 +26,15 @@ public class PlayerController : MonoBehaviour {
     };
     private int combinedMask;
 
-    public void SetPaused(bool paused) {
-        isPaused = paused;
-        if (!isPaused) {
-            if (_pauseSignal != null) {
-                _pauseSignal.SetResult(true);
-                _pauseSignal = null;
-            }
-        } else {
-            _pauseSignal = new AwaitableCompletionSource<bool>();
-        }
-    }
-
     void Start() { 
         Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
         //playerStats = GetComponent<PlayerStats>();
     }
     async void Update() {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) { SetPaused(!isPaused); return; }
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) { SceneUIManager.Instance.TogglePause(); return; }
         
         // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null && !isPaused) {
+        if (!isMoving && Keyboard.current != null && !SceneUIManager.Instance.IsPaused()) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
@@ -102,7 +88,7 @@ public class PlayerController : MonoBehaviour {
         float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
 
         while (elapsedTime < currentMoveDuration) {
-            if (isPaused && _pauseSignal != null) await _pauseSignal.Awaitable;
+            if (SceneUIManager.Instance.IsPaused() && SceneUIManager.Instance.GetPauseSignal() != null) await SceneUIManager.Instance.GetPauseSignal().Awaitable;
             elapsedTime += Time.deltaTime;
             float percent = elapsedTime / currentMoveDuration;
             transform.position = Vector2.Lerp(startPosition, endPosition, percent);
