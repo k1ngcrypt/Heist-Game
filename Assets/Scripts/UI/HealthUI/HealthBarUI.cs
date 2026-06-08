@@ -10,6 +10,11 @@ public class HealthBarUI : MonoBehaviour
 
     public static HealthBarUI Instance { get; private set;}
 
+    public void OnValidate() {
+        if (playerStats == null) playerStats = FindAnyObjectByType<PlayerStats>();
+    }
+    
+
     public void Start()
     {
         Instance = this;

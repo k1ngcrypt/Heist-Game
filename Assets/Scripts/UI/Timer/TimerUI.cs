@@ -9,6 +9,11 @@ public class TimerUI : MonoBehaviour, ITurnActor
 
     public int TickDebt { get; set; }
 
+    public void OnValidate() {
+        if (turnManager == null) turnManager = TurnManager.Instance;
+        if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>();
+    }
+
     public void OnEnable()
     {
         turnManager.Register(this);

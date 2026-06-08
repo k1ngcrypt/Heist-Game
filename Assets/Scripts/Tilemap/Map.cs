@@ -9,6 +9,7 @@ public static class Map
 {
     [SerializeField] private static Tilemap _wall;
     [SerializeField] private static Tilemap _transparent;
+    [SerializeField] private static Tilemap _base;
     [SerializeField] private static BoundsInt _bounds;
     [SerializeField] private static GameObject _player;
     [SerializeField] public static List<Vector2> layerLocations;
@@ -23,9 +24,13 @@ public static class Map
     /// </summary>
     public static Tilemap Transparent => _transparent;
     /// <summary>
+    /// Current tilemap reference for base. Null if not initialized.
+    /// </summary>
+    public static Tilemap Base => _base;
+    /// <summary>
     /// Checks if both tilemaps are initialized.
     /// </summary>
-    public static bool IsInitialized  => _wall!=null&&_transparent!=null;
+    public static bool IsInitialized  => _wall!=null&&_transparent!=null&&_base!=null;
     /// <summary>
     /// Checks if both tilemaps are initialized.
     /// </summary>
@@ -58,15 +63,26 @@ public static class Map
         FixBounds();
     }
 
+    public static void SetBase(Tilemap tilemap) {
+        if (tilemap == null) {
+            Debug.LogError("[Map] Cannot initialize with null tilemap reference.");
+            return;
+        }
+
+        _base = tilemap;
+        FixBounds();
+    }
+
     private static void FixBounds() {
         if (!IsInitialized) return;
         _wall.CompressBounds();
         _transparent.CompressBounds();
+        _base.CompressBounds();
         _bounds = new BoundsInt {
-            xMin = Mathf.Min(_wall.cellBounds.xMin,_transparent.cellBounds.xMin),
-            xMax = Mathf.Max(_wall.cellBounds.xMax,_transparent.cellBounds.xMax),
-            yMin = Mathf.Min(_wall.cellBounds.yMin,_transparent.cellBounds.yMin),
-            yMax = Mathf.Max(_wall.cellBounds.yMax,_transparent.cellBounds.yMax)
+            xMin = Mathf.Min(Mathf.Min(_wall.cellBounds.xMin,_transparent.cellBounds.xMin),_base.cellBounds.xMin),
+            xMax = Mathf.Max(Mathf.Max(_wall.cellBounds.xMax,_transparent.cellBounds.xMax),_base.cellBounds.xMax),
+            yMin = Mathf.Min(Mathf.Min(_wall.cellBounds.yMin,_transparent.cellBounds.yMin),_base.cellBounds.yMin),
+            yMax = Mathf.Max(Mathf.Max(_wall.cellBounds.yMax,_transparent.cellBounds.yMax),_base.cellBounds.yMax)
         };
     }
 
@@ -143,7 +159,8 @@ public static class Map
             Vector2 location = layerLocations[i];
             for (int x = -100; x<101; x++) for (int y = -100; y<101; y++) {
                     int xx = (int)(x+location.x), yy = (int)(y+location.y);
-                    if (!IsNull(xx,yy)) {
+                    Vector3Int v = new Vector3Int(xx, yy, 0);
+                    if (_base.GetTile(v)||_wall.GetTile(v)||_transparent.GetTile(v)) {
                         if (b) {
                             b=false;
                             bounds.xMin = xx;
@@ -164,5 +181,29 @@ public static class Map
     }
     public static void SetLayerBounds(List<BoundsInt> l) {
         _layerBounds = l;
+    }
+
+    public static Vector3Int AlignToGrid(Vector2 pos) {
+        return new Vector3Int(Mathf.RoundToInt(pos.x-0.01f), Mathf.RoundToInt(pos.y-0.01f), 0);
+    }
+
+    public static Vector3Int AlignToGrid(Vector3 pos) {
+        return new Vector3Int(Mathf.RoundToInt(pos.x-0.01f), Mathf.RoundToInt(pos.y-0.01f), 0);
+    }
+
+    public static Vector3Int AlignObjectToGrid(Vector2 pos) {
+        return new Vector3Int(Mathf.RoundToInt(pos.x-0.01f), Mathf.RoundToInt(pos.y-0.49f), 0);
+    }
+
+    public static Vector3Int AlignObjectToGrid(Vector3 pos) {
+        return new Vector3Int(Mathf.RoundToInt(pos.x-0.01f), Mathf.RoundToInt(pos.y-0.49f), 0);
+    }
+
+    public static Vector3 AlignToObjectPos(Vector2 pos) {
+        return new Vector3(Mathf.RoundToInt(pos.x-0.49f)+0.5f, Mathf.RoundToInt(pos.y-0.49f)+0.5f, 0);
+    }
+
+    public static Vector3 AlignToObjectPos(Vector3 pos) {
+        return new Vector3(Mathf.RoundToInt(pos.x-0.49f)+0.5f, Mathf.RoundToInt(pos.y-0.49f)+0.5f, 0);
     }
 }

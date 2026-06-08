@@ -216,7 +216,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
                         suns++;
                     }
                 }
-                Debug.Log(Map.layerLocations.Count);
+                //Debug.Log(Map.layerLocations.Count);
                 Debug.Log("[CameraManager] Created "+suns+" Suns in Scene");
             }
         };

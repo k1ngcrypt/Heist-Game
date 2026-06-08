@@ -74,7 +74,7 @@ public class PlayerController : MonoBehaviour {
     private async Awaitable AttemptMove(Vector2 direction) {
         Vector2 targetPos = (Vector2)transform.position + (direction * gridSize);
         if (Map.IsInitialized) {
-            if (Map.IsNull(new Vector3Int((int)Math.Round(targetPos.x-0.5f),(int)Math.Round(targetPos.y-0.5f)))) await Move(direction);
+            if (Map.IsNull(Map.AlignObjectToGrid(targetPos))) await Move(direction);
         } else if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
     }
 
@@ -95,8 +95,8 @@ public class PlayerController : MonoBehaviour {
             await Awaitable.EndOfFrameAsync(); 
         }
 
-        transform.position = endPosition;
-        CheckGround();
+        transform.position = Map.AlignToObjectPos(endPosition);
+        while (CheckGround()) await Awaitable.WaitForSecondsAsync(0.1f);
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
@@ -166,14 +166,18 @@ public class PlayerController : MonoBehaviour {
         isMoving = false;
     }
 
-    private void CheckGround() {
-        if (floorTilemap == null || baseTilemap == null || !Map.IsInitialized) return;
+    private bool CheckGround() {
+        if (floorTilemap == null || baseTilemap == null || !Map.IsInitialized) return false;
         Vector3Int pos = floorTilemap.WorldToCell(transform.position);
         if (!floorTilemap.HasTile(pos) && !baseTilemap.HasTile(pos)) {
             int layer = Map.CurrentLayer();
-            if (layer==0) return;
+            if (layer==0) return false;
             Vector3Int lPos = pos + new Vector3Int((int)(Map.layerLocations[layer-1].x - Map.layerLocations[layer].x), (int)(Map.layerLocations[layer-1].y - Map.layerLocations[layer].y), 0);
-            if (Map.IsNull(lPos)) transform.position = lPos + new Vector3(0.5f, 0.5f, 0);
+            if (Map.IsNull(lPos)) {
+                transform.position = lPos + new Vector3(0.5f, 0.5f, 0);
+                return true;
+            }
         }
+        return false;
     }
 }
