@@ -95,7 +95,7 @@ public class PlayerController : MonoBehaviour {
             await Awaitable.EndOfFrameAsync(); 
         }
 
-        transform.position = endPosition;
+        transform.position = Map.AlignToObjectPos(endPosition);
         while (CheckGround()) await Awaitable.WaitForSecondsAsync(0.1f);
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
