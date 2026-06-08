@@ -21,6 +21,8 @@ public class LvlSelectManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private TextMeshProUGUI objectiveText;
+    [SerializeField] private InventoryManager inventoryManager;
+    [SerializeField] private LoadoutManager loadoutManager;
 
     private LvlOrganizer currentLvl = null;
 
@@ -28,6 +30,7 @@ public class LvlSelectManager : MonoBehaviour
 
     private void Start()
     {
+        inventoryManager = FindObjectOfType<InventoryManager>();
         GenerateLvlSelect();
     }
     public void GenerateLvlSelect()
@@ -94,7 +97,7 @@ public class LvlSelectManager : MonoBehaviour
         objectiveText.text = objList;
     }
 
-    public void OpenLvlSelect()
+    public void OnEnable()
     {
         canvas.gameObject.SetActive(true);
         sltLvl.gameObject.SetActive(false);
@@ -102,7 +105,7 @@ public class LvlSelectManager : MonoBehaviour
         lvlScroll.GetComponent<ScrollRect>().horizontalNormalizedPosition = 0; //set to the leftmost position
     }
 
-    public void CloseLvlSelect()
+    public void OnDisable()
     {
         sltLvl.gameObject.SetActive(false);
         unsltLvl.gameObject.SetActive(true);
@@ -113,7 +116,7 @@ public class LvlSelectManager : MonoBehaviour
     public void PlayLvl()
     {
         // Show loadout canvas, then load correct scene when player clicks the button
-        //DontDestroyOnLoad(gameObject);
+        inventoryManager.InitializeInventory(loadoutManager.GetCurrentLoadout());
         SceneManager.LoadScene(currentLvl.sceneName);
     }
 }

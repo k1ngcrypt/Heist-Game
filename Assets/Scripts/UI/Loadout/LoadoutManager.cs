@@ -20,7 +20,10 @@ public class LoadoutManager : MonoBehaviour
     [SerializeField] private LoadoutItems emptyArmour;
     [SerializeField] private LoadoutItems emptyWeapon;
     [SerializeField] private LoadoutItems emptyGadget;
-    [SerializeField] private int startingGadgetsCount = 3;
+    [SerializeField] public int armourCount = 1;
+
+    [SerializeField] public int weaponsCount = 1;
+    [SerializeField] public int startingGadgetsCount = 3;
 
 
     [Header("References")]
@@ -59,6 +62,8 @@ public class LoadoutManager : MonoBehaviour
         currentOverlay = null;
         returnText = new List<TextMeshProUGUI> { itemTitleText1, itemTitleText2, itemTitleText3, itemTitleText4 };
         contentsRT = contents.GetComponent<RectTransform>();
+        InventoryManager.Instance.startingArmour = armourCount;
+        InventoryManager.Instance.startingWeapons = weaponsCount;
 
         foreach (AreaList box in ContentAreas)
         {
@@ -76,12 +81,12 @@ public class LoadoutManager : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < 2+startingGadgetsCount; i++) //two is armour and weapons, + starting gadgets
+        for (int i = 0; i < armourCount + weaponsCount + startingGadgetsCount; i++)
         {
             LoadoutItems item;
-            if (i == 0) {
+            if (i < armourCount) {
                 item = emptyArmour;
-            } else if (i == 1) {
+            } else if (i < armourCount + weaponsCount) {
                 item = emptyWeapon;
             } else {
                 item = emptyGadget;

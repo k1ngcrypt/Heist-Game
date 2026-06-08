@@ -11,6 +11,7 @@ namespace HeistGame.Interactions {
  
         [SerializeField] private string nameOfTransport;
         [SerializeField] private int ticksUsedToTransport = 1;
+        private bool isTransporting = false;
 
         private void Awake() {
             FetchDependencies();
@@ -38,10 +39,12 @@ namespace HeistGame.Interactions {
         }
 
         private async void Transport() {
+            if (isTransporting) {return;}
+            isTransporting = true;
             bool success;
             success = door.TryOpenDoor();
             if (success) {
-                if (nameOfTransport == "Vent") { player.inVent = !player.inVent; }
+                if (nameOfTransport == "Vent") player.inVent = !player.inVent;
                 stateManager.RebuildActiveMenu();
                 await TurnManager.Instance.ProcessTicks(ticksUsedToTransport);
             } else {
@@ -50,9 +53,9 @@ namespace HeistGame.Interactions {
                     stateManager.RebuildActiveMenu();
                     await TurnManager.Instance.ProcessTicks(ticksUsedToTransport);
                 }
-                else Debug.LogWarning($"Failed to transport using {nameOfTransport}. Check if it's locked or destroyed.");
+                else NotificationManager.Instance.SendNotification($"Failed to use {nameOfTransport}. It might be locked.", Color.yellow);
             }
-            await Awaitable.EndOfFrameAsync(); 
+            isTransporting = false;
         }
     }
 }

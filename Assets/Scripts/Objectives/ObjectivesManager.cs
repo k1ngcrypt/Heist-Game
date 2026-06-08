@@ -32,7 +32,7 @@ namespace HeistGame.Objectives {
         }
 
         // Called when the player completes an action
-        public void UpdateObjectiveProgress(string objectiveID, int progressAmount = 1) {
+        public void UpdateObjectiveProgress(int objectiveID, int progressAmount = 1) {
             
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
             if (target != null) {
@@ -44,12 +44,12 @@ namespace HeistGame.Objectives {
                 bool newlyCompleted = target.AdvanceProgress(progressAmount);
                 OnObjectivesChanged?.Invoke();
 
-                if (newlyCompleted) Debug.Log($"Logic: {target.Data.title} is complete.");
+                if (newlyCompleted) NotificationManager.Instance.SendNotification($"Objective completed: {target.Data.title}", Color.green);
             }
         }
 
         // Call this when the player fails an objective (e.g., gets caught by a guard)
-        public void FailObjective(string objectiveID) {
+        public void FailObjective(int objectiveID) {
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
 
             if (target != null) {
@@ -62,14 +62,14 @@ namespace HeistGame.Objectives {
                 OnObjectivesChanged?.Invoke();
 
                 if (newlyFailed) {
-                    if (!target.Data.isOptional) Debug.Log($"Logic: {target.Data.title} has failed. Player has failed the level."); //Edit code to make it fail level when this happens
-                    else Debug.Log($"Logic: {target.Data.title} has failed. However Player can still pass the level");
+                    if (!target.Data.isOptional) NotificationManager.Instance.SendNotification($"Objective failed: {target.Data.title}", Color.red);
+                    else NotificationManager.Instance.SendNotification($"Objective failed: {target.Data.title}", Color.yellow);
                 }
             }
         }
 
         // Call this to reveal "additional/hidden" objectives
-        public void RevealObjective(string objectiveID) {
+        public void RevealObjective(int objectiveID) {
             ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
             if (target != null && target.IsHidden) {
                 target.Reveal();

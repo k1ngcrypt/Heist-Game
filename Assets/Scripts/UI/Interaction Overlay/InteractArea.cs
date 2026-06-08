@@ -34,7 +34,10 @@ public class InteractArea : MonoBehaviour, ITurnActor
     public void OnValidate() {
         if (player == null) {
             if (Map.Player) player=Map.Player.transform;
-            if (player == null) player = FindAnyObjectByType<PlayerController>().transform;
+            if (player == null) {
+                PlayerController foundPlayer = FindAnyObjectByType<PlayerController>();
+                if (foundPlayer != null) player = foundPlayer.transform;
+            }
         }
         if (turnManager == null) {
             turnManager = TurnManager.Instance;
@@ -46,7 +49,10 @@ public class InteractArea : MonoBehaviour, ITurnActor
     {
         if (player == null) {
             player=Map.Player.transform;
-            if (player == null) player = FindAnyObjectByType<PlayerController>().transform;
+            if (player == null) {
+                PlayerController foundPlayer = FindAnyObjectByType<PlayerController>();
+                if (foundPlayer != null) player = foundPlayer.transform;
+            }
         }
         if (turnManager == null) {
             turnManager = TurnManager.Instance;
