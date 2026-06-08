@@ -16,8 +16,10 @@ public static class DetectionUtils
         float sqrDistance = toTarget.sqrMagnitude;
 
         // 0. Immediate Detection Check
-        if (immediateDetectionRange > 0f && sqrDistance <= immediateDetectionRange * immediateDetectionRange)
+        if (Vector2.Distance(observerPos, target.position) <= 0.4f + immediateDetectionRange) //epsilon
+        {
             return true;
+        }
 
         // 1. Distance Check
         if (sqrDistance > range * range)

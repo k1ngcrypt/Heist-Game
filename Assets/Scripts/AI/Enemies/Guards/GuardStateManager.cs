@@ -47,8 +47,6 @@ namespace Guards
         public Vector2 LastKnownAnomalyPosition { get; private set; }
         public GameObject CurrentAnomaly { get; private set; } = null;
         public float Suspicion { get; private set; }
-        public float MaxSuspicion => maxSuspicion;
-        public float SuspicionRatio => maxSuspicion <= 0f ? 0f : Suspicion / maxSuspicion;
 
         public Transform PlayerTarget => playerTarget;
         public IdleState IdleState => idleState;
@@ -56,6 +54,7 @@ namespace Guards
         public SuspiciousState SuspiciousState => suspiciousState;
         public ChasingState ChasingState => chasingState;
         public SearchingState SearchingState => searchingState;
+        public float MaxSuspicion => maxSuspicion;
 
         public bool IsChasing => currentState == chasingState;
 
@@ -136,7 +135,7 @@ namespace Guards
                 fieldOfView,
                 lineOfSightFilter,
                 hitBuffer,
-                immediateDetectionRange) || Vector2.Distance(transform.position, playerTarget.position) <= 0.4f; //epsilon
+                immediateDetectionRange);
                 if (isPlayerDetected)
                 {
                     LastKnownPlayerPosition = playerTarget.position;
@@ -180,8 +179,8 @@ namespace Guards
             Suspicion = Mathf.Min(maxSuspicion, Suspicion + suspicionPerTick);
             if (Suspicion >= maxSuspicion)
             {
-                awarenessManager.ReportGuardSuspicion(Suspicion);
                 UpdateState(chasingState);
+                awarenessManager.ReportGuardSuspicion(Suspicion);
             }
         }
 
