@@ -20,7 +20,7 @@ namespace HeistGame.Door {
             Pathfinder.UnregisterSpecialLink(this);
         }
         public void OpenDoor() {
-            player.transform.position = otherStair.position;
+            player.transform.position = Map.AlignToObjectPos(otherStair.position);
         }
 
         public void CloseDoor() {
