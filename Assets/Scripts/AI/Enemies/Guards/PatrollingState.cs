@@ -34,7 +34,7 @@ namespace Guards
                 return;
             }
 
-            if (Manager.CheckForAnomalies() != null)
+            if (Manager.CheckForAnomalies() != null || Manager.CheckForCorpses() != null)
             {
                 Manager.Navigator.SetDestination(Manager.LastKnownAnomalyPosition, true);
                 Manager.UpdateState(Manager.SuspiciousState);

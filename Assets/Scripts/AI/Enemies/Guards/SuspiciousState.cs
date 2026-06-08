@@ -42,10 +42,18 @@ namespace Guards
             {
                 if (Vector2.Distance(Manager.Navigator.transform.position, Manager.LastKnownAnomalyPosition) < 0.4f)
                 { //epsilon
-                    var bag = Manager.CurrentAnomaly.GetComponent<BagUI>();
-                    AwarenessManager.Instance.AnomalyIncrement(bag.bagItems);
-                    bag.DestroyBag();
+                    if (Manager.CurrentAnomaly.TryGetComponent(out BloodPuddle bloodPuddle))
+                    {
+                        AwarenessManager.Instance.CorpseFound();
+                        Destroy(bloodPuddle.gameObject);
+                    } else
+                    {
+                        var bag = Manager.CurrentAnomaly.GetComponent<BagUI>();
+                        AwarenessManager.Instance.AnomalyIncrement(bag.bagItems);
+                        bag.DestroyBag();
+                    }
                 }
+                
                 if (Manager.AwarenessLevel() >= AwarenessLevel.Alert) Manager.UpdateState(Manager.SearchingState);
                 Manager.ResetSuspicion();
                 Manager.UpdateState(Manager.PatrollingState);

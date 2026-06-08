@@ -29,12 +29,14 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
     [SerializeField, Min(0f)] private float cameraDetectionBoost = 25f;
     [SerializeField, Min(0)] private int dispatchCooldownTicks = 2;
     [SerializeField] private TurnManager turnManager;
+    [SerializeField] private float corpseSuspicionBoost = 150f;
 
     private readonly List<GuardStateManager> guards = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraSuspicionHandlers = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraDetectionHandlers = new();
     public float awareness { get; private set; }
     public List<Transform> anomalies { get; private set; } = new List<Transform>();
+    public List<Transform> corpses { get; private set; } = new List<Transform>();
     private AwarenessLevel currentLevel;
     private int tickCount;
     private int lastDispatchTick = -1;
@@ -205,7 +207,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         {
             TryDispatchFromChase();
         }
-        if (awareness - awarenessDecayPerTick >= 0) awareness -= awarenessDecayPerTick; else awareness = 0f;
+        ModifyAwareness(-awarenessDecayPerTick);
         playerSeenThisTick = false;
         TickDebt--;
         return;
@@ -217,9 +219,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         {
             return;
         }
-
-        awareness += cameraSuspicionBoost;
-        Mathf.Clamp(awareness, 0f, maxAwareness);
+        ModifyAwareness(cameraSuspicionBoost);
     }
 
     private void HandleCameraDetection(CameraDetector detector)
@@ -228,9 +228,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         {
             return;
         }
-
-        awareness += cameraDetectionBoost;
-        Mathf.Clamp(awareness, 0f, maxAwareness);
+        ModifyAwareness(cameraDetectionBoost);
     }
 
     public void ReportPlayerSeen(Vector2 position)
@@ -364,16 +362,42 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
     }
     public void ReportGuardSuspicion(float suspicion)
     {
-        awareness += suspicion * guardSuspicionWeight;
-        Mathf.Clamp(awareness, 0f, maxAwareness);
-        UpdateAwarenessLevel();
+        ModifyAwareness(suspicion * guardSuspicionWeight);
     }
 
     public void AnomalyIncrement(List<ItemUI> items)
     {
         float increment = items.Sum(item => item.myItem.suspicionModifier);
-        awareness += increment;
-        Mathf.Clamp(awareness, 0f, maxAwareness);
+        ModifyAwareness(increment);
+    }
+
+    public void RegisterCorpse(Transform corpse)
+    {
+        if (corpse == null || corpses.Contains(corpse))
+        {
+            return;
+        }
+        corpses.Add(corpse);
+    }
+
+    public void UnregisterCorpse(Transform corpse)
+    {
+        if (corpse == null || !corpses.Contains(corpse))
+        {
+            return;
+        }
+        corpses.Remove(corpse);
+    }
+
+    public void CorpseFound()
+    {
+        NotificationManager.Instance.SendNotification("A body has been found!", Color.red);
+        ModifyAwareness(corpseSuspicionBoost);
+    }
+
+    private void ModifyAwareness(float amount)
+    {
+        awareness = Mathf.Clamp(awareness + amount, 0f, maxAwareness);
         UpdateAwarenessLevel();
     }
 }

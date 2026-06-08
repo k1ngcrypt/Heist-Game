@@ -123,6 +123,7 @@ GameObject:
   - component: {fileID: 1590604971721549056}
   - component: {fileID: 5126320102472977764}
   - component: {fileID: 3713465338528146934}
+  - component: {fileID: 1069157695289695112}
   m_Layer: 0
   m_Name: Guard
   m_TagString: Untagged
@@ -320,3 +321,19 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1069157695289695112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6095351796322370848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018a999f2b471d849aaa185c92cf6e51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthManager
+  maxHealth: 100
+  armourPoints: 0
+  guardStateManager: {fileID: 8280607028422896662}
+  bloodPuddlePrefab: {fileID: 2165276560976525288, guid: 3b3432d60ea9ed648be8f076f0889325, type: 3}

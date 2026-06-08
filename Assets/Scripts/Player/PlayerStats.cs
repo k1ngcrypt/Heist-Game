@@ -7,34 +7,29 @@ public class PlayerStats : MonoBehaviour {
     private int baseArmour = 0;
     public int additionalArmour = 0;
     private bool healthWarningTriggered = false;
-    const float loweHealthThreshold = 0.2f;
+    const float lowHealthThreshold = 0.2f;
 
-    public void increaseHealth(int amount) {
+    public void IncreaseHealth(int amount) {
         maxHealth += amount;
         health += amount;
-        if (health > maxHealth * loweHealthThreshold) healthWarningTriggered = false;
+        if (health > maxHealth * lowHealthThreshold) healthWarningTriggered = false;
     }
-    public void heal(float amount) { 
+    public void Heal(float amount) { 
         health = Mathf.Min(health + amount, maxHealth);
-        if (health > maxHealth * loweHealthThreshold) healthWarningTriggered = false;
+        if (health > maxHealth * lowHealthThreshold) healthWarningTriggered = false;
         HealthBarUI.Instance.UpdateHealthUI();
     }
-    public void fullHeal() { health = maxHealth; healthWarningTriggered = false; HealthBarUI.Instance.UpdateHealthUI(); }
-    public float getCurrentHealth() { return health; }
-    public int getMaxHealth() { return maxHealth; }
+    public void FullHeal() { health = maxHealth; healthWarningTriggered = false; HealthBarUI.Instance.UpdateHealthUI(); }
+    public float GetCurrentHealth() { return health; }
+    public int GetMaxHealth() { return maxHealth; }
 
-    public void increaseBaseArmour(int amount) { baseArmour += amount; }
-    public int getTotalArmour() { return baseArmour + additionalArmour; }
+    public void IncreaseBaseArmour(int amount) { baseArmour += amount; }
+    public int GetTotalArmour() { return baseArmour + additionalArmour; }
 
-    private float armourReductionPercentage() {
-        int effectiveArmour = baseArmour + additionalArmour;
-        return 1 - Mathf.Exp(-(effectiveArmour*effectiveArmour/2809f)) * 0.95f;
-    }
-
-    public void takeDamage(float damage) {
-        float damageAfterArmour = Mathf.Round((damage - (damage * armourReductionPercentage()))*100f) / 100.0f;
+    public void TakeDamage(float damage) {
+        float damageAfterArmour = Mathf.Round((damage - (damage * DamageUtils.ArmourReductionPercentage(GetTotalArmour())))*100f) / 100.0f;
         health = Mathf.Max(0, health - damageAfterArmour);
-        if (!healthWarningTriggered && health <= maxHealth * loweHealthThreshold) {
+        if (!healthWarningTriggered && health <= maxHealth * lowHealthThreshold) {
             healthWarningTriggered = true;
             NotificationManager.Instance.SendNotification("Health is low!", Color.red);
         }

@@ -1,14 +1,14 @@
-using NUnit.Framework;
 using UnityEngine;
 
 namespace Guards
 {
-    [RequireComponent(typeof(IdleState))]
+[RequireComponent(typeof(IdleState))]
     [RequireComponent(typeof(PatrollingState))]
     [RequireComponent(typeof(SuspiciousState))]
     [RequireComponent(typeof(ChasingState))]
     [RequireComponent(typeof(SearchingState))]
     [RequireComponent(typeof(GuardNavigator))]
+    //[RequireComponent(typeof(HealthManager))]
     public class GuardStateManager : MonoBehaviour, ITurnActor
     {
         // Serialized dependencies keep guard behavior data-driven instead of hard-coded.
@@ -68,6 +68,7 @@ namespace Guards
             chasingState = GetComponent<ChasingState>();
             searchingState = GetComponent<SearchingState>();
             Navigator = GetComponent<GuardNavigator>();
+            //healthManager = GetComponent<HealthManager>();
 
             hitBuffer = new RaycastHit2D[Mathf.Max(1, lineOfSightBufferSize)];
 
@@ -304,6 +305,45 @@ namespace Guards
             }
 
             return null;
+        }
+
+        public Transform CheckForCorpses()
+        {
+            var corpses = awarenessManager.corpses;
+            foreach (var corpse in corpses)
+            {
+                if (DetectionUtils.IsDetected(
+                    transform.position,
+                    ResolveDetectionForward(false),
+                    corpse,
+                    detectionRange,
+                    fieldOfView,
+                    lineOfSightFilter,
+                    hitBuffer))
+                {
+                    LastKnownAnomalyPosition = corpse.position;
+                    CurrentAnomaly = corpse.gameObject;
+                    return corpse;
+                }
+            }
+            return null;
+        }
+
+        public void ReportDamage()
+        {
+            if (currentState != chasingState)
+            {
+                UpdateState(suspiciousState);
+            } else if (currentState == suspiciousState || currentState == searchingState)
+            {
+                UpdateState(chasingState);
+            }
+        }
+
+        public void Die()
+        {
+            // Additional death logic like playing animations or dropping loot would go here.
+            Destroy(gameObject);
         }
     }
 }
