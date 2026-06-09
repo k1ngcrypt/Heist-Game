@@ -333,10 +333,10 @@ namespace Guards
 
         public void ReportDamage()
         {
-            if (currentState != chasingState)
+            if (currentState != chasingState && currentState != suspiciousState && currentState != searchingState)
             {
                 UpdateState(suspiciousState);
-            } else if (currentState == suspiciousState || currentState == searchingState)
+            } else if ((currentState == suspiciousState || currentState == searchingState) && currentState != chasingState)
             {
                 UpdateState(chasingState);
             }
