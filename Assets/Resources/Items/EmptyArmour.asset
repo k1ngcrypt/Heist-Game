@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4ae6eee71b3bfb4ba0f41932ae29afb, type: 3}
-  m_Name: _EmptyArmour
-  m_EditorClassIdentifier: Assembly-CSharp::LoadoutItems
-  itemType: 0
+  m_Script: {fileID: 11500000, guid: 646be7ee3a296a84cb56432b33333f3b, type: 3}
+  m_Name: EmptyArmour
+  m_EditorClassIdentifier: Assembly-CSharp::ArmourItem
+  itemID: 0
   itemTitle: Empty
   itemDescription: 
   itemIcon: {fileID: 1942225260, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}
+  armourValue: -1
