@@ -12,14 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ee6701e4be47914da9c70926dc8d0b2, type: 3}
   m_Name: Level 1
   m_EditorClassIdentifier: Assembly-CSharp::LvlOrganizer
-  sceneAsset: {fileID: 0}
-  sceneName: 
-  lvlTitle: Level 1
-  lvlDescription: 'Rob Bank
-
-    Cool
-
-    Have Fun'
+  sceneAsset: {fileID: 102900000, guid: c3dd4f9901f4ad84ba14179d081bac07, type: 3}
+  sceneName: Bank
+  lvlTitle: Cincinatti Trust
+  lvlDescription: You've Been Contracted to retrieve prized gems from their transit
+    home in Cincinnati. Strike fast, as if those gems move we won't get another chance.
   lvlIcon: {fileID: 0}
   objectiveText:
   - Rob Bank
