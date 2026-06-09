@@ -8,6 +8,8 @@ namespace Guards
     [RequireComponent(typeof(ChasingState))]
     [RequireComponent(typeof(SearchingState))]
     [RequireComponent(typeof(GuardNavigator))]
+    [RequireComponent(typeof(GuardAttacker))]
+    //[RequireComponent(typeof(HealthManager))]
     public class GuardStateManager : MonoBehaviour, ITurnActor
     {
         // Serialized dependencies keep guard behavior data-driven instead of hard-coded.
@@ -31,6 +33,7 @@ namespace Guards
         private SuspiciousState suspiciousState;
         private ChasingState chasingState;
         private SearchingState searchingState;
+        public GuardAttacker attacker { get; private set; }
 
         private RaycastHit2D[] hitBuffer;
         private int patrolIndex;
@@ -41,9 +44,9 @@ namespace Guards
         private bool detectionCheckedThisTick = false;
 
         public Vector2 LastKnownPlayerPosition { get; private set; }
+        public Vector2 LastKnownAnomalyPosition { get; private set; }
+        public GameObject CurrentAnomaly { get; private set; } = null;
         public float Suspicion { get; private set; }
-        public float MaxSuspicion => maxSuspicion;
-        public float SuspicionRatio => maxSuspicion <= 0f ? 0f : Suspicion / maxSuspicion;
 
         public Transform PlayerTarget => playerTarget;
         public IdleState IdleState => idleState;
@@ -51,6 +54,7 @@ namespace Guards
         public SuspiciousState SuspiciousState => suspiciousState;
         public ChasingState ChasingState => chasingState;
         public SearchingState SearchingState => searchingState;
+        public float MaxSuspicion => maxSuspicion;
 
         public bool IsChasing => currentState == chasingState;
 
@@ -65,6 +69,8 @@ namespace Guards
             chasingState = GetComponent<ChasingState>();
             searchingState = GetComponent<SearchingState>();
             Navigator = GetComponent<GuardNavigator>();
+            attacker = GetComponent<GuardAttacker>();
+            //healthManager = GetComponent<HealthManager>();
 
             hitBuffer = new RaycastHit2D[Mathf.Max(1, lineOfSightBufferSize)];
 
@@ -173,8 +179,8 @@ namespace Guards
             Suspicion = Mathf.Min(maxSuspicion, Suspicion + suspicionPerTick);
             if (Suspicion >= maxSuspicion)
             {
-                awarenessManager.ReportGuardSuspicion(Suspicion);
                 UpdateState(chasingState);
+                awarenessManager.ReportGuardSuspicion(Suspicion);
             }
         }
 
@@ -272,11 +278,75 @@ namespace Guards
         public void SetBaseSuspicion()
         {
             Suspicion += awarenessManager.awareness;
+            Suspicion = Mathf.Clamp(Suspicion, 0f, maxSuspicion);
         }
 
         public AwarenessLevel AwarenessLevel()
         {
             return awarenessManager.CurrentLevel;
+        }
+
+        public Transform CheckForAnomalies()
+        {
+            var anomalies = awarenessManager.anomalies;
+            foreach (var anomaly in anomalies)
+            {
+                if (DetectionUtils.IsDetected(
+                    transform.position,
+                    ResolveDetectionForward(false),
+                    anomaly,
+                    detectionRange,
+                    fieldOfView,
+                    lineOfSightFilter,
+                    hitBuffer))
+                {
+                    LastKnownAnomalyPosition = anomaly.position;
+                    CurrentAnomaly = anomaly.gameObject;
+                    return anomaly;
+                }
+            }
+
+            return null;
+        }
+
+        public Transform CheckForCorpses()
+        {
+            var corpses = awarenessManager.corpses;
+            foreach (var corpse in corpses)
+            {
+                if (DetectionUtils.IsDetected(
+                    transform.position,
+                    ResolveDetectionForward(false),
+                    corpse,
+                    detectionRange,
+                    fieldOfView,
+                    lineOfSightFilter,
+                    hitBuffer))
+                {
+                    LastKnownAnomalyPosition = corpse.position;
+                    CurrentAnomaly = corpse.gameObject;
+                    return corpse;
+                }
+            }
+            return null;
+        }
+
+        public void ReportDamage()
+        {
+            if (currentState != chasingState && currentState != suspiciousState && currentState != searchingState)
+            {
+                UpdateState(suspiciousState);
+            }
+            else if ((currentState == suspiciousState || currentState == searchingState) && currentState != chasingState)
+            {
+                UpdateState(chasingState);
+            }
+        }
+
+        public void Die()
+        {
+            // Additional death logic like playing animations or dropping loot would go here.
+            Destroy(gameObject);
         }
     }
 }

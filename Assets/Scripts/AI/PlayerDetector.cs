@@ -16,8 +16,10 @@ public static class DetectionUtils
         float sqrDistance = toTarget.sqrMagnitude;
 
         // 0. Immediate Detection Check
-        if (immediateDetectionRange > 0f && sqrDistance <= immediateDetectionRange * immediateDetectionRange)
+        if (Vector2.Distance(observerPos, target.position) <= 0.4f + immediateDetectionRange) //epsilon
+        {
             return true;
+        }
 
         // 1. Distance Check
         if (sqrDistance > range * range)
@@ -33,6 +35,6 @@ public static class DetectionUtils
         float distance = Mathf.Sqrt(sqrDistance);
         int hitCount = Physics2D.Raycast(observerPos, toTarget.normalized, filter, hitBuffer, distance);
 
-        return hitCount == 0;
+        return hitCount > 0 && hitBuffer[0].collider.CompareTag("Player");
     }
 }

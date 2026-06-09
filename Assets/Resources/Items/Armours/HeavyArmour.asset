@@ -16,3 +16,4 @@ MonoBehaviour:
   itemTitle: Heavy Armour
   itemDescription: +4 Def
   itemIcon: {fileID: 0}
+  suspicionModifier: 40

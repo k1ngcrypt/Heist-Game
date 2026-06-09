@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Guards;
 using UnityEngine;
 using UnityEngine.Events;
@@ -14,25 +15,28 @@ public enum AwarenessLevel
 public class AwarenessManager : MonoBehaviour, ITurnActor
 {
     [Header("Awareness")]
-    [SerializeField, Min(0f)] private float maxAwareness = 100f;
-    [SerializeField, Min(0f)] private float awarenessDecayPerTick = 2f;
-    [SerializeField, Min(0f)] private float guardSuspicionWeight = 8f;
+    [SerializeField, Min(0f)] private float maxAwareness = 1000f;
+    [SerializeField, Min(0f)] private float awarenessDecayPerTick = 0.1f;
+    [SerializeField, Min(0f)] private float guardSuspicionWeight = 1f;
 
     [Header("Levels")]
-    [SerializeField, Range(0f, 100f)] private float suspiciousThreshold = 25f;
-    [SerializeField, Range(0f, 100f)] private float alertThreshold = 60f;
-    [SerializeField, Range(0f, 100f)] private float lockdownThreshold = 90f;
+    [SerializeField, Range(0f, 1000f)] private float suspiciousThreshold = 75f;
+    [SerializeField, Range(0f, 1000f)] private float alertThreshold = 100f;
+    [SerializeField, Range(0f, 1000f)] private float lockdownThreshold = 200f;
 
     [Header("Dispatch")]
     [SerializeField, Min(0f)] private float cameraSuspicionBoost = 10f;
     [SerializeField, Min(0f)] private float cameraDetectionBoost = 25f;
     [SerializeField, Min(0)] private int dispatchCooldownTicks = 2;
     [SerializeField] private TurnManager turnManager;
+    [SerializeField] private float corpseSuspicionBoost = 150f;
 
     private readonly List<GuardStateManager> guards = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraSuspicionHandlers = new();
     private readonly Dictionary<CameraDetector, UnityAction> cameraDetectionHandlers = new();
     public float awareness { get; private set; }
+    public List<Transform> anomalies { get; private set; } = new List<Transform>();
+    public List<Transform> corpses { get; private set; } = new List<Transform>();
     private AwarenessLevel currentLevel;
     private int tickCount;
     private int lastDispatchTick = -1;
@@ -173,6 +177,24 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         }
     }
 
+    public void RegisterAnomaly(Transform anomaly)
+    {
+        if (anomaly == null || anomalies.Contains(anomaly))
+        {
+            return;
+        }
+        anomalies.Add(anomaly);
+    }
+
+    public void UnregisterAnomaly(Transform anomaly)
+    {
+        if (anomaly == null || !anomalies.Contains(anomaly))
+        {
+            return;
+        }
+        anomalies.Remove(anomaly);
+    }
+
     public async Awaitable OnTick()
     {
         if (!enabled)
@@ -185,7 +207,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         {
             TryDispatchFromChase();
         }
-        if (awareness - awarenessDecayPerTick >= 0) awareness -= awarenessDecayPerTick; else awareness = 0f;
+        ModifyAwareness(-awarenessDecayPerTick);
         playerSeenThisTick = false;
         TickDebt--;
         return;
@@ -197,9 +219,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         {
             return;
         }
-
-        awareness += cameraSuspicionBoost;
-        Mathf.Clamp(awareness, 0f, maxAwareness);
+        ModifyAwareness(cameraSuspicionBoost);
     }
 
     private void HandleCameraDetection(CameraDetector detector)
@@ -208,9 +228,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
         {
             return;
         }
-
-        awareness += cameraDetectionBoost;
-        Mathf.Clamp(awareness, 0f, maxAwareness);
+        ModifyAwareness(cameraDetectionBoost);
     }
 
     public void ReportPlayerSeen(Vector2 position)
@@ -306,22 +324,30 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
 
     private void UpdateAwarenessLevel()
     {
-        AwarenessLevel newLevel = AwarenessLevel.Calm;
-
         if (awareness >= lockdownThreshold)
         {
-            newLevel = AwarenessLevel.Lockdown;
+            if (currentLevel != AwarenessLevel.Lockdown)
+            {
+                NotificationManager.Instance.SendNotification("Lockdown initiated!", Color.red);
+                currentLevel = AwarenessLevel.Lockdown;
+            }
         }
         else if (awareness >= alertThreshold)
         {
-            newLevel = AwarenessLevel.Alert;
+            if (currentLevel != AwarenessLevel.Alert)
+            {
+                NotificationManager.Instance.SendNotification("Alert level reached!", Color.orange);
+                currentLevel = AwarenessLevel.Alert;
+            }
         }
         else if (awareness >= suspiciousThreshold)
         {
-            newLevel = AwarenessLevel.Suspicious;
+            if (currentLevel != AwarenessLevel.Suspicious)
+            {
+                NotificationManager.Instance.SendNotification("Guards are catching on!", Color.yellow);
+                currentLevel = AwarenessLevel.Suspicious;
+            }
         }
-
-        currentLevel = newLevel;
     }
 
     public void MakeSound(Vector2 position, float intensity)
@@ -330,13 +356,48 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
 
         if (nearest != null && Vector2.Distance(nearest.transform.position, position) <= intensity)
         {
+            NotificationManager.Instance.SendNotification("Footsteps Approach...", Color.gray);
             nearest.InvestigatePosition(position);
         }
     }
     public void ReportGuardSuspicion(float suspicion)
     {
-        awareness += suspicion * guardSuspicionWeight;
-        Mathf.Clamp(awareness, 0f, maxAwareness);
+        ModifyAwareness(suspicion * guardSuspicionWeight);
+    }
+
+    public void AnomalyIncrement(List<ItemUI> items)
+    {
+        float increment = items.Sum(item => item.myItem.suspicionModifier);
+        ModifyAwareness(increment);
+    }
+
+    public void RegisterCorpse(Transform corpse)
+    {
+        if (corpse == null || corpses.Contains(corpse))
+        {
+            return;
+        }
+        corpses.Add(corpse);
+    }
+
+    public void UnregisterCorpse(Transform corpse)
+    {
+        if (corpse == null || !corpses.Contains(corpse))
+        {
+            return;
+        }
+        corpses.Remove(corpse);
+    }
+
+    public void CorpseFound()
+    {
+        NotificationManager.Instance.SendNotification("A body has been found!", Color.red);
+        ModifyAwareness(corpseSuspicionBoost);
+    }
+
+    private void ModifyAwareness(float amount)
+    {
+        awareness = Mathf.Clamp(awareness + amount, 0f, maxAwareness);
         UpdateAwarenessLevel();
     }
 }
