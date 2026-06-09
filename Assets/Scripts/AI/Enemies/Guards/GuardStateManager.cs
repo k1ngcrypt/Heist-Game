@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Guards
 {
-[RequireComponent(typeof(IdleState))]
+    [RequireComponent(typeof(IdleState))]
     [RequireComponent(typeof(PatrollingState))]
     [RequireComponent(typeof(SuspiciousState))]
     [RequireComponent(typeof(ChasingState))]
@@ -336,7 +336,8 @@ namespace Guards
             if (currentState != chasingState && currentState != suspiciousState && currentState != searchingState)
             {
                 UpdateState(suspiciousState);
-            } else if ((currentState == suspiciousState || currentState == searchingState) && currentState != chasingState)
+            }
+            else if ((currentState == suspiciousState || currentState == searchingState) && currentState != chasingState)
             {
                 UpdateState(chasingState);
             }

@@ -22,13 +22,13 @@ public class GuardAttacker : MonoBehaviour
 
     public void Attack()
     {
-        if (player == null) return;
+        if (player == null || playerStats == null) return;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         if (distanceToPlayer <= attackRange)
         {
             var cast = Physics2D.Raycast(transform.position, (player.position - transform.position).normalized, attackRange);
 
-            if(cast.collider != null && cast.collider.CompareTag("Player") && playerStats != null)
+            if(cast.collider != null && cast.collider.CompareTag("Player"))
             {
                 playerStats.TakeDamage(attackDamage);
             }
