@@ -1,24 +1,22 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using HeistGame.Door;
 using HeistGame.Objectives;
-using UnityEditor.Experimental.GraphView;
 using System;
 using System.Collections.Generic;
-
 public class PlayerController : MonoBehaviour {
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
+    //private PlayerStats playerStats; May be used later, but is not currently used in the PlayerController script, so is commented out to avoid confusion. Stats are currently only managed through the PlayerStats script.
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
     
     private bool isMoving = false;
     public bool inVent = false;
 
-    private const int doorWaitTicks = 1, ventWaitTicks = 3, stairWaitTicks = 4, ventMoveTicks = 2;
+    private const int ventMoveTicks = 2;
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
     private readonly Vector2[] moveDirections = new Vector2[] {
@@ -28,10 +26,15 @@ public class PlayerController : MonoBehaviour {
     };
     private int combinedMask;
 
-    void Start() { Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); }
+    void Start() { 
+        Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
+        //playerStats = GetComponent<PlayerStats>();
+    }
     async void Update() {
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) { SceneUIManager.Instance.TogglePause(); return; }
+        
         // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null && Keyboard.current.anyKey.isPressed) {
+        if (!isMoving && Keyboard.current != null && !SceneUIManager.Instance.IsPaused()) {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
@@ -62,7 +65,6 @@ public class PlayerController : MonoBehaviour {
 
     private async Awaitable Rest() {
         isMoving = true;
-        //Debug.Log("Resting...");
         if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(1);
         
         await Awaitable.WaitForSecondsAsync(restDuration);
@@ -72,7 +74,7 @@ public class PlayerController : MonoBehaviour {
     private async Awaitable AttemptMove(Vector2 direction) {
         Vector2 targetPos = (Vector2)transform.position + (direction * gridSize);
         if (Map.IsInitialized) {
-            if (Map.IsNull(new Vector3Int((int)Math.Round(targetPos.x-0.5f),(int)Math.Round(targetPos.y-0.5f)))) await Move(direction);
+            if (Map.IsNull(Map.AlignObjectToGrid(targetPos))) await Move(direction);
         } else if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
     }
 
@@ -86,24 +88,28 @@ public class PlayerController : MonoBehaviour {
         float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
 
         while (elapsedTime < currentMoveDuration) {
+            if (SceneUIManager.Instance.IsPaused() && SceneUIManager.Instance.GetPauseSignal() != null) await SceneUIManager.Instance.GetPauseSignal().Awaitable;
             elapsedTime += Time.deltaTime;
             float percent = elapsedTime / currentMoveDuration;
             transform.position = Vector2.Lerp(startPosition, endPosition, percent);
             await Awaitable.EndOfFrameAsync(); 
         }
 
-        transform.position = endPosition;
-        CheckGround();
+        transform.position = Map.AlignToObjectPos(endPosition);
+        while (CheckGround()) await Awaitable.WaitForSecondsAsync(0.1f);
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
+        //playerStats.additionalArmour += 5;
+        //playerStats.takeDamage(10);
         isMoving = false;
     }
 
     private async Awaitable InteractWithObject() {
+        isMoving = true;
         for (int i = 0; i < moveDirections.Length; i++) {
             Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
-            Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
+            Collider2D hit = Physics2D.OverlapPoint(targetPos, combinedMask);
 
             if (hit != null) {
                 InteractionOverlay interactOverlay = hit.GetComponentInChildren<InteractionOverlay>();
@@ -113,28 +119,34 @@ public class PlayerController : MonoBehaviour {
                 }
             } 
         }
+        isMoving = false;
     }
 
     private async Awaitable ObjectiveCheck(Collider2D obj) {
+        isMoving = true;
         var trigger = obj.GetComponent<ObjectiveTrigger>();
         if (trigger != null) {
             trigger.TriggerProgress();
             await Awaitable.WaitForSecondsAsync(interactionDuration);
         }
+        isMoving = false;
     }
 
     private async Awaitable TryButtonPress(int number) {
+        isMoving = true;
         for (int i = 0; i < moveDirections.Length; i++) {
             Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
             
-            Collider2D hit = Physics2D.OverlapCircle(targetPos, 0.1f, combinedMask);
+            Collider2D hit = Physics2D.OverlapPoint(targetPos, combinedMask);
 
             if (hit != null) {
-                InteractArea interactArea = hit.GetComponentInChildren<InteractArea>();
-                if (interactArea == null) interactArea = hit.GetComponentInParent<InteractArea>();
-                InteractionOverlay overlay = hit.GetComponentInChildren<InteractionOverlay>();
-                if (overlay == null) overlay = hit.GetComponentInParent<InteractionOverlay>();
-
+                InteractArea interactArea = null;
+                InteractionOverlay overlay = null;
+                foreach (Transform child in hit.transform) {
+                    interactArea = child.GetComponent<InteractArea>();
+                    if (interactArea != null) break;
+                }
+                if (interactArea != null) overlay = interactArea.GetComponentInChildren<InteractionOverlay>();
                 if (interactArea != null && overlay != null) {
                     if (!overlay.isMenuOpen) { continue; }
                     List<InteractBtnTemplate> activeButtons = interactArea.GetActiveButtons();
@@ -142,21 +154,30 @@ public class PlayerController : MonoBehaviour {
                     if (targetIndex >= 0 && targetIndex < activeButtons.Count) {
                         activeButtons[targetIndex].onClick.Invoke();
                         await Awaitable.WaitForSecondsAsync(interactionDuration);
-                    }
-                    break;
+                        isMoving = false;
+                        return;
+                    } 
+                    else NotificationManager.Instance.SendNotification($"No button assigned to {number} in this menu.", Color.yellow);
+                    isMoving = false;
+                    return;
                 }
             } 
         }
+        isMoving = false;
     }
 
-    private void CheckGround() {
-        if (floorTilemap == null || baseTilemap == null || !Map.IsInitialized) return;
+    private bool CheckGround() {
+        if (floorTilemap == null || baseTilemap == null || !Map.IsInitialized) return false;
         Vector3Int pos = floorTilemap.WorldToCell(transform.position);
         if (!floorTilemap.HasTile(pos) && !baseTilemap.HasTile(pos)) {
             int layer = Map.CurrentLayer();
-            if (layer==0) return;
+            if (layer==0) return false;
             Vector3Int lPos = pos + new Vector3Int((int)(Map.layerLocations[layer-1].x - Map.layerLocations[layer].x), (int)(Map.layerLocations[layer-1].y - Map.layerLocations[layer].y), 0);
-            if (Map.IsNull(lPos)) transform.position = lPos + new Vector3(0.5f, 0.5f, 0);
+            if (Map.IsNull(lPos)) {
+                transform.position = lPos + new Vector3(0.5f, 0.5f, 0);
+                return true;
+            }
         }
+        return false;
     }
 }

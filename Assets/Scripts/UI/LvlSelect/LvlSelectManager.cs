@@ -97,7 +97,7 @@ public class LvlSelectManager : MonoBehaviour
         objectiveText.text = objList;
     }
 
-    public void OpenLvlSelect()
+    public void OnEnable()
     {
         canvas.gameObject.SetActive(true);
         sltLvl.gameObject.SetActive(false);
@@ -105,7 +105,7 @@ public class LvlSelectManager : MonoBehaviour
         lvlScroll.GetComponent<ScrollRect>().horizontalNormalizedPosition = 0; //set to the leftmost position
     }
 
-    public void CloseLvlSelect()
+    public void OnDisable()
     {
         sltLvl.gameObject.SetActive(false);
         unsltLvl.gameObject.SetActive(true);

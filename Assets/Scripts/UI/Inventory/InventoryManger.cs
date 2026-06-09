@@ -23,10 +23,10 @@ public class InventoryManager : MonoBehaviour
     public int startingWeapons = 1;
     
     private List<LoadoutItems> allItems;
+    private List<LoadoutItems> startingLoadout;
     private List<SlotUI> allSlots;
     private ItemOverlay currentOverlay;
     
-    private Transform spawnArea;
     private GameObject inventoryBox;
     private Transform inventorySlots;
     private Transform equippedSlots;
@@ -34,6 +34,7 @@ public class InventoryManager : MonoBehaviour
     private RectTransform divider;
     private ItemUI fillerItem;
     private Transform topLayer;
+    private SlotUI overlaySlot;
 
     public static InventoryManager Instance { get; private set; }
 
@@ -73,14 +74,23 @@ public class InventoryManager : MonoBehaviour
         {
             allItems.Add(emptyGadget);
         }
+        startingLoadout = new List<LoadoutItems>();
+        foreach(var item in allItems)
+        {
+            startingLoadout.Add(item);
+        }
     }
 
-    public void CreateInventory(Transform player, TurnManager turnManager, GameObject inventoryArea, GameObject spawnArea, GameObject slotsArea, GameObject equipArea, Transform div, Canvas canvas, Transform bagInv, Transform top)
+    public void CreateInventory(Transform player, TurnManager turnManager, GameObject inventoryArea, GameObject slotsArea, GameObject equipArea, Transform div, Canvas canvas, Transform bagInv, Transform top)
     {
+        allItems = new List<LoadoutItems>();
+        foreach(var item in startingLoadout)
+        {
+            allItems.Add(item);
+        }
         this.player = player;
         this.turnManager = turnManager;
         
-        this.spawnArea = spawnArea.transform;
         inventoryBox = inventoryArea;
         divider = div.GetComponent<RectTransform>();
         inventorySlots = slotsArea.transform;
@@ -95,9 +105,9 @@ public class InventoryManager : MonoBehaviour
 
         allSlots = new List<SlotUI>();
 
-        for(int idx = 0; idx < allItems.Count; idx++)
+        for(int idx = 0; idx < startingLoadout.Count; idx++)
         {
-            LoadoutItems item = allItems[idx];
+            LoadoutItems item = startingLoadout[idx];
 
             SlotUI itemSlot;
             if (item.itemType != ItemType.Gadget)
@@ -124,10 +134,10 @@ public class InventoryManager : MonoBehaviour
 
         rectInv.sizeDelta = new Vector2(equipRect.sizeDelta.x + divider.sizeDelta.x + slotRect.sizeDelta.x , rectInv.sizeDelta.y);
 
-        for(int i = 0; i < allItems.Count; i++)
+        for(int i = 0; i < startingLoadout.Count; i++)
         {
-            LoadoutItems item = allItems[i];
-            ItemUI itemUI = Instantiate(itemPrefab, this.spawnArea);
+            LoadoutItems item = startingLoadout[i];
+            ItemUI itemUI = Instantiate(itemPrefab, allSlots[i].transform);
             itemUI.Initialize(item, allSlots[i], canvas);
             itemUI.GetComponent<RectTransform>().position = allSlots[i].transform.position;
             allSlots[i].UpdateItem(itemUI);
@@ -158,23 +168,22 @@ public class InventoryManager : MonoBehaviour
 
     public void CreateOverlay(ItemUI btnOrigin)
     {
-        Transform parent;
-        if (btnOrigin.slotOrigin.idx == -1)
-        {
-            parent = btnOrigin.slotOrigin.transform;
-        } else
-        {
-            parent = topLayer;
-        }
+        Transform parent = topLayer;
         DestroyOverlay();
         currentOverlay = Instantiate(itemOverlayPrefab, parent);
         currentOverlay.Initialize(btnOrigin.myItem);
+        overlaySlot = btnOrigin.slotOrigin;
 
         Vector3 worldPos = btnOrigin.GetComponent<RectTransform>().position;
         Vector3 localPos = parent.InverseTransformPoint(worldPos);
         float offset = 20f;
+        int side = 1;
+        if (overlaySlot.idx == -1)
+        {
+            side = -1;
+        }
 
-        currentOverlay.GetComponent<RectTransform>().localPosition = localPos - new Vector3(itemPrefab.GetComponent<RectTransform>().rect.width*0.5f + btnOrigin.GetComponent<RectTransform>().rect.width*0.5f + offset, 0, 0);
+        currentOverlay.GetComponent<RectTransform>().localPosition = localPos - side * new Vector3(itemPrefab.GetComponent<RectTransform>().rect.width*0.5f + btnOrigin.GetComponent<RectTransform>().rect.width*0.5f + offset, 0, 0);
     }
 
     public void DestroyOverlay()
@@ -183,20 +192,14 @@ public class InventoryManager : MonoBehaviour
         {
             Destroy(currentOverlay.gameObject);
             currentOverlay = null;
+            overlaySlot = null;
         }
     }
 
     public void StartDrag(ItemUI itm, SlotUI slot)
     {
         //create filler
-        Transform parent;
-        if (slot.idx == -1)
-        {
-            parent = slot.transform;
-        } else
-        {
-            parent = spawnArea;
-        }
+        Transform parent = slot.transform;
         ItemUI itemUI = Instantiate(itemPrefab, parent);
         LoadoutItems item;
         if (slot.itemType == ItemType.Armour)
@@ -227,8 +230,9 @@ public class InventoryManager : MonoBehaviour
 
     private void SetAllItemsRaycast(bool value)
     {
-        foreach (Transform child in spawnArea)
+        foreach (SlotUI slot in allSlots)
         {
+            ItemUI child = slot.currentItem;
             if (child == null) continue;
             var cg = child.GetComponent<CanvasGroup>();
             if (cg != null) {
@@ -325,40 +329,30 @@ public class InventoryManager : MonoBehaviour
         newItm.UpdateSlot(newSlot);
 
         //adjust loadout, and for safety, the bag updates are at the end
+        newItm.transform.SetParent(newSlot.transform, true);
+        (oldItm ?? fillerItem).transform.SetParent(oldSlot.transform, true);
         if (newSlot.idx == -1 && oldSlot.idx == -1) {
             //swaps two in bag. New done first to not destroy bag
             if (oldItm == null)
             {
                 currentBag.ReplaceFromSlot(fillerItem, newSlot); //put it where the original was
-                currentBag.SwapItemsInList(newItm, fillerItem);
-                newItm.transform.SetParent(newSlot.transform, true);
-                fillerItem.transform.SetParent(oldSlot.transform, true);
-            } else
-            {
-                currentBag.SwapItemsInList(newItm, oldItm);
-                newItm.transform.SetParent(newSlot.transform, true);
-                oldItm.transform.SetParent(oldSlot.transform, true);
             }
+            currentBag.SwapItemsInList(newItm, oldItm ?? fillerItem);
         }
         else if (oldSlot.idx == -1 && newSlot.idx != -1)
         {
             //swap adds new to inventory
             allItems[newSlot.idx] = newItm.myItem;
-            newItm.transform.SetParent(spawnArea, true);
-            (oldItm ?? fillerItem).transform.SetParent(oldSlot.transform, true);
             currentBag.ReplaceFromSlot(oldItm ?? fillerItem, oldSlot);
         }
         else if (newSlot.idx == -1 && oldSlot.idx != -1)
         {
             //swap removes new from inv
             allItems[oldSlot.idx] = (oldItm ?? fillerItem).myItem;
-            (oldItm ?? fillerItem).transform.SetParent(spawnArea, true);
-            newItm.transform.SetParent(newSlot.transform, true);
             currentBag.ReplaceFromSlot(newItm, newSlot);
         } else
         {
             //swap two items in the inventory
-            newItm.transform.SetParent(spawnArea, true);
             allItems[newSlot.idx] = newItm.myItem;
             allItems[oldSlot.idx] = (oldItm ?? fillerItem).myItem;
         }
@@ -368,13 +362,7 @@ public class InventoryManager : MonoBehaviour
     public void ReturnItem(ItemUI rtnItm)
     {
         rtnItm.GetComponent<RectTransform>().position = rtnItm.slotOrigin.GetComponent<RectTransform>().position;
-        if (rtnItm.slotOrigin.idx == -1)
-        {
-            rtnItm.transform.SetParent(rtnItm.slotOrigin.GetComponent<Transform>());
-        } else
-        {
-            rtnItm.transform.SetParent(spawnArea);
-        }
+        rtnItm.transform.SetParent(rtnItm.slotOrigin.GetComponent<Transform>());
         RemoveFiller();
     }
 
@@ -414,6 +402,13 @@ public class InventoryManager : MonoBehaviour
                         Destroy(item.gameObject);
                     }
                 }
+            }
+        }
+        if (overlaySlot != null)
+        {
+            if (overlaySlot.idx == -1)
+            {
+                DestroyOverlay();
             }
         }
     }
@@ -467,7 +462,7 @@ public class InventoryManager : MonoBehaviour
             {
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
-                ItemUI newItem = Instantiate(itemPrefab, spawnArea);
+                ItemUI newItem = Instantiate(itemPrefab, allSlots[i].transform);
                 newItem.Initialize(item, slot, canvas);
                 newItem.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
 
@@ -493,7 +488,7 @@ public class InventoryManager : MonoBehaviour
             {
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
-                ItemUI replaceEmpty = Instantiate(itemPrefab, spawnArea);
+                ItemUI replaceEmpty = Instantiate(itemPrefab, allSlots[i].transform);
                 LoadoutItems empty;
                 if (item.itemType == ItemType.Armour)
                 {
@@ -535,7 +530,21 @@ public class InventoryManager : MonoBehaviour
             }
             
         }
+
+        str += " | Starting Loadout: ";
+        for (int i = 0; i < startingLoadout.Count; i++)
+        {
+            if(startingLoadout[i] == null)
+            {
+                str += "null, ";
+            } else
+            {
+               str += startingLoadout[i].itemTitle + ", "; 
+            }
+            
+        }
         Debug.Log(str);
     }
     */
+    
 }

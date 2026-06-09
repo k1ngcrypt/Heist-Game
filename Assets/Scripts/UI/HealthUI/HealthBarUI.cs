@@ -1,0 +1,31 @@
+using TMPro;
+using UnityEngine;
+
+public class HealthBarUI : MonoBehaviour
+{
+    [SerializeField] private RectTransform fullHealthRT;
+    [SerializeField] private RectTransform currentHealthRT;
+    [SerializeField] private TextMeshProUGUI percentText;
+    [SerializeField] private PlayerStats playerStats;
+
+    public static HealthBarUI Instance { get; private set;}
+
+    public void OnValidate() {
+        if (playerStats == null) playerStats = FindAnyObjectByType<PlayerStats>();
+    }
+    
+
+    public void Start()
+    {
+        Instance = this;
+        UpdateHealthUI();
+    }
+
+    public void UpdateHealthUI()
+    {
+        float percent = Mathf.Clamp(playerStats.getCurrentHealth() / playerStats.getMaxHealth(),0f,1f);
+
+        percentText.text = $"{Mathf.RoundToInt(100*percent)}%";
+        currentHealthRT.sizeDelta = new Vector2(fullHealthRT.sizeDelta.x * percent, currentHealthRT.sizeDelta.y);
+    }
+}

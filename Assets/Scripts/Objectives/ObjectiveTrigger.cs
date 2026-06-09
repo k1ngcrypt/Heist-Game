@@ -4,11 +4,11 @@ namespace HeistGame.Objectives{
     public class ObjectiveTrigger : MonoBehaviour {
         [Header("Base Objective Settings")]
         [Tooltip("Matches the objectiveID in your ObjectiveData ScriptableObject.")]
-        [SerializeField] protected string targetObjectiveID;
+        [SerializeField] protected int targetObjectiveID;
         [SerializeField] protected int progressAmount = 1;
 
         public virtual void TriggerProgress() {
-            if (string.IsNullOrEmpty(targetObjectiveID)) {
+            if (targetObjectiveID == 0) {
                 Debug.LogWarning($"ObjectiveTrigger on {gameObject.name} is missing an ID!");
                 return;
             }
