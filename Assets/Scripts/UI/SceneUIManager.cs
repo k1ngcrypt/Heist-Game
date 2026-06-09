@@ -92,4 +92,9 @@ public class SceneUIManager : MonoBehaviour
         causeDefeatTxt.text = cause;
         gameEnd = true;
     }
+
+    public void QuitGame()
+    {
+        SettingManager.Instance.QuitGame();
+    }
 }

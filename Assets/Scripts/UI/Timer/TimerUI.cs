@@ -4,8 +4,12 @@ using TMPro;
 public class TimerUI : MonoBehaviour, ITurnActor
 {
     [SerializeField] private TextMeshProUGUI timerText;
+    [SerializeField] private RectTransform image;
+    [SerializeField] private RectTransform timerArea;
     [SerializeField] private int turnsLeft = 120;
     [SerializeField] private TurnManager turnManager;
+
+    private float paddingX = 20f;
 
     public int TickDebt { get; set; }
 
@@ -18,6 +22,7 @@ public class TimerUI : MonoBehaviour, ITurnActor
     {
         turnManager.Register(this);
         timerText.text = turnsLeft+"";
+        Resize();
     }
 
     public async Awaitable OnTick()
@@ -29,5 +34,17 @@ public class TimerUI : MonoBehaviour, ITurnActor
         {
             SceneUIManager.Instance.MissionFailed("Ran Out of Moves");
         }
+        Resize();
+    }
+
+    public void Resize()
+    {
+        float pref = timerText.preferredWidth;
+        if (pref < 53.59) //standard 4 character size
+        {
+            pref = 53.59f;
+        }
+        timerText.GetComponent<RectTransform>().sizeDelta = new Vector2(pref, timerText.preferredHeight);
+        timerArea.sizeDelta = new Vector2(image.sizeDelta.x + pref + paddingX, timerArea.sizeDelta.y);
     }
 }

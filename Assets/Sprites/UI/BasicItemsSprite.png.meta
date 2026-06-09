@@ -140,7 +140,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BasicItemsSprite_0
+      name: EmptyArmour
       rect:
         serializedVersion: 2
         x: 77
@@ -162,7 +162,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_1
+      name: KeycardScrambler
       rect:
         serializedVersion: 2
         x: 432
@@ -184,7 +184,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_2
+      name: Bag
       rect:
         serializedVersion: 2
         x: 787
@@ -206,7 +206,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_3
+      name: Rifle
       rect:
         serializedVersion: 2
         x: 1142
@@ -228,7 +228,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_4
+      name: EmptyGadget
       rect:
         serializedVersion: 2
         x: 1497
@@ -250,7 +250,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_5
+      name: EmptyWeapon
       rect:
         serializedVersion: 2
         x: 77
@@ -272,7 +272,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_6
+      name: SledgeHammer
       rect:
         serializedVersion: 2
         x: 432
@@ -294,7 +294,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_7
+      name: Pistol
       rect:
         serializedVersion: 2
         x: 787
@@ -316,7 +316,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_8
+      name: Lockpick
       rect:
         serializedVersion: 2
         x: 1142
@@ -338,7 +338,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: BasicItemsSprite_9
+      name: Medkit
       rect:
         serializedVersion: 2
         x: 1497
@@ -375,16 +375,16 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":5.0,"y":2.0},"gridSpriteSize":{"x":355.0,"y":355.0},"gridSpriteOffset":{"x":77.0,"y":179.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      BasicItemsSprite_0: 1942225260
-      BasicItemsSprite_1: -1793446555
-      BasicItemsSprite_2: -652882825
-      BasicItemsSprite_3: 1715773475
-      BasicItemsSprite_4: 933059342
-      BasicItemsSprite_5: -255769237
-      BasicItemsSprite_6: -125335626
-      BasicItemsSprite_7: -1425015239
-      BasicItemsSprite_8: 671371338
-      BasicItemsSprite_9: -320551265
+      Bag: -652882825
+      EmptyArmour: 1942225260
+      EmptyGadget: 933059342
+      EmptyWeapon: -255769237
+      KeycardScrambler: -1793446555
+      Lockpick: 671371338
+      Medkit: -320551265
+      Pistol: -1425015239
+      Rifle: 1715773475
+      SledgeHammer: -125335626
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
