@@ -18,3 +18,4 @@ MonoBehaviour:
 
     +3 Spd'
   itemIcon: {fileID: 0}
+  suspicionModifier: 20
