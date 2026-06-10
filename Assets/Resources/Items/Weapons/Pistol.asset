@@ -9,10 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4ae6eee71b3bfb4ba0f41932ae29afb, type: 3}
+  m_Script: {fileID: 11500000, guid: 3f1382a356ac0c947a17c2025088b711, type: 3}
   m_Name: Pistol
-  m_EditorClassIdentifier: Assembly-CSharp::LoadoutItems
-  itemType: 1
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponItem
+  itemID: 0
   itemTitle: Pistol
   itemDescription: Pew Pew
   itemIcon: {fileID: -1425015239, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}
+  damageValue: 3
+  isSilenced: 0
+  isAmmoPowered: 1
+  ammoCapacity: 12
+  suspicionModifier: 50
