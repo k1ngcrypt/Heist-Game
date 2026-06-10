@@ -13,7 +13,8 @@ public class PlayerController : MonoBehaviour
     //private PlayerStats playerStats; May be used later, but is not currently used in the PlayerController script, so is commented out to avoid confusion. Stats are currently only managed through the PlayerStats script.
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
-
+    private Animator animator;
+    
     private bool isMoving = false;
     public bool inVent = false;
 
@@ -26,10 +27,13 @@ public class PlayerController : MonoBehaviour
         new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized, Vector2.zero
     };
     private int combinedMask;
+    void Awake() {
+        Map.SetPlayer(gameObject);
+    }
 
-    void Start()
-    {
-        Map.SetPlayer(gameObject); combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Default"));
+    void Start() { 
+        Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
+        animator = GetComponent<Animator>();
         //playerStats = GetComponent<PlayerStats>();
     }
     async void Update()
@@ -41,11 +45,20 @@ public class PlayerController : MonoBehaviour
         {
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
-            if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) await AttemptMove(Vector2.up);
-            else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow)) await AttemptMove(Vector2.left);
-            else if (inputHeld(Key.S) || inputHeld(Key.DownArrow)) await AttemptMove(Vector2.down);
-            else if (inputHeld(Key.D) || inputHeld(Key.RightArrow)) await AttemptMove(Vector2.right);
-
+            if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) {
+                animator.SetInteger("Direction",1);
+                await AttemptMove(Vector2.up);
+            } else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow)) {
+                animator.SetInteger("Direction",0);
+                await AttemptMove(Vector2.left);
+            } else if (inputHeld(Key.S) || inputHeld(Key.DownArrow)) {
+                animator.SetInteger("Direction",3);
+                await AttemptMove(Vector2.down);
+            } else if (inputHeld(Key.D) || inputHeld(Key.RightArrow)) {
+                animator.SetInteger("Direction",2);
+                await AttemptMove(Vector2.right);
+            }
+            
             else if (inputHeld(Key.Z)) await Rest();
             else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
             else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
@@ -97,6 +110,7 @@ public class PlayerController : MonoBehaviour
 
         // Vents take twice as long to physically move through
         float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
+        animator.SetBool("IsWalking",true);
 
         while (elapsedTime < currentMoveDuration)
         {
@@ -107,6 +121,7 @@ public class PlayerController : MonoBehaviour
             await Awaitable.EndOfFrameAsync();
         }
 
+        animator.SetBool("IsWalking",false);
         transform.position = Map.AlignToObjectPos(endPosition);
         while (CheckGround()) await Awaitable.WaitForSecondsAsync(0.1f);
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
