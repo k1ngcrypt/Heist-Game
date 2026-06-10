@@ -35,10 +35,8 @@ namespace Guards
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
 
                 Manager.IncreaseSuspicion();
-                if (Manager.Suspicion >= Manager.MaxSuspicion)
-                {
-                    Manager.UpdateState(Manager.ChasingState);
-                }
+                Manager.Navigator.TickAdvance();
+                return;
             }
 
             Manager.Navigator.TickAdvance();

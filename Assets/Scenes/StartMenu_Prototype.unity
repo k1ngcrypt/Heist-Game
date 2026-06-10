@@ -563,6 +563,14 @@ PrefabInstance:
       propertyPath: startingGadgetsCount
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 7081493766200689437, guid: 76332475750efb74ea43a5998b280faa, type: 3}
+      propertyPath: allGadgets.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7081493766200689437, guid: 76332475750efb74ea43a5998b280faa, type: 3}
+      propertyPath: 'allGadgets.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a1a3207fe85d3234ea7a3888bed8355f, type: 2}
     - target: {fileID: 7107536330631163581, guid: 76332475750efb74ea43a5998b280faa, type: 3}
       propertyPath: m_AnchorMax.x
       value: 1
@@ -1089,6 +1097,18 @@ PrefabInstance:
       propertyPath: inventoryManager
       value: 
       objectReference: {fileID: 1399526264}
+    - target: {fileID: 9036623107174478937, guid: 3f824493698e7734bbe2fb1bd5343ac9, type: 3}
+      propertyPath: allLvls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9036623107174478937, guid: 3f824493698e7734bbe2fb1bd5343ac9, type: 3}
+      propertyPath: 'allLvls.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: fc049113bc6f10048b20781e41e03d96, type: 2}
+    - target: {fileID: 9036623107174478937, guid: 3f824493698e7734bbe2fb1bd5343ac9, type: 3}
+      propertyPath: 'allLvls.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 12aa20ce75a3bcf4894a009cce141a97, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1117,7 +1137,7 @@ PrefabInstance:
     - target: {fileID: 3704973060313370880, guid: d92c37fd7eb01f94880edd582d22b2c2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 764375539}
     - target: {fileID: 3704973060313370880, guid: d92c37fd7eb01f94880edd582d22b2c2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: QuitGame
