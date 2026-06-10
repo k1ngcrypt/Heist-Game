@@ -194,6 +194,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff81cae7384143b48bc1ba741a2cec50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.DoorController
+  isDoor: 1
 --- !u!1001 &6028277000184822815
 PrefabInstance:
   m_ObjectHideFlags: 0

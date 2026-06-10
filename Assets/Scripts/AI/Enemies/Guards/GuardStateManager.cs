@@ -176,7 +176,7 @@ namespace Guards
         public void IncreaseSuspicion()
         {
             // Suspicion is clamped so the state machine can rely on a predictable max threshold.
-            Suspicion = Mathf.Min(maxSuspicion, Suspicion + suspicionPerTick);
+            Suspicion = Mathf.Min(maxSuspicion+1, Suspicion + suspicionPerTick);
             if (Suspicion >= maxSuspicion)
             {
                 UpdateState(chasingState);
