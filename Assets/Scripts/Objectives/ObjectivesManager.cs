@@ -62,8 +62,12 @@ namespace HeistGame.Objectives {
                 OnObjectivesChanged?.Invoke();
 
                 if (newlyFailed) {
-                    if (!target.Data.isOptional) NotificationManager.Instance.SendNotification($"Objective failed: {target.Data.title}", Color.red);
-                    else NotificationManager.Instance.SendNotification($"Objective failed: {target.Data.title}", Color.yellow);
+                    if (!target.Data.isOptional) 
+                    {
+                        SceneUIManager.Instance.MissionFailed($"Objective failed: {target.Data.title}");
+                    } else {
+                        NotificationManager.Instance.SendNotification($"Objective failed: {target.Data.title}", Color.yellow);
+                    }
                 }
             }
         }
