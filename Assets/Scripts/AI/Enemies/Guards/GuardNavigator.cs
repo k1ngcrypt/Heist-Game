@@ -22,6 +22,8 @@ namespace Guards
         // A path only matters while there are still unvisited nodes left to consume.
         public bool HasPath => currentPath.Count > 0 && pathIndex < currentPath.Count;
 
+        private readonly Queue<(int scheduledPathIndex, ISpecialTile interaction)> pendingClears = new();
+
         public bool ReachedDestination
         {
             get
@@ -58,36 +60,25 @@ namespace Guards
 
         public void TickAdvance()
         {
-            if (!hasDestination || pathfinder == null)
-            {
-                return;
-            }
+            if (!hasDestination || pathfinder == null) return;
 
-            // Recompute lazily so navigation cost is paid only when the guard actually needs to move.
             if (!HasPath)
             {
                 RecalculatePath();
             }
 
-            if (!HasPath)
-            {
-                return;
-            }
+            if (!HasPath) return;
 
             SkipReachedNodes();
-            if (!HasPath)
-            {
-                return;
-            }
+            if (!HasPath) return;
 
             int nextIndex = currentPath[pathIndex];
+
+            // Interaction check is now a one-time gate: only fires when
+            // the guard is about to step onto the node, not every tick.
             if (!TryHandleInteraction(nextIndex))
             {
-                if (repathOnBlocked)
-                {
-                    RecalculatePath();
-                }
-
+                if (repathOnBlocked) RecalculatePath();
                 return;
             }
 
@@ -97,14 +88,30 @@ namespace Guards
             {
                 lastMoveDirection = delta.normalized;
             }
+
             transform.position = nextPosition;
             pathIndex++;
+
+            while (pendingClears.Count > 0)
+            {
+                var (scheduledPathIndex, interaction) = pendingClears.Peek();
+                if (pathIndex > scheduledPathIndex)
+                {
+                    pendingClears.Dequeue();
+                    interaction.OnClear();
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
 
         private void RecalculatePath()
         {
             currentPath.Clear();
             pathIndex = 0;
+            pendingClears.Clear();
             if (!hasDestination || pathfinder == null)
             {
                 return;
@@ -144,15 +151,24 @@ namespace Guards
                 return true;
             }
 
-            // Interactions are allowed to block movement until they report that passage is safe.
+            if (interaction.IsDoor())
+            {
+                interaction.OnApproach();  // opens the door
+                ScheduleClear(interaction);
+                return true;              // doors are always passable
+            }
+
             if (!interaction.CanPass())
             {
-                interaction.OnPass();
                 return interaction.CanPass();
             }
 
-            interaction.OnPass();
             return true;
+        }
+
+        private void ScheduleClear(ISpecialTile interaction)
+        {
+            pendingClears.Enqueue((pathIndex+1, interaction));
         }
     }
 }

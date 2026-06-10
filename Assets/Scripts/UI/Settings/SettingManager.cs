@@ -30,18 +30,19 @@ public class SettingManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(this);
-        } else
+        }
+        else
         {
             Instance.Reinitialize(resolutionDropdown, graphicDropdown, fullScreenToggle, godModeToggle, volumeBar);
             Destroy(this);
             return;
         }
-        
+
         resolutions = Screen.resolutions;
 
         resolutionDropdown.ClearOptions();
         options = new List<string>();
-        for(int i = 0; i < resolutions.Length; i++)
+        for (int i = 0; i < resolutions.Length; i++)
         {
             options.Add($"{resolutions[i].width} x {resolutions[i].height}");
             if (resolutions[i].width == Screen.currentResolution.width && resolutions[i].height == Screen.currentResolution.height)
@@ -50,7 +51,7 @@ public class SettingManager : MonoBehaviour
                 currentResIdx = i;
             }
         }
-        
+
         Reinitialize(resolutionDropdown, graphicDropdown, fullScreenToggle, godModeToggle, volumeBar);
     }
 
@@ -72,7 +73,7 @@ public class SettingManager : MonoBehaviour
         fullScreenToggle.isOn = fullScreen;
         fullScreenToggle.onValueChanged.RemoveAllListeners();
         fullScreenToggle.onValueChanged.AddListener(setFullScreen);
-        
+
 
         godModeToggle.isOn = godMode;
         godModeToggle.onValueChanged.RemoveAllListeners();
@@ -89,11 +90,11 @@ public class SettingManager : MonoBehaviour
 
     public void QuitGame()
     {
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
-        #endif
+#endif
     }
 
     public void SetQuality(int qualityIdx)
