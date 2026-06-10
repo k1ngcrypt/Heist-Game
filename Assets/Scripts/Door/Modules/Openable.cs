@@ -40,7 +40,7 @@ namespace HeistGame.Door
 
             isOpen = true;
             spriteRenderer.sprite = openSprite;
-            gameObject.layer = LayerMask.NameToLayer("Default");
+            gameObject.layer = LayerMask.NameToLayer("Pain");
         }
 
         public void CloseDoor()

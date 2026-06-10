@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 1586096497801736776}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.13333334, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -83,16 +83,16 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: -390459291
-  m_SortingLayer: 4
-  m_SortingOrder: 2
+  m_SortingLayerID: -931653801
+  m_SortingLayer: 5
+  m_SortingOrder: 4
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5213229242370633579, guid: 1efae23de6afd5a4fb5df5c85cfd97d2, type: 3}
-  m_Color: {r: 0.52156866, g: 0.3372549, b: 0.2509804, a: 1}
+  m_Sprite: {fileID: 4381657233864889364, guid: 2693f1b3aee059849a86b8f816f3ff6b, type: 3}
+  m_Color: {r: 0.8679245, g: 0.7613293, b: 0.7164471, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 1.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -135,8 +135,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1.3076923}
-    newSize: {x: 1, y: 1}
+    oldSize: {x: 1, y: 1.8}
+    newSize: {x: 1, y: 1.8}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -156,8 +156,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Openable
   isOpen: 0
-  openSprite: {fileID: -574728140, guid: 1efae23de6afd5a4fb5df5c85cfd97d2, type: 3}
-  closeSprite: {fileID: 5213229242370633579, guid: 1efae23de6afd5a4fb5df5c85cfd97d2, type: 3}
+  openSprite: {fileID: -665338612, guid: 2693f1b3aee059849a86b8f816f3ff6b, type: 3}
+  closeSprite: {fileID: 4381657233864889364, guid: 2693f1b3aee059849a86b8f816f3ff6b, type: 3}
 --- !u!114 &3253360275740078243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,7 +213,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 4436426226935325806, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
       propertyPath: m_LocalPosition.z

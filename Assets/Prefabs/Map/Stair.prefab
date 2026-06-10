@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 9186650598749027858}
   - component: {fileID: 2512692909694270317}
   - component: {fileID: 7309080889987900486}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Stair
   m_TagString: Stair
   m_Icon: {fileID: 0}
@@ -181,6 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff81cae7384143b48bc1ba741a2cec50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.DoorController
+  isDoor: 0
 --- !u!114 &7309080889987900486
 MonoBehaviour:
   m_ObjectHideFlags: 0

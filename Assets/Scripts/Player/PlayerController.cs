@@ -22,9 +22,9 @@ public class PlayerController : MonoBehaviour
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
     private readonly Vector2[] moveDirections = new Vector2[] {
-        Vector2.up, Vector2.down, Vector2.left, Vector2.right,
+        Vector2.zero, new Vector2(0,0.5f), new Vector2(0,-0.5f), Vector2.up, Vector2.down, Vector2.left, Vector2.right,
         new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized,
-        new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized, Vector2.zero
+        new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized
     };
     private int combinedMask;
     void Awake() {
@@ -32,7 +32,8 @@ public class PlayerController : MonoBehaviour
     }
 
     void Start() { 
-        Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
+        Map.SetPlayer(gameObject);
+        combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Pain")); 
         animator = GetComponent<Animator>();
         //playerStats = GetComponent<PlayerStats>();
     }

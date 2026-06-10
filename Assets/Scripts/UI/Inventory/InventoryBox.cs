@@ -15,6 +15,8 @@ public class InventoryBox : MonoBehaviour, IDropHandler
 
     void Start()
     {
+        if (turnManager == null) turnManager = TurnManager.Instance;
+        if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>().GetComponent<TurnManager>();
         bagInv.gameObject.SetActive(false);
         if (InventoryManager.Instance != null)
         {
