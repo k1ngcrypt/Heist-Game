@@ -17,3 +17,4 @@ MonoBehaviour:
   itemDescription: +2 Defense
   itemIcon: {fileID: 0}
   armourValue: 2
+  suspicionModifier: 30

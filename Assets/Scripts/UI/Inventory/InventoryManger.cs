@@ -380,6 +380,7 @@ public class InventoryManager : MonoBehaviour
             BagUI bag = Instantiate(bagPrefab);
             bag.Initialize(player.position, player, turnManager, canvas, itemPrefab, slotPrefab, emptyGadget);
             currentBag = bag;
+            AwarenessManager.Instance.RegisterAnomaly(bag.transform);
         }
         allItems[item.slotOrigin.idx] = fillerItem.myItem;
         ConfirmFiller();

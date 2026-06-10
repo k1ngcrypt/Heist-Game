@@ -23,7 +23,7 @@ public class HealthBarUI : MonoBehaviour
 
     public void UpdateHealthUI()
     {
-        float percent = Mathf.Clamp(playerStats.getCurrentHealth() / playerStats.getMaxHealth(),0f,1f);
+        float percent = Mathf.Clamp(playerStats.GetCurrentHealth() / playerStats.GetMaxHealth(),0f,1f);
 
         percentText.text = $"{Mathf.RoundToInt(100*percent)}%";
         currentHealthRT.sizeDelta = new Vector2(fullHealthRT.sizeDelta.x * percent, currentHealthRT.sizeDelta.y);

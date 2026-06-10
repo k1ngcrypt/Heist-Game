@@ -20,3 +20,4 @@ MonoBehaviour:
   isSilenced: 0
   isAmmoPowered: 1
   ammoCapacity: 6
+  suspicionModifier: 70
