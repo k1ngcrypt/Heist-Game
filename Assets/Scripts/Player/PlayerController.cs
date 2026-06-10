@@ -88,7 +88,7 @@ public class PlayerController : MonoBehaviour {
     private async Awaitable AttemptMove(Vector2 direction) {
         Vector2 targetPos = (Vector2)transform.position + (direction * gridSize);
         if (Map.IsInitialized) {
-            if (Map.IsNull(Map.AlignObjectToGrid(targetPos))) await Move(direction);
+            if (Map.IsNull(Map.AlignObjectToGrid(targetPos))&&!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
         } else if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
     }
 
