@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArmourItem
   itemID: 0
   itemTitle: Medium Armour
-  itemDescription: +2 Defense
+  itemDescription: +20 Defense
   itemIcon: {fileID: 0}
-  armourValue: 2
   suspicionModifier: 30
+  armourValue: 20

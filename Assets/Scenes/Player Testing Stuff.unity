@@ -581,6 +581,7 @@ MonoBehaviour:
   cameraDetectionBoost: 25
   dispatchCooldownTicks: 2
   turnManager: {fileID: 0}
+  corpseSuspicionBoost: 150
 --- !u!4 &726567859
 Transform:
   m_ObjectHideFlags: 0
@@ -1211,7 +1212,7 @@ GameObject:
   - component: {fileID: 1293719857}
   - component: {fileID: 1293719856}
   - component: {fileID: 1293719855}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5506,7 +5507,7 @@ GameObject:
   - component: {fileID: 1320007250}
   - component: {fileID: 1320007249}
   - component: {fileID: 1320007248}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gem (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6077,7 +6078,7 @@ GameObject:
   - component: {fileID: 1992497397}
   - component: {fileID: 1992497396}
   - component: {fileID: 1992497395}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gem (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

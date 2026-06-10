@@ -19,13 +19,13 @@ public class InteractionOverlay : MonoBehaviour
     private RectTransform textRect;
     private RectTransform menuRect;
 
-    public void Initialize(string title, List<InteractBtnTemplate> actions, Vector3 worldPosition)
+    public void Initialize(string title, List<InteractBtnTemplate> actions, Vector3 worldPosition, PlayerController player)
     {
         layout = menuPanel.GetComponent<VerticalLayoutGroup>();
         textRect = titleText.GetComponent<RectTransform>();
         menuRect = menuPanel.GetComponent<RectTransform>();
 
-        bool isInitialSpawn = (allButtons.Count == 0);
+        bool isInitialSpawn = allButtons.Count == 0;
 
         foreach (Button oldBtn in allButtons) {
             if (oldBtn != null) {
@@ -42,7 +42,22 @@ public class InteractionOverlay : MonoBehaviour
         txtRt.sizeDelta = new Vector2(btnPrefab.GetComponent<RectTransform>().sizeDelta.x, txtRt.sizeDelta.y);
         canvas.GetComponent<Transform>().position = worldPosition;
         menuPanel.GetComponent<Transform>().position = worldPosition - new Vector3(0, 0.5f, 0); // One tile down;
-        canvas.worldCamera = Camera.main;
+        if (!player.inVent) canvas.worldCamera = Camera.main;
+        else {
+            Camera[] allCams = FindObjectsByType<Camera>(FindObjectsSortMode.None);
+            Camera targetCam = Camera.main;
+            float closestDistance = float.MaxValue;
+
+            foreach (Camera c in allCams) {
+                if (c == Camera.main || c.targetTexture != null || c.name.Contains("shadow")) continue;
+                float dist = Vector2.Distance(new Vector2(c.transform.position.x, c.transform.position.y), new Vector2(worldPosition.x, worldPosition.y));
+                if (dist < closestDistance) {
+                    closestDistance = dist;
+                    targetCam = c;
+                }
+            }
+            canvas.worldCamera = targetCam;
+        }
 
         int hotkeyNumber = 1;
         float basisHeight = btnPrefab.GetComponent<RectTransform>().rect.height - btnPrefab.GetComponentInChildren<TMP_Text>().preferredHeight - 5;
