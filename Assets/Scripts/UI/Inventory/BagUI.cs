@@ -93,7 +93,7 @@ public class BagUI : MonoBehaviour, ITurnActor
             for(int i = 0; i < rowSize; i++)
             {
                 SlotUI slot = Instantiate(slotPrefab, InventoryManager.bagInv);
-                slot.Initialize(-1);
+                slot.Initialize(-1, emptyItem);
 
                 ItemUI itm = Instantiate(itemPrefab, slot.transform);
                 itm.Initialize(emptyItem, slot, canvas);
@@ -149,7 +149,7 @@ public class BagUI : MonoBehaviour, ITurnActor
             for(int i = 0; i < rowSize; i++)
             {
                 SlotUI slot = Instantiate(slotPrefab, InventoryManager.bagInv);
-                slot.Initialize(-1);
+                slot.Initialize(-1, emptyItem);
 
                 ItemUI item = Instantiate(itemPrefab, slot.transform);
                 item.Initialize(emptyItem, slot, canvas);
@@ -166,7 +166,7 @@ public class BagUI : MonoBehaviour, ITurnActor
             for(int i = 0; i < allItems.Count; i++)
             {
                 SlotUI slot = Instantiate(slotPrefab, InventoryManager.bagInv);
-                slot.Initialize(-1);
+                slot.Initialize(-1, emptyItem);
 
                 ItemUI item = Instantiate(itemPrefab, slot.transform);
                 item.Initialize(allItems[i].myItem, slot, canvas);

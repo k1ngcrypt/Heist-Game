@@ -5,10 +5,12 @@ public class SlotUI : MonoBehaviour, IDropHandler
 {
     public int idx;
     public ItemUI currentItem;
+    public string slotType;
 
-    public void Initialize(int idx)
+    public void Initialize(int idx, LoadoutItems slotType)
     {
         this.idx = idx;
+        this.slotType = slotType.GetType().Name;
         gameObject.name = $"Slot_{idx}";
     }
 
