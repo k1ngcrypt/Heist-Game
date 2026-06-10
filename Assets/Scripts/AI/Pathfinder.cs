@@ -868,7 +868,7 @@ public class Pathfinder : MonoBehaviour
         AppendSpecialLinksToCachedGraph();
         EnsureAbstractNeighbors();
         RestoreRoomPortalCosts();
-        
+
         lowLevelCostCache.Clear();
         roomLowLevelCostCache.Clear();
         return true;
@@ -1894,7 +1894,7 @@ public class Pathfinder : MonoBehaviour
         {
             return GetCachedRoomCost(GetAbstractNodeGridIndex(fromIndex, startIndex, endIndex), endIndex, endRoom);
         }
-        
+
         if (fromIndex >= abstractNodes.Count || toIndex >= abstractNodes.Count)
         {
             return int.MaxValue;
@@ -2132,7 +2132,7 @@ public class Pathfinder : MonoBehaviour
             return false;
         }
 
-        Collider2D specialCollider = Physics2D.OverlapCircle(worldPoint, nodeRadius, specialTileMask);
+        Collider2D specialCollider = Physics2D.OverlapCircle(worldPoint, nodeRadius - collisionRadiusShrink, specialTileMask);
         if (specialCollider == null)
         {
             return false;
@@ -2165,7 +2165,6 @@ public class Pathfinder : MonoBehaviour
 
     private bool TryGetWalkable(Vector2 worldPoint, out ISpecialTile interaction)
     {
-        // Special tiles are checked first so they can override collision-based blocking when intended.
         TryGetSpecialTile(worldPoint, out interaction);
         Collider2D[] hits = Physics2D.OverlapCircleAll(worldPoint, GetCollisionRadius(), GetObstacleMask());
         if (hits.Length == 0)
@@ -2175,16 +2174,13 @@ public class Pathfinder : MonoBehaviour
 
         foreach (Collider2D hit in hits)
         {
-            if (hit == null)
-            {
-                continue;
-            }
-
+            if (hit == null) continue;
             if (IsSpecialTileCollider(hit))
             {
+                // Promote to interaction if not already found via specialTileMask
+                interaction ??= hit.GetComponentInParent<ISpecialTile>() ?? hit.GetComponent<ISpecialTile>(); //syntax sugar :))
                 continue;
             }
-
             return false;
         }
 
@@ -2201,7 +2197,8 @@ public class Pathfinder : MonoBehaviour
         return collider.GetComponentInParent<ISpecialTile>() != null
             || collider.GetComponent<ISpecialTile>() != null
             || collider.GetComponentInParent<IHaSpecialLink>() != null
-            || collider.GetComponent<IHaSpecialLink>() != null;
+            || collider.GetComponent<IHaSpecialLink>() != null
+            || collider.GetComponent<IPathfindingPassthrough>() != null;
     }
 
     private sealed class SearchState
