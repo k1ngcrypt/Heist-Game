@@ -89,7 +89,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
             {
                 //not active, create
                 currentOverlay = Instantiate(overlayPrefab, this.transform);
-                currentOverlay.Initialize(title, buttons, GetComponent<Transform>().position);
+                currentOverlay.Initialize(title, buttons, GetComponent<Transform>().position, player.GetComponent<PlayerController>());
             }
         } else if (currentOverlay != null) {
             //not in area but overlay is active, so destroy it
@@ -102,7 +102,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
     public void ClearAllButtons() { buttons.Clear(); }
     public void RefreshActiveOverlayUI() {
         if (currentOverlay == null) return;
-        currentOverlay.Initialize(title, buttons, transform.position);
+        currentOverlay.Initialize(title, buttons, transform.position, player.GetComponent<PlayerController>());
     }
     public List<InteractBtnTemplate> GetActiveButtons() { return buttons; }
 }

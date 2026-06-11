@@ -9,11 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4ae6eee71b3bfb4ba0f41932ae29afb, type: 3}
+  m_Script: {fileID: 11500000, guid: 3f1382a356ac0c947a17c2025088b711, type: 3}
   m_Name: Rifle
-  m_EditorClassIdentifier: Assembly-CSharp::LoadoutItems
-  itemType: 1
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponItem
+  itemID: 0
   itemTitle: Rifle
   itemDescription: Pew Pew Pew Pew
   itemIcon: {fileID: 1715773475, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}
+  damageValue: 6
+  isSilenced: 0
+  isAmmoPowered: 1
+  ammoCapacity: 6
   suspicionModifier: 70

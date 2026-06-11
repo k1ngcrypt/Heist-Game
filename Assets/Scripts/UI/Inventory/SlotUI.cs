@@ -3,14 +3,14 @@ using UnityEngine.EventSystems;
 
 public class SlotUI : MonoBehaviour, IDropHandler
 {
-    public ItemType itemType;
     public int idx;
     public ItemUI currentItem;
+    public string slotType;
 
-    public void Initialize(ItemType itemType, int idx)
+    public void Initialize(int idx, LoadoutItems slotType)
     {
-        this.itemType = itemType;
         this.idx = idx;
+        this.slotType = slotType.GetType().Name;
         gameObject.name = $"Slot_{idx}";
     }
 

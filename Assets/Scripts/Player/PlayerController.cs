@@ -22,9 +22,9 @@ public class PlayerController : MonoBehaviour
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
     private readonly Vector2[] moveDirections = new Vector2[] {
-        Vector2.up, Vector2.down, Vector2.left, Vector2.right,
+        Vector2.zero, new Vector2(0,0.5f), new Vector2(0,-0.5f), Vector2.up, Vector2.down, Vector2.left, Vector2.right,
         new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized,
-        new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized, Vector2.zero
+        new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized
     };
     private int combinedMask;
     void Awake() {
@@ -32,7 +32,8 @@ public class PlayerController : MonoBehaviour
     }
 
     void Start() { 
-        Map.SetPlayer(gameObject); combinedMask  = wallLayer | (1 << LayerMask.NameToLayer("Default")); 
+        Map.SetPlayer(gameObject);
+        combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Pain")); 
         animator = GetComponent<Animator>();
         //playerStats = GetComponent<PlayerStats>();
     }
@@ -94,11 +95,9 @@ public class PlayerController : MonoBehaviour
     private async Awaitable AttemptMove(Vector2 direction)
     {
         Vector2 targetPos = (Vector2)transform.position + (direction * gridSize);
-        if (Map.IsInitialized)
-        {
-            if (Map.IsNull(Map.AlignObjectToGrid(targetPos))) await Move(direction);
-        }
-        else if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
+        if (Map.IsInitialized) {
+            if (Map.IsNull(Map.AlignObjectToGrid(targetPos))&&!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
+        } else if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
     }
 
     private async Awaitable Move(Vector2 direction)
@@ -127,8 +126,6 @@ public class PlayerController : MonoBehaviour
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
-        //playerStats.additionalArmour += 5;
-        //playerStats.takeDamage(10);
         isMoving = false;
     }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-[CreateAssetMenu(fileName = "LvlOrganizer", menuName = "Scriptable Objects/LvlOrganizer")]
+[CreateAssetMenu(fileName = "LvlOrganizer", menuName = "Heist Game/LvlOrganizer")]
 public class LvlOrganizer : ScriptableObject
 {
     [Header("Scene To Be Called")]

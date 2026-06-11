@@ -100,7 +100,7 @@ GameObject:
   - component: {fileID: 7280541002845070786}
   - component: {fileID: 1927606042412197728}
   - component: {fileID: 922043963670745936}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: OutsideVent
   m_TagString: Vent
   m_Icon: {fileID: 0}
@@ -296,6 +296,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff81cae7384143b48bc1ba741a2cec50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.DoorController
+  isDoor: 0
 --- !u!1 &8892162327108676415
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,7 +313,7 @@ GameObject:
   - component: {fileID: 3684884226077211741}
   - component: {fileID: 5542454095095971583}
   - component: {fileID: 6548578832035203791}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: InsideVent
   m_TagString: Vent
   m_Icon: {fileID: 0}
@@ -508,6 +509,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff81cae7384143b48bc1ba741a2cec50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.DoorController
+  isDoor: 0
 --- !u!1001 &3043697901993947078
 PrefabInstance:
   m_ObjectHideFlags: 0

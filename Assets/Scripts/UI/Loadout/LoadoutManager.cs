@@ -108,10 +108,10 @@ public class LoadoutManager : MonoBehaviour
     {
         //code below sets the text for the 4 visible items
         // text = item type + number (if gadget)
-        itemTitleText1.text = PlayerLoadout[leftMostIndex].myItem.itemType + " " + ((leftMostIndex) - firstGadgetIndex >= 0 ? (leftMostIndex) - firstGadgetIndex + 1 : " ");
-        itemTitleText2.text = PlayerLoadout[leftMostIndex + 1].myItem.itemType + " " + ((leftMostIndex+1) - firstGadgetIndex >= 0 ? (leftMostIndex+1) - firstGadgetIndex + 1 : " ");
-        itemTitleText3.text = PlayerLoadout[leftMostIndex + 2].myItem.itemType + " " + ((leftMostIndex+2) - firstGadgetIndex >= 0 ? (leftMostIndex+2) - firstGadgetIndex + 1 : " ");
-        itemTitleText4.text = PlayerLoadout[leftMostIndex + 3].myItem.itemType + " " + ((leftMostIndex+3) - firstGadgetIndex >= 0 ? (leftMostIndex+3) - firstGadgetIndex + 1 : " ");
+        itemTitleText1.text = PlayerLoadout[leftMostIndex].myItem.GetType().Name + " " + ((leftMostIndex) - firstGadgetIndex >= 0 ? (leftMostIndex) - firstGadgetIndex + 1 : " ");
+        itemTitleText2.text = PlayerLoadout[leftMostIndex + 1].myItem.GetType().Name + " " + ((leftMostIndex+1) - firstGadgetIndex >= 0 ? (leftMostIndex+1) - firstGadgetIndex + 1 : " ");
+        itemTitleText3.text = PlayerLoadout[leftMostIndex + 2].myItem.GetType().Name + " " + ((leftMostIndex+2) - firstGadgetIndex >= 0 ? (leftMostIndex+2) - firstGadgetIndex + 1 : " ");
+        itemTitleText4.text = PlayerLoadout[leftMostIndex + 3].myItem.GetType().Name + " " + ((leftMostIndex+3) - firstGadgetIndex >= 0 ? (leftMostIndex+3) - firstGadgetIndex + 1 : " ");
     }
 
     private void ResizeContent()
@@ -183,13 +183,13 @@ public class LoadoutManager : MonoBehaviour
         var content = cont.GetComponent<RectTransform>();
         PlayerLoadout[idx].MakeInvisible();
 
-        ItemType type = item.itemType;
+        string type = item.GetType().Name;
         List<LoadoutItems> itemsToShow = new();
-        if (type == ItemType.Armour) {
+        if (type == "ArmourItem") {
             itemsToShow = allArmours;
-        } else if (type == ItemType.Weapon) {
+        } else if (type == "WeaponItem") {
             itemsToShow = allWeapons;
-        } else if (type == ItemType.Gadget) {
+        } else if (type == "GadgetItem") {
             itemsToShow = allGadgets;
         }
         List<LoadoutBtnUI> tempBtns = new();

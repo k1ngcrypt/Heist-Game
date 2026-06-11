@@ -581,6 +581,7 @@ MonoBehaviour:
   cameraDetectionBoost: 25
   dispatchCooldownTicks: 2
   turnManager: {fileID: 0}
+  corpseSuspicionBoost: 150
 --- !u!4 &726567859
 Transform:
   m_ObjectHideFlags: 0
@@ -1211,7 +1212,7 @@ GameObject:
   - component: {fileID: 1293719857}
   - component: {fileID: 1293719856}
   - component: {fileID: 1293719855}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5506,7 +5507,7 @@ GameObject:
   - component: {fileID: 1320007250}
   - component: {fileID: 1320007249}
   - component: {fileID: 1320007248}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gem (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6077,7 +6078,7 @@ GameObject:
   - component: {fileID: 1992497397}
   - component: {fileID: 1992497396}
   - component: {fileID: 1992497395}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gem (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6235,18 +6236,18 @@ MonoBehaviour:
   slotPrefab: {fileID: 1056157638470308590, guid: 01ca2d56a30b87346a87b92f33340bce, type: 3}
   itemOverlayPrefab: {fileID: 6742366044173191699, guid: 685bbcddd71a4c34cad43f923d5407da, type: 3}
   bagPrefab: {fileID: 3319090083233209130, guid: 7661b7077aaf2bc489cd543dc766db1f, type: 3}
-  emptyArmour: {fileID: 11400000, guid: ec4a71f841d965f40a0aef80e0b20933, type: 2}
-  emptyWeapon: {fileID: 11400000, guid: 94fd9021e575d104ca6f304f9faaae3b, type: 2}
-  emptyGadget: {fileID: 11400000, guid: 63023b9bf194eec4a9ee2f4166e8fa1c, type: 2}
+  emptyArmour: {fileID: 11400000, guid: 2ebc003d70d2a7840af0d08feec90097, type: 2}
+  emptyWeapon: {fileID: 11400000, guid: afd9bd1dbde7d95459959ada1043fde0, type: 2}
+  emptyGadget: {fileID: 11400000, guid: 4b77e921ab7ab68499e1701974043758, type: 2}
   extraSlots: 1
   startingArmour: 1
   startingWeapons: 1
   testingLoadout:
-  - {fileID: 11400000, guid: cc4e473f7c391814fbbc69ef933c5da0, type: 2}
-  - {fileID: 11400000, guid: 6145d14ad400d904a9d5793313497d16, type: 2}
-  - {fileID: 11400000, guid: 7fc058620c93cce4786d5c119c16dc7e, type: 2}
-  - {fileID: 11400000, guid: 6f2de49058387904b9446b2697c99284, type: 2}
-  - {fileID: 11400000, guid: a1a3207fe85d3234ea7a3888bed8355f, type: 2}
+  - {fileID: 11400000, guid: 91fb8a7f07e8bad49a630fe290b3e966, type: 2}
+  - {fileID: 11400000, guid: 9c7acace025e8294fa100309ca7a446c, type: 2}
+  - {fileID: 11400000, guid: 4127dea97c5b8b249b89286ffd263c55, type: 2}
+  - {fileID: 11400000, guid: bfeb275c80f43c44c9333de7fd728023, type: 2}
+  - {fileID: 11400000, guid: 55946e8a1dc870b4db1b30b51237f74d, type: 2}
 --- !u!4 &5227960794327294777
 Transform:
   m_ObjectHideFlags: 0
