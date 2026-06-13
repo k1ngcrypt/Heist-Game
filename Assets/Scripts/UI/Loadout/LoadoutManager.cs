@@ -293,4 +293,24 @@ public class LoadoutManager : MonoBehaviour
             }
         }
     }
+
+    /*
+    public void DebugLoadout()
+    {
+        string str = "Player Inv: ";
+        foreach (var item in PlayerLoadout)
+        {
+            
+            if(item.myItem == null)
+            {
+                str += "null, ";
+            } else
+            {
+               str += item.myItem.itemTitle + ", "; 
+            }
+            
+        }
+        Debug.Log(str);
+    }
+    */
 }
