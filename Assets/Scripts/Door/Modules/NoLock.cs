@@ -13,7 +13,7 @@ namespace HeistGame.Door
             return false;
         }
 
-        public bool TryUnlock()
+        public bool TryUnlock(int ItemID)
         {
             return true;
         }

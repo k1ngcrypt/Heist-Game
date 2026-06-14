@@ -65,35 +65,29 @@ namespace HeistGame.Interactions {
         }
 
         private async void InteractWithDoor() {
-            bool success;
             if (openBehavior.IsOpen) {
-                success = door.TryCloseDoor();
-                if (success) {
+                if (door.TryCloseDoor()) {
                     stateManager.RebuildActiveMenu();
                     await TurnManager.Instance.ProcessTicks(ticksUsedToOpen);
-                } else {
-                    NotificationManager.Instance.SendNotification($"Failed to close {nameOfDoor}. The door might be stuck.", Color.yellow);
                 }
             } else {
-                success = door.TryOpenDoor();
-                if (success) {
+                if (door.TryOpenDoor()) {
                     stateManager.RebuildActiveMenu();
                     await TurnManager.Instance.ProcessTicks(ticksUsedToOpen);
-                } else {
-                    NotificationManager.Instance.SendNotification($"Failed to open {nameOfDoor}. The door might be locked.", Color.yellow);
                 }
             }
         }
 
         private async void UnlockDoor() {
             bool success;
+            //Get Eqqipped Tool Id Here When Made
             if (lockBehavior != null) {
                 if(lockBehavior.IsLocked) {
-                    success = lockBehavior.TryUnlock();
+                    success = lockBehavior.TryUnlock(-1);
                     if (success) {
                         stateManager.RebuildActiveMenu();
                         await TurnManager.Instance.ProcessTicks(ticksUsedToLock);
-                    }else {
+                    } else {
                         NotificationManager.Instance.SendNotification($"Failed to unlock {nameOfDoor}. You might need a key or the right tool.", Color.yellow);
                     }
                 } else {
@@ -111,7 +105,7 @@ namespace HeistGame.Interactions {
         private async void DestroyDoor() {
             bool success;
             if (destroyBehavior != null) {
-                success = door.TryDestroyDoor();
+                success = door.TryDestroyDoor(-1);
                 if (success) {
                     await TurnManager.Instance.ProcessTicks(ticksUsedToDestroy);
                     Destroy(door.gameObject);

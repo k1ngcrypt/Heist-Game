@@ -424,6 +424,25 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &244193462 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1586096497801736776, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
+  m_PrefabInstance: {fileID: 532644915}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &244193465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244193462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ea2dd051c9d297458d86741fd9b65e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Lockable
+  requiredKeyIds: ffffffff01000000
+  isLocked: 1
 --- !u!1 &428424170 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
@@ -537,10 +556,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3253360275740078243, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1586096497801736776, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 244193465}
   m_SourcePrefab: {fileID: 100100000, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
 --- !u!1 &726567857
 GameObject:
@@ -6239,15 +6262,16 @@ MonoBehaviour:
   emptyArmour: {fileID: 11400000, guid: 2ebc003d70d2a7840af0d08feec90097, type: 2}
   emptyWeapon: {fileID: 11400000, guid: afd9bd1dbde7d95459959ada1043fde0, type: 2}
   emptyGadget: {fileID: 11400000, guid: 4b77e921ab7ab68499e1701974043758, type: 2}
-  extraSlots: 1
+  extraSlots: 2
   startingArmour: 1
   startingWeapons: 1
   testingLoadout:
-  - {fileID: 11400000, guid: 91fb8a7f07e8bad49a630fe290b3e966, type: 2}
   - {fileID: 11400000, guid: 9c7acace025e8294fa100309ca7a446c, type: 2}
+  - {fileID: 11400000, guid: 91fb8a7f07e8bad49a630fe290b3e966, type: 2}
   - {fileID: 11400000, guid: 4127dea97c5b8b249b89286ffd263c55, type: 2}
-  - {fileID: 11400000, guid: bfeb275c80f43c44c9333de7fd728023, type: 2}
+  - {fileID: 11400000, guid: c6c005dae16df59459eb462b996cf0a9, type: 2}
   - {fileID: 11400000, guid: 55946e8a1dc870b4db1b30b51237f74d, type: 2}
+  - {fileID: 11400000, guid: 7054c43e12a7f1146b9abad77add1b0e, type: 2}
 --- !u!4 &5227960794327294777
 Transform:
   m_ObjectHideFlags: 0

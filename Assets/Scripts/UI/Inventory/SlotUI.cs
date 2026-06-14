@@ -10,7 +10,8 @@ public class SlotUI : MonoBehaviour, IDropHandler
     public void Initialize(int idx, LoadoutItems slotType)
     {
         this.idx = idx;
-        this.slotType = slotType.GetType().Name;
+        if (slotType is GadgetItem) this.slotType = "GadgetItem";
+        else this.slotType = slotType.GetType().Name;
         gameObject.name = $"Slot_{idx}";
     }
 
