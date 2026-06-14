@@ -33,6 +33,9 @@ public class InventoryManager : MonoBehaviour
     private ItemUI fillerItem;
     private Transform topLayer;
     private SlotUI overlaySlot;
+    private SlotUI equippedSlot = null;
+    private Color unselected = new Color(1, 1, 1, 100f/255f);
+    private Color selected = new Color(0, 1, 0, 100f/255f);
 
     public static InventoryManager Instance { get; private set; }
 
@@ -310,6 +313,9 @@ public class InventoryManager : MonoBehaviour
             return;
         }
 
+        CheckEquipped(oldSlot);
+        CheckEquipped(newSlot);
+
         //swap items visually
         if (oldItm != null && oldItm.myItem.itemTitle != "Empty")
         {
@@ -374,6 +380,9 @@ public class InventoryManager : MonoBehaviour
             ReturnItem(item);
             return;
         }
+
+        CheckEquipped(item.slotOrigin);
+
         if (currentBag == null)
         {
             //no bag, create new one
@@ -453,6 +462,15 @@ public class InventoryManager : MonoBehaviour
         return emptyWeapon;
     }
 
+    public LoadoutItems ReturnEquipItem()
+    {
+        if (equippedSlot == null)
+        {
+            return null;
+        }
+        return equippedSlot.currentItem.myItem;
+    }
+
     public bool TryAddItem(LoadoutItems item)
     {
         LoadoutItems check = emptyGadget;
@@ -504,10 +522,31 @@ public class InventoryManager : MonoBehaviour
 
                 Destroy(oldItem.gameObject);
                 
+                CheckEquipped(slot);
+
                 return true;
             }
         }
         return false;
+    }
+
+    public void SelectedItem(SlotUI slot)
+    {
+        if (slot == null || slot.idx == -1 || slot.currentItem.myItem.itemTitle == "Empty") return;
+
+        if (equippedSlot != null)
+        {
+            equippedSlot.GetComponent<Image>().color = unselected;
+        }
+        equippedSlot = slot;
+        slot.GetComponent<Image>().color = selected;
+    }
+
+    private void CheckEquipped(SlotUI slot)
+    {
+        if (equippedSlot == null || slot == null || equippedSlot != slot) return;
+        equippedSlot.GetComponent<Image>().color = unselected;
+        equippedSlot = null;
     }
 
     /*

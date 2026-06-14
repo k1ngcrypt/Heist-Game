@@ -156,7 +156,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7667119290340227625
 RectTransform:
   m_ObjectHideFlags: 0
@@ -258,22 +258,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   allArmours:
-  - {fileID: 11400000, guid: ec4a71f841d965f40a0aef80e0b20933, type: 2}
-  - {fileID: 11400000, guid: cc4e473f7c391814fbbc69ef933c5da0, type: 2}
-  - {fileID: 11400000, guid: 00d19318ebd8d4c4fb63397cc11a2d61, type: 2}
-  - {fileID: 11400000, guid: 5ded0b733e0122542a72a62580f11e70, type: 2}
+  - {fileID: 11400000, guid: 2ebc003d70d2a7840af0d08feec90097, type: 2}
+  - {fileID: 11400000, guid: 9c7acace025e8294fa100309ca7a446c, type: 2}
+  - {fileID: 11400000, guid: 0c4470c767f64214f8724ba762bdf967, type: 2}
+  - {fileID: 11400000, guid: 42e7997b65da2b745ac1770680f98030, type: 2}
   allWeapons:
-  - {fileID: 11400000, guid: 94fd9021e575d104ca6f304f9faaae3b, type: 2}
-  - {fileID: 11400000, guid: 6145d14ad400d904a9d5793313497d16, type: 2}
-  - {fileID: 11400000, guid: 6c53c99c45ec2034bae2da19b3c91a5e, type: 2}
+  - {fileID: 11400000, guid: afd9bd1dbde7d95459959ada1043fde0, type: 2}
+  - {fileID: 11400000, guid: 91fb8a7f07e8bad49a630fe290b3e966, type: 2}
+  - {fileID: 11400000, guid: 516e25b8fa400c149bbcbbfa76e3809e, type: 2}
   allGadgets:
-  - {fileID: 11400000, guid: 63023b9bf194eec4a9ee2f4166e8fa1c, type: 2}
-  - {fileID: 11400000, guid: 7fc058620c93cce4786d5c119c16dc7e, type: 2}
-  - {fileID: 11400000, guid: 666027f98c6293e46870e99b9eaa536f, type: 2}
-  - {fileID: 11400000, guid: 6f2de49058387904b9446b2697c99284, type: 2}
-  emptyArmour: {fileID: 11400000, guid: ec4a71f841d965f40a0aef80e0b20933, type: 2}
-  emptyWeapon: {fileID: 11400000, guid: 94fd9021e575d104ca6f304f9faaae3b, type: 2}
-  emptyGadget: {fileID: 11400000, guid: 63023b9bf194eec4a9ee2f4166e8fa1c, type: 2}
+  - {fileID: 11400000, guid: 4b77e921ab7ab68499e1701974043758, type: 2}
+  - {fileID: 11400000, guid: 4127dea97c5b8b249b89286ffd263c55, type: 2}
+  - {fileID: 11400000, guid: 7054c43e12a7f1146b9abad77add1b0e, type: 2}
+  - {fileID: 11400000, guid: 55946e8a1dc870b4db1b30b51237f74d, type: 2}
+  - {fileID: 11400000, guid: bfeb275c80f43c44c9333de7fd728023, type: 2}
+  emptyArmour: {fileID: 11400000, guid: 2ebc003d70d2a7840af0d08feec90097, type: 2}
+  emptyWeapon: {fileID: 11400000, guid: afd9bd1dbde7d95459959ada1043fde0, type: 2}
+  emptyGadget: {fileID: 11400000, guid: 4b77e921ab7ab68499e1701974043758, type: 2}
   armourCount: 1
   weaponsCount: 1
   startingGadgetsCount: 3
@@ -471,7 +472,7 @@ RectTransform:
   m_Father: {fileID: 3580539438533301856}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0.577367}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1501,7 +1502,7 @@ RectTransform:
   m_Father: {fileID: 1077343433870348606}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2125,9 +2126,9 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 1
       - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: LvlSelectManager, Assembly-CSharp
-        m_MethodName: OpenLvlSelect
-        m_Mode: 1
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2477,7 +2478,7 @@ RectTransform:
   m_Father: {fileID: 1967442333167366769}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3096,7 +3097,7 @@ RectTransform:
   m_Father: {fileID: 684170951923838766}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
