@@ -34,7 +34,7 @@ public class SettingManager : MonoBehaviour
         else
         {
             Instance.Reinitialize(resolutionDropdown, graphicDropdown, fullScreenToggle, godModeToggle, volumeBar);
-            Destroy(this);
+            Destroy(gameObject);
             return;
         }
 
@@ -57,6 +57,7 @@ public class SettingManager : MonoBehaviour
 
     public void Reinitialize(TMP_Dropdown resolutionDropdown, TMP_Dropdown graphicDropdown, Toggle fullScreenToggle, Toggle godModeToggle, Scrollbar volumeBar)
     {
+        resolutionDropdown.ClearOptions();
         resolutionDropdown.AddOptions(options);
         resolutionDropdown.value = currentResIdx;
         resolutionDropdown.onValueChanged.RemoveAllListeners();
@@ -121,10 +122,11 @@ public class SettingManager : MonoBehaviour
 
     public void SetVolume(float value) //value inbetween 0 and 1, with 1 being on the left, and 0 being on the right
     {
+        volumeSlider = value;
         Debug.Log($"Volume set to {value * -80f}");
         if (audioMixer == null || volumeBar == null) return;
         audioMixer.SetFloat("volume", value * -80f); //at the left, it becomes -80, and at the right, it becomes 0
-        volumeSlider = value;
+        
     }
 
     public void SetGodMode(bool value)
