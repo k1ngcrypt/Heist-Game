@@ -1380,6 +1380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Objectives.CollectionObjective
   targetObjectiveID: 4
   progressAmount: 1
+  prerequisiteID: -1
 --- !u!4 &1293719858
 Transform:
   m_ObjectHideFlags: 0
@@ -5675,6 +5676,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Objectives.CollectionObjective
   targetObjectiveID: 4
   progressAmount: 1
+  prerequisiteID: -1
 --- !u!4 &1320007251
 Transform:
   m_ObjectHideFlags: 0
@@ -5909,6 +5911,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Objectives.EnterArea
   targetObjectiveID: 3
   progressAmount: 1
+  prerequisiteID: -1
   topRight: {x: -11.5, y: 5.5}
   bottomLeft: {x: -18.5, y: -0.5}
   playerPos: {fileID: 1120341669}
@@ -6246,6 +6249,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Objectives.CollectionObjective
   targetObjectiveID: 4
   progressAmount: 1
+  prerequisiteID: -1
 --- !u!4 &1992497398
 Transform:
   m_ObjectHideFlags: 0

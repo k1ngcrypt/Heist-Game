@@ -7,4 +7,5 @@ public class WeaponItem : LoadoutItems {
     [SerializeField] public bool isSilenced;
     [SerializeField] public bool isAmmoPowered;
     [SerializeField] public int ammoCapacity;
+    public int currentAmmo;
 }

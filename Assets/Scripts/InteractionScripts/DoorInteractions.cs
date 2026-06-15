@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using HeistGame.Door;
+using NUnit.Framework.Constraints;
 
 namespace HeistGame.Interactions {
     public class DoorInteractions : MonoBehaviour, IInteractionContributor {
@@ -83,18 +84,20 @@ namespace HeistGame.Interactions {
             //Get Eqqipped Tool Id Here When Made
             if (lockBehavior != null) {
                 if(lockBehavior.IsLocked) {
-                    if (lockBehavior is Lockable) {
-                        LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
-                        if (item == null) {
-                            NotificationManager.Instance.SendNotification("You need to hold the right tool to unlock the door", Color.yellow);
-                        }
-                        else if (item is not LockDoorTool) {
-                            NotificationManager.Instance.SendNotification("You can not unlock a door with that tool.", Color.yellow);
-                        }
-                        success = lockBehavior.TryUnlock(((LockDoorTool)item).lockingToolID);
-                    } else success = lockBehavior.TryUnlock(0);
+                    GadgetItem item = (GadgetItem)InventoryManager.Instance.ReturnEquipItem();
+                    if (lockBehavior is NoLock) return;
+                    if (item == null) {
+                        NotificationManager.Instance.SendNotification("You need to hold the right tool to unlock the door", Color.yellow);
+                    }
+                    else if (item is not LockDoorTool) {
+                        NotificationManager.Instance.SendNotification("You can not unlock a door with that tool.", Color.yellow);
+                    }
+                    success = lockBehavior.TryUnlock(((LockDoorTool)item).lockingToolID);
                     if (success) {
                         stateManager.RebuildActiveMenu();
+                        item.currentDurability--;
+                        InventoryManager.Instance.UpdateVisual(item);
+                        if (item.currentDurability == 0) InventoryManager.Instance.TryRemoveItem(item);
                         await TurnManager.Instance.ProcessTicks(ticksUsedToLock);
                     } else {
                         NotificationManager.Instance.SendNotification($"Failed to unlock {nameOfDoor}. You might need a key or the right tool.", Color.yellow);
@@ -114,20 +117,22 @@ namespace HeistGame.Interactions {
         private async void DestroyDoor() {
             bool success;
             if (destroyBehavior != null) {
-                if (destroyBehavior is Destructible) {
-                    LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
-                    if (item == null) {
-                        NotificationManager.Instance.SendNotification("You need to hold the right tool to break down the door", Color.yellow);
-                    }
-                    else if (item is not BreakDoorTool) {
-                        NotificationManager.Instance.SendNotification("You can not destroy a door with that tool.", Color.yellow);
-                    }
-                    success = destroyBehavior.TryDestroy(((BreakDoorTool)item).breakingToolID);
-                } else {
+                GadgetItem item = (GadgetItem)InventoryManager.Instance.ReturnEquipItem();
+                if (destroyBehavior is NotConstraint Destructible) {
                     NotificationManager.Instance.SendNotification("You can not break down this door", Color.yellow);
                     return;
                 }
+                if (item == null) {
+                    NotificationManager.Instance.SendNotification("You need to hold the right tool to break down the door", Color.yellow);
+                }
+                else if (item is not BreakDoorTool) {
+                    NotificationManager.Instance.SendNotification("You can not destroy a door with that tool.", Color.yellow);
+                }
+                success = destroyBehavior.TryDestroy(((BreakDoorTool)item).breakingToolID);
                 if (success) {
+                    item.currentDurability--;
+                    InventoryManager.Instance.UpdateVisual(item);
+                    if (item.currentDurability == 0) InventoryManager.Instance.TryRemoveItem(item);
                     await TurnManager.Instance.ProcessTicks(ticksUsedToDestroy);
                 } else {
                     NotificationManager.Instance.SendNotification($"Failed to break {nameOfDoor}. You need the right tool.", Color.yellow);
