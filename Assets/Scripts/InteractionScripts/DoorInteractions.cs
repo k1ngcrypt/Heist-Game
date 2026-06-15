@@ -83,7 +83,16 @@ namespace HeistGame.Interactions {
             //Get Eqqipped Tool Id Here When Made
             if (lockBehavior != null) {
                 if(lockBehavior.IsLocked) {
-                    success = lockBehavior.TryUnlock(-1);
+                    if (lockBehavior is Lockable) {
+                        LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
+                        if (item == null) {
+                            NotificationManager.Instance.SendNotification("You need to hold the right tool to unlock the door", Color.yellow);
+                        }
+                        else if (item is not LockDoorTool) {
+                            NotificationManager.Instance.SendNotification("You can not unlock a door with that tool.", Color.yellow);
+                        }
+                        success = lockBehavior.TryUnlock(((LockDoorTool)item).lockingToolID);
+                    } else success = lockBehavior.TryUnlock(0);
                     if (success) {
                         stateManager.RebuildActiveMenu();
                         await TurnManager.Instance.ProcessTicks(ticksUsedToLock);
@@ -105,10 +114,21 @@ namespace HeistGame.Interactions {
         private async void DestroyDoor() {
             bool success;
             if (destroyBehavior != null) {
-                success = door.TryDestroyDoor(-1);
+                if (destroyBehavior is Destructible) {
+                    LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
+                    if (item == null) {
+                        NotificationManager.Instance.SendNotification("You need to hold the right tool to break down the door", Color.yellow);
+                    }
+                    else if (item is not BreakDoorTool) {
+                        NotificationManager.Instance.SendNotification("You can not destroy a door with that tool.", Color.yellow);
+                    }
+                    success = destroyBehavior.TryDestroy(((BreakDoorTool)item).breakingToolID);
+                } else {
+                    NotificationManager.Instance.SendNotification("You can not break down this door", Color.yellow);
+                    return;
+                }
                 if (success) {
                     await TurnManager.Instance.ProcessTicks(ticksUsedToDestroy);
-                    Destroy(door.gameObject);
                 } else {
                     NotificationManager.Instance.SendNotification($"Failed to break {nameOfDoor}. You need the right tool.", Color.yellow);
                 }

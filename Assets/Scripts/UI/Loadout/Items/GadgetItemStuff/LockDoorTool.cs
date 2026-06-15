@@ -1,13 +1,15 @@
 using HeistGame.Door;
+using HeistGame.Interactions;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "LockTool", menuName = "Heist Game/Loadout Items/Gadgets/Lock Door Tool")]
 public class LockDoorTool : GadgetItem {
-    [SerializeField] private int lockingToolId;
+    [SerializeField] public int lockingToolID;
     private int combinedMask;
 
     public void OnEnable() {
-        combinedMask = 1 << LayerMask.NameToLayer("Pain");
+        combinedMask = 1 << LayerMask.NameToLayer("Obstacle");
+        if (combinedMask == null) combinedMask =  1 << LayerMask.NameToLayer("Pain");
     }
 
     private readonly Vector2[] moveDirections = new Vector2[] {
@@ -26,17 +28,23 @@ public class LockDoorTool : GadgetItem {
                 if (door != null) {
                     IDoorLockBehavior lockBehavior = door.GetComponent<IDoorLockBehavior>();
                     if (lockBehavior.IsLocked) {
-                        bool success = lockBehavior.TryUnlock(lockingToolId);
+                        bool success = lockBehavior.TryUnlock(lockingToolID);
                         if (success) {
+                            InteractionStateManager stateManager;
+                            foreach (Transform child in door.transform){
+                                stateManager = child.GetComponent<InteractionStateManager>();
+                                if (stateManager != null) {
+                                    stateManager.RebuildActiveMenu(true);
+                                    break;
+                                }
+                            }
                             await TurnManager.Instance.ProcessTicks(1);
                             return true; 
-                        } 
-                        else {
+                        } else {
                             NotificationManager.Instance.SendNotification("Failed to unlock the obstacle.", Color.yellow);
                             return false;
                         }
-                    } 
-                    else {
+                    } else {
                         NotificationManager.Instance.SendNotification("This door is unlocked!", Color.white);
                         return false;
                     }

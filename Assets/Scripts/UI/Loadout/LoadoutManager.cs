@@ -189,7 +189,7 @@ public class LoadoutManager : MonoBehaviour
             itemsToShow = allArmours;
         } else if (type == "WeaponItem") {
             itemsToShow = allWeapons;
-        } else if (type == "GadgetItem") {
+        } else {
             itemsToShow = allGadgets;
         }
         List<LoadoutBtnUI> tempBtns = new();
