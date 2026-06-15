@@ -96,12 +96,11 @@ public class CameraDetector : MonoBehaviour
         }
         else
         {
-            AwarenessManager.Instance.ReportGuardSuspicion(Mathf.Min(suspicionDecayPerTick, suspicion));
             suspicion = Mathf.Max(0f, suspicion - suspicionDecayPerTick);
         }
 
         bool hasSuspicion = suspicion > 0f;
-        if (hasSuspicion && !hadSuspicionLastFrame)
+        if (hasSuspicion && !hadSuspicionLastFrame && IsPlayerVisible)
         {
             onSuspicionStarted?.Invoke();
         }

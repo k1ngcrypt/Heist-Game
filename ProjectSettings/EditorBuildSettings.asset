@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Bank.unity
     guid: c3dd4f9901f4ad84ba14179d081bac07
+  - enabled: 1
+    path: Assets/Scenes/Blacksite.unity
+    guid: 7ca5d2df818f8cc4397f104eb984cee9
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

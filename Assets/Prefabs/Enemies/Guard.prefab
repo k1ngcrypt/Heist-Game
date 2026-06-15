@@ -185,9 +185,11 @@ MonoBehaviour:
   - {x: -2.5, y: 410.5}
   - {x: -2.5, y: 405.5}
   - {x: 0.5, y: 5.5}
-  suspicionPerTick: 10
-  maxSuspicion: 100
+  suspiciongainPerTick: 10
+  suspicionLossPerTick: 2
+  maxSuspicion: 200
   immediateDetectionRange: 1
+  Suspicion: 0
   Navigator: {fileID: 5126320102472977764}
 --- !u!114 &1934003314051609791
 MonoBehaviour:
@@ -352,9 +354,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuardAttacker
   attackDamage: 10
-  attackRange: 10
+  attackRange: 7
   weaponVisuals: {fileID: 7117842327098040416}
-  visualDuration: 1
+  visualDuration: 0.6
 --- !u!1001 &7390927231835673281
 PrefabInstance:
   m_ObjectHideFlags: 0
