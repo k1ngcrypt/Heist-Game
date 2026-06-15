@@ -12,6 +12,7 @@ public class InteractBtnTemplate
     [SerializeField] public UnityEvent onClick = new();
 }
 
+[RequireComponent(typeof(Transform))]
 public class InteractArea : MonoBehaviour, ITurnActor
 {
     [Header("Overlay Settings")]
@@ -60,7 +61,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
         }
         if (FindAnyObjectByType<EventSystem>() == null)
         {
-            GameObject obj = new GameObject("EventSystem");
+            GameObject obj = new("EventSystem");
 
             obj.AddComponent<EventSystem>();
             obj.AddComponent<InputSystemUIInputModule>();

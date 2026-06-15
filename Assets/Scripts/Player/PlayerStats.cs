@@ -7,11 +7,6 @@ public class PlayerStats : MonoBehaviour {
     private int baseArmour = 0;
     private bool healthWarningTriggered = false;
     const float lowHealthThreshold = 0.2f;
-    private InventoryManager inventoryManager;
-
-    private void OnValidate() {
-        if (inventoryManager == null) inventoryManager = FindAnyObjectByType<InventoryManager>();
-    }
 
     public void IncreaseHealth(int amount) {
         maxHealth += amount;
@@ -29,7 +24,7 @@ public class PlayerStats : MonoBehaviour {
 
     public void IncreaseBaseArmour(int amount) { baseArmour += amount; }
     public int GetTotalArmour() {
-        LoadoutItems additionalArmour = inventoryManager.ReturnEquipArmour();
+        LoadoutItems additionalArmour = InventoryManager.Instance.ReturnEquipArmour();
         return baseArmour + ((additionalArmour.GetType() == typeof(ArmourItem))? ((ArmourItem)additionalArmour).armourValue : 0);
     }
 
@@ -42,6 +37,12 @@ public class PlayerStats : MonoBehaviour {
         }
         HealthBarUI.Instance.UpdateHealthUI();
         if (health == 0) SceneUIManager.Instance.MissionFailed("You Died");
+    }
+
+    public bool IsDisguised()
+    {
+        LoadoutItems Armour = InventoryManager.Instance.ReturnEquipArmour();
+        return Armour != null && Armour.itemTitle == "Disguise";
     }
 
 }

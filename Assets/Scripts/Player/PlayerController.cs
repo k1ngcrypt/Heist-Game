@@ -1,12 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using HeistGame.Objectives;
-using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 public class PlayerController : MonoBehaviour
 {
+    private static readonly int DirectionHash = Animator.StringToHash("Direction");
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
@@ -23,7 +21,7 @@ public class PlayerController : MonoBehaviour
     private const float ventMoveDurationMultiplier = 1.5f, restDuration = 0.1f, interactionDuration = 0.1f;
 
     private readonly Vector2[] moveDirections = new Vector2[] {
-        Vector2.zero, new Vector2(0,0.5f), new Vector2(0,-0.5f), Vector2.up, Vector2.down, Vector2.left, Vector2.right,
+        Vector2.zero, new(0,0.5f), new(0,-0.5f), Vector2.up, Vector2.down, Vector2.left, Vector2.right,
         new Vector2(1, 1).normalized, new Vector2(-1, 1).normalized,
         new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized
     };
@@ -45,19 +43,19 @@ public class PlayerController : MonoBehaviour
         // Prevent starting new actions while one is in progress
         if (!isMoving && Keyboard.current != null && !SceneUIManager.Instance.IsPaused())
         {
-            System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
+            static bool inputHeld(Key key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) {
-                animator.SetInteger("Direction",1);
+                animator.SetInteger(DirectionHash, 1);
                 await AttemptMove(Vector2.up);
             } else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow)) {
-                animator.SetInteger("Direction",0);
+                animator.SetInteger(DirectionHash, 0);
                 await AttemptMove(Vector2.left);
             } else if (inputHeld(Key.S) || inputHeld(Key.DownArrow)) {
-                animator.SetInteger("Direction",3);
+                animator.SetInteger(DirectionHash, 3);
                 await AttemptMove(Vector2.down);
             } else if (inputHeld(Key.D) || inputHeld(Key.RightArrow)) {
-                animator.SetInteger("Direction",2);
+                animator.SetInteger(DirectionHash, 2);
                 await AttemptMove(Vector2.right);
             }
             

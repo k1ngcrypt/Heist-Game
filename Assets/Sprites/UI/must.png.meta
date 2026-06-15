@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: 0efa298e8c797fb46b35abe6cd2ff992
+guid: 66feccad04dadc24f97764f66ad32fa2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5211705871417040898
-    second: Untitled design (4)_0
-  - first:
-      213: 2196167054476858351
-    second: Untitled design (4)_1
-  - first:
-      213: 7099864899303204193
-    second: Untitled design (4)_2
+      213: 4076338934755969940
+    second: must_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -119,67 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Police Grade
+      name: must_0
       rect:
         serializedVersion: 2
-        x: 673
-        y: 449
-        width: 168
-        height: 187
+        x: 224
+        y: 212
+        width: 302
+        height: 76
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 20061a390e2b35840800000000000000
-      internalID: 5211705871417040898
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Civilian Grade
-      rect:
-        serializedVersion: 2
-        x: 877
-        y: 446
-        width: 154
-        height: 188
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fe3528ddc4a5a7e10800000000000000
-      internalID: 2196167054476858351
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Military Grade
-      rect:
-        serializedVersion: 2
-        x: 1074
-        y: 440
-        width: 170
-        height: 190
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1656b3c5289c78260800000000000000
-      internalID: 7099864899303204193
+      spriteID: 49b493ee9a0129830800000000000000
+      internalID: 4076338934755969940
       vertices: []
       indices: 
       edges: []
@@ -188,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: cba761be072ac4340a03a5e3cf7307fd
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -198,9 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Civilian Grade: 2196167054476858351
-      Military Grade: 7099864899303204193
-      Police Grade: 5211705871417040898
+      must_0: 4076338934755969940
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
