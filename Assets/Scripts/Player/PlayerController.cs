@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 using HeistGame.Objectives;
 using System;
 using System.Collections.Generic;
+using NUnit.Framework;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveDuration = 0.2f;
@@ -63,6 +64,7 @@ public class PlayerController : MonoBehaviour
             else if (inputHeld(Key.Z)) await Rest();
             else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
             else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
+            else if (Keyboard.current.fKey.wasPressedThisFrame) await UseGadget();
         }
     }
 
@@ -126,6 +128,7 @@ public class PlayerController : MonoBehaviour
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
+        GetComponent<PlayerStats>().TakeDamage(10);
         isMoving = false;
     }
 
@@ -146,18 +149,6 @@ public class PlayerController : MonoBehaviour
                     break;
                 }
             }
-        }
-        isMoving = false;
-    }
-
-    private async Awaitable ObjectiveCheck(Collider2D obj)
-    {
-        isMoving = true;
-        var trigger = obj.GetComponent<ObjectiveTrigger>();
-        if (trigger != null)
-        {
-            trigger.TriggerProgress();
-            await Awaitable.WaitForSecondsAsync(interactionDuration);
         }
         isMoving = false;
     }
@@ -199,6 +190,14 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+        isMoving = false;
+    }
+    private async Awaitable UseGadget() {
+        isMoving = true;
+
+        LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
+        if (item != null) await ((GadgetItem)item).TryExecute();
+
         isMoving = false;
     }
 

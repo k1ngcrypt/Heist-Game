@@ -24,7 +24,7 @@ public abstract class GadgetItem : LoadoutItems {
         bool success = await OnExecute();
         if (success) {
             currentDurability--;
-            if (currentDurability == 0) Debug.Log(itemTitle + " was destroyed");
+            if (currentDurability == 0) InventoryManager.Instance.TryRemoveItem(this);
         }
     }
     protected abstract Awaitable<bool> OnExecute();

@@ -11,14 +11,14 @@ namespace HeistGame.Interactions {
         }
 
         private void Start() { RebuildActiveMenu(); }
-        public void RebuildActiveMenu() {
+        public void RebuildActiveMenu(bool onlyIfVisible = false) {
             masterArea.ClearAllButtons();
             IInteractionContributor[] contributors = GetComponents<IInteractionContributor>();
 
             foreach (var contributor in contributors) {
                 masterArea.RegisterButtons(contributor.GetContextButtons());
             }
-            masterArea.RefreshActiveOverlayUI();
+            masterArea.RefreshActiveOverlayUI(onlyIfVisible);
         }
     }
 

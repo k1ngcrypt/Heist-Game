@@ -313,6 +313,12 @@ public class InventoryManager : MonoBehaviour
             return;
         }
 
+        if (oldSlot == newSlot)
+        {
+            ReturnItem(newItm);
+            return;
+        }
+
         CheckEquipped(oldSlot);
         CheckEquipped(newSlot);
 
@@ -532,9 +538,14 @@ public class InventoryManager : MonoBehaviour
 
     public void SelectedItem(SlotUI slot)
     {
-        if (slot == null || slot.idx == -1 || slot.currentItem.myItem.itemTitle == "Empty") return;
+        if (slot == null || slot.idx == -1 || slot.currentItem.myItem.itemTitle == "Empty" || slot.currentItem.myItem is not GadgetItem) return;
 
-        if (equippedSlot != null)
+        if (equippedSlot == slot)
+        {
+            slot.GetComponent<Image>().color = unselected;
+            equippedSlot = null;
+            return;
+        } else if (equippedSlot != null)
         {
             equippedSlot.GetComponent<Image>().color = unselected;
         }

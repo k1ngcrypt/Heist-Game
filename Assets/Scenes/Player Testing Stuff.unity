@@ -443,6 +443,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Lockable
   requiredKeyIds: ffffffff01000000
   isLocked: 1
+--- !u!114 &244193472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244193462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 543c89729b9fdd945bba4c91c3c764c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeistGame.Door.Destructible
+  requiredKeyIds: ffffffff01000000
+  isDestroyed: 0
+  destroyedSprite: {fileID: -7415617851807603569, guid: 52c4ed737cd48c942bd9f5062ac553b0, type: 3}
 --- !u!1 &428424170 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8370341283550318441, guid: 8533a315f724cbf48b190fa8c23f22db, type: 3}
@@ -558,12 +573,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3253360275740078243, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
+    - {fileID: 3891141009813338974, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1586096497801736776, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
       insertIndex: 4
       addedObject: {fileID: 244193465}
+    - targetCorrespondingSourceObject: {fileID: 1586096497801736776, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
+      insertIndex: 5
+      addedObject: {fileID: 244193472}
   m_SourcePrefab: {fileID: 100100000, guid: 2bec94457ca83ea4cbc73f420632aa2b, type: 3}
 --- !u!1 &726567857
 GameObject:

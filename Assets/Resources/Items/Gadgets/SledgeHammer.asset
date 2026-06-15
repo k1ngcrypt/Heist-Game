@@ -17,4 +17,4 @@ MonoBehaviour:
   itemIcon: {fileID: -125335626, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}
   suspicionModifier: 10
   maxDurability: 10
-  breakingToolId: 1
+  breakingToolID: 1

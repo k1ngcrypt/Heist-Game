@@ -1,13 +1,15 @@
 using UnityEngine;
+using HeistGame.Interactions;
 using HeistGame.Door;
 
 [CreateAssetMenu(fileName = "BreakTool", menuName = "Heist Game/Loadout Items/Gadgets/Break Door Tool")]
 public class BreakDoorTool : GadgetItem {
-    [SerializeField] public int breakingToolId;
+    [SerializeField] public int breakingToolID;
     private int combinedMask;
 
     public void OnEnable() {
-        combinedMask = 1 << LayerMask.NameToLayer("Pain");
+        combinedMask = 1 << LayerMask.NameToLayer("Obstacle");
+        if (combinedMask == null) combinedMask =  1 << LayerMask.NameToLayer("Pain");
     }
 
     private readonly Vector2[] moveDirections = new Vector2[] {
@@ -26,17 +28,23 @@ public class BreakDoorTool : GadgetItem {
                 if (door != null) {
                     IDoorDestroyBehavior destroyBehavior = door.GetComponent<IDoorDestroyBehavior>();
                     if (!destroyBehavior.IsDestroyed) {
-                        bool success = destroyBehavior.TryDestroy(breakingToolId);
+                        bool success = destroyBehavior.TryDestroy(breakingToolID);
                         if (success) {
+                            InteractionStateManager stateManager;
+                            foreach (Transform child in door.transform){
+                                stateManager = child.GetComponent<InteractionStateManager>();
+                                if (stateManager != null) {
+                                    stateManager.RebuildActiveMenu(true);
+                                    break;
+                                }
+                            }
                             await TurnManager.Instance.ProcessTicks(1);
                             return true; 
-                        } 
-                        else {
-                            NotificationManager.Instance.SendNotification("Failed to destroy this barrier", Color.yellow);
+                        } else {
+                            NotificationManager.Instance.SendNotification("Failed to destroy this door", Color.yellow);
                             return false;
                         }
-                    } 
-                    else {
+                    } else {
                         NotificationManager.Instance.SendNotification("This obstacle is already destroyed", Color.white);
                         return false;
                     }
