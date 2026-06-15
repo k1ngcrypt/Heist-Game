@@ -100,9 +100,10 @@ public class InteractArea : MonoBehaviour, ITurnActor
     //for interaction scripts to call to update the buttons when something changes
     public void RegisterButtons(List<InteractBtnTemplate> newButtons) { buttons.AddRange(newButtons); }
     public void ClearAllButtons() { buttons.Clear(); }
-    public void RefreshActiveOverlayUI() {
+    public void RefreshActiveOverlayUI(bool onlyIfVisible = false) {
         if (currentOverlay == null) return;
         currentOverlay.Initialize(title, buttons, transform.position, player.GetComponent<PlayerController>());
+        if (onlyIfVisible) currentOverlay.ToggleMenuStatus();
     }
     public List<InteractBtnTemplate> GetActiveButtons() { return buttons; }
 }

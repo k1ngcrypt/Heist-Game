@@ -65,35 +65,38 @@ namespace HeistGame.Interactions {
         }
 
         private async void InteractWithDoor() {
-            bool success;
             if (openBehavior.IsOpen) {
-                success = door.TryCloseDoor();
-                if (success) {
+                if (door.TryCloseDoor()) {
                     stateManager.RebuildActiveMenu();
                     await TurnManager.Instance.ProcessTicks(ticksUsedToOpen);
-                } else {
-                    NotificationManager.Instance.SendNotification($"Failed to close {nameOfDoor}. The door might be stuck.", Color.yellow);
                 }
             } else {
-                success = door.TryOpenDoor();
-                if (success) {
+                if (door.TryOpenDoor()) {
                     stateManager.RebuildActiveMenu();
                     await TurnManager.Instance.ProcessTicks(ticksUsedToOpen);
-                } else {
-                    NotificationManager.Instance.SendNotification($"Failed to open {nameOfDoor}. The door might be locked.", Color.yellow);
                 }
             }
         }
 
         private async void UnlockDoor() {
             bool success;
+            //Get Eqqipped Tool Id Here When Made
             if (lockBehavior != null) {
                 if(lockBehavior.IsLocked) {
-                    success = lockBehavior.TryUnlock();
+                    if (lockBehavior is Lockable) {
+                        LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
+                        if (item == null) {
+                            NotificationManager.Instance.SendNotification("You need to hold the right tool to unlock the door", Color.yellow);
+                        }
+                        else if (item is not LockDoorTool) {
+                            NotificationManager.Instance.SendNotification("You can not unlock a door with that tool.", Color.yellow);
+                        }
+                        success = lockBehavior.TryUnlock(((LockDoorTool)item).lockingToolID);
+                    } else success = lockBehavior.TryUnlock(0);
                     if (success) {
                         stateManager.RebuildActiveMenu();
                         await TurnManager.Instance.ProcessTicks(ticksUsedToLock);
-                    }else {
+                    } else {
                         NotificationManager.Instance.SendNotification($"Failed to unlock {nameOfDoor}. You might need a key or the right tool.", Color.yellow);
                     }
                 } else {
@@ -111,10 +114,21 @@ namespace HeistGame.Interactions {
         private async void DestroyDoor() {
             bool success;
             if (destroyBehavior != null) {
-                success = door.TryDestroyDoor();
+                if (destroyBehavior is Destructible) {
+                    LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
+                    if (item == null) {
+                        NotificationManager.Instance.SendNotification("You need to hold the right tool to break down the door", Color.yellow);
+                    }
+                    else if (item is not BreakDoorTool) {
+                        NotificationManager.Instance.SendNotification("You can not destroy a door with that tool.", Color.yellow);
+                    }
+                    success = destroyBehavior.TryDestroy(((BreakDoorTool)item).breakingToolID);
+                } else {
+                    NotificationManager.Instance.SendNotification("You can not break down this door", Color.yellow);
+                    return;
+                }
                 if (success) {
                     await TurnManager.Instance.ProcessTicks(ticksUsedToDestroy);
-                    Destroy(door.gameObject);
                 } else {
                     NotificationManager.Instance.SendNotification($"Failed to break {nameOfDoor}. You need the right tool.", Color.yellow);
                 }

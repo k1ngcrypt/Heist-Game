@@ -111,7 +111,7 @@ public class InventoryManager : MonoBehaviour
             LoadoutItems item = startingLoadout[idx];
 
             SlotUI itemSlot;
-            if (item.GetType() != typeof(GadgetItem))
+            if (item is not GadgetItem)
             {
                 itemSlot = Instantiate(slotPrefab, equippedSlots);
                 countEquipped++;
@@ -298,15 +298,23 @@ public class InventoryManager : MonoBehaviour
         }
 
         //check to see if item can go in that slot
-        if (newSlot.slotType != newItm.myItem.GetType().Name && newSlot.slotType != "GadgetItem")
+        bool isNewItemMatch = newSlot.slotType == "GadgetItem" || (newItm.myItem.GetType().Name == newSlot.slotType);
+        if (!isNewItemMatch)
         {
             NotificationManager.Instance.SendNotification($"Can't move {newItm.myItem.GetType().Name} item to {newSlot.slotType} slot");
             ReturnItem(newItm);
             return;
         }
-        if (oldItm.myItem.itemTitle != "Empty" && oldSlot.slotType != oldItm.myItem.GetType().Name && oldSlot.slotType != "GadgetItem")
+        bool isOldItemMatch = oldItm.myItem.itemTitle == "Empty" || oldSlot.slotType == "GadgetItem" || (oldItm.myItem.GetType().Name == oldSlot.slotType);
+        if (!isOldItemMatch)
         {
             NotificationManager.Instance.SendNotification($"Can't move {oldItm.myItem.GetType().Name} item to {oldSlot.slotType} slot");
+            ReturnItem(newItm);
+            return;
+        }
+
+        if (oldSlot == newSlot)
+        {
             ReturnItem(newItm);
             return;
         }
@@ -475,7 +483,8 @@ public class InventoryManager : MonoBehaviour
         for(int i = 0; i < allItems.Count; i++)
         {
             check = allItems[i];
-            if (check.itemTitle == "Empty" && (check.GetType() == item.GetType() || check.GetType() == typeof(GadgetItem)))
+            bool typeMatch = check.GetType() == item.GetType() || (check is GadgetItem && item is GadgetItem);
+            if (check.itemTitle == "Empty" && typeMatch)
             {
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
@@ -507,16 +516,9 @@ public class InventoryManager : MonoBehaviour
                 ItemUI oldItem = slot.currentItem;
                 ItemUI replaceEmpty = Instantiate(itemPrefab, allSlots[i].transform);
                 LoadoutItems empty;
-                if (item.GetType() == typeof(ArmourItem))
-                {
-                    empty = emptyArmour;
-                } else if (item.GetType() == typeof(WeaponItem)) 
-                {
-                    empty = emptyWeapon;
-                } else
-                {
-                    empty = emptyGadget;
-                }
+                if (item is ArmourItem) empty = emptyArmour;
+                else if (item is WeaponItem) empty = emptyWeapon;
+                else empty = emptyGadget;
                 replaceEmpty.Initialize(empty, slot, canvas);
                 replaceEmpty.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
 
@@ -536,9 +538,14 @@ public class InventoryManager : MonoBehaviour
 
     public void SelectedItem(SlotUI slot)
     {
-        if (slot == null || slot.idx == -1 || slot.currentItem.myItem.itemTitle == "Empty") return;
+        if (slot == null || slot.idx == -1 || slot.currentItem.myItem.itemTitle == "Empty" || slot.currentItem.myItem is not GadgetItem) return;
 
-        if (equippedSlot != null)
+        if (equippedSlot == slot)
+        {
+            slot.GetComponent<Image>().color = unselected;
+            equippedSlot = null;
+            return;
+        } else if (equippedSlot != null)
         {
             equippedSlot.GetComponent<Image>().color = unselected;
         }

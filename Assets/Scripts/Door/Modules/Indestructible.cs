@@ -8,7 +8,7 @@ namespace HeistGame.Door
 
         public bool IsDestroyed => isDestroyed;
 
-        public bool TryDestroy()
+        public bool TryDestroy(int itemID)
         {
             return false;
         }
