@@ -429,6 +429,7 @@ public class InventoryManager : MonoBehaviour
 
     public LoadoutItems ReturnEquipArmour()
     {
+        if (allItems == null) return emptyArmour;
         for(int i = 0; i < allSlots.Count; i++)
         {
             SlotUI slot = allSlots[i];
