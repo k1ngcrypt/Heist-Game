@@ -128,7 +128,7 @@ public class PlayerController : MonoBehaviour
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
-        GetComponent<PlayerStats>().TakeDamage(10);
+        //GetComponent<PlayerStats>().TakeDamage(10);
         isMoving = false;
     }
 
