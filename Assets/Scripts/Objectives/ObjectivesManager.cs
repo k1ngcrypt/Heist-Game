@@ -87,5 +87,12 @@ namespace HeistGame.Objectives {
                 OnObjectivesChanged?.Invoke(); // Tell the UI to redraw because a new objective appeared
             }
         }
+
+        public bool IsComplete(int objectiveID) {
+            ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
+            if (target != null) return target.IsCompleted;
+            Debug.LogWarning($"Objective with ID {objectiveID} not found!");
+            return false;
+        }
     }
 }

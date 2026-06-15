@@ -1080,7 +1080,7 @@ PrefabInstance:
       objectReference: {fileID: 1399526264}
     - target: {fileID: 9036623107174478937, guid: 3f824493698e7734bbe2fb1bd5343ac9, type: 3}
       propertyPath: allLvls.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 9036623107174478937, guid: 3f824493698e7734bbe2fb1bd5343ac9, type: 3}
       propertyPath: 'allLvls.Array.data[0]'
@@ -1089,7 +1089,15 @@ PrefabInstance:
     - target: {fileID: 9036623107174478937, guid: 3f824493698e7734bbe2fb1bd5343ac9, type: 3}
       propertyPath: 'allLvls.Array.data[1]'
       value: 
-      objectReference: {fileID: 11400000, guid: 12aa20ce75a3bcf4894a009cce141a97, type: 2}
+      objectReference: {fileID: 11400000, guid: 4ad271dbabd1b3b44a5f61c390a24fa9, type: 2}
+    - target: {fileID: 9036623107174478937, guid: 3f824493698e7734bbe2fb1bd5343ac9, type: 3}
+      propertyPath: startingUnlockedLvls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9036623107174478937, guid: 3f824493698e7734bbe2fb1bd5343ac9, type: 3}
+      propertyPath: 'startingUnlockedLvls.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 4ad271dbabd1b3b44a5f61c390a24fa9, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

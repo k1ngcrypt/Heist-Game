@@ -30,7 +30,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
     private Vector3 worldPosition;
     private Vector3 topRight;
     private Vector3 bottomLeft;
-    private Vector3 buffer = new Vector3(0.25f, 0.25f, 0); //incase to make sure it will still call player
+    private Vector3 buffer = new(0.25f, 0.25f, 0); //incase to make sure it will still call player
     public void OnValidate() {
         if (player == null) {
             if (Map.Player) player=Map.Player.transform;
