@@ -4,7 +4,7 @@ using Guards;
 using UnityEngine;
 using UnityEngine.Events;
 
-public enum AwarenessLevel
+public enum AwarenessLevel : byte
 {
     Calm,
     Suspicious,
@@ -330,6 +330,7 @@ public class AwarenessManager : MonoBehaviour, ITurnActor
             {
                 NotificationManager.Instance.SendNotification("Lockdown initiated!", Color.red);
                 currentLevel = AwarenessLevel.Lockdown;
+                AudioManager.Instance.PlayLockdownMusic();
             }
         }
         else if (awareness >= alertThreshold)

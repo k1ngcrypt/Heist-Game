@@ -12,7 +12,6 @@ namespace Guards
             }
 
             _icon.TriggerSuspicious();
-            Manager.SetBaseSuspicion();
 
             if (Manager.IsPlayerDetected())
             {
