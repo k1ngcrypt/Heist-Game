@@ -5,13 +5,15 @@ using HeistGame.Objectives;
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
-    //private PlayerStats playerStats; May be used later, but is not currently used in the PlayerController script, so is commented out to avoid confusion. Stats are currently only managed through the PlayerStats script.
+    private PlayerStats playerStats;
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
     private Animator animator;
@@ -36,7 +38,7 @@ public class PlayerController : MonoBehaviour
         Map.SetPlayer(gameObject);
         combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Pain")); 
         animator = GetComponent<Animator>();
-        //playerStats = GetComponent<PlayerStats>();
+        playerStats = GetComponent<PlayerStats>();
     }
     async void Update()
     {
@@ -124,7 +126,12 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("IsWalking",false);
         transform.position = Map.AlignToObjectPos(endPosition);
-        while (CheckGround()) await Awaitable.WaitForSecondsAsync(0.1f);
+        int fall = 0;
+        while (CheckGround()) {
+            await Awaitable.WaitForSecondsAsync(0.1f);
+            fall++;
+        }
+        playerStats.TakeDamage(fall*5);
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);

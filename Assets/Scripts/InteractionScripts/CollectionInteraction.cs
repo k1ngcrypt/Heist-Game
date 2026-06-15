@@ -3,6 +3,7 @@ using UnityEngine;
 using HeistGame.Objectives;
 
 namespace HeistGame.Interactions {
+    [RequireComponent(typeof(InteractionStateManager))]
     public class CollectionInteraction : MonoBehaviour, IInteractionContributor {
         private CollectionObjective collectionObjective;
         private InteractionStateManager stateManager;
