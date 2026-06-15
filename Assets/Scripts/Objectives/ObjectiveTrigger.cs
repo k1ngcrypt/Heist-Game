@@ -6,6 +6,7 @@ namespace HeistGame.Objectives{
         [Tooltip("Matches the objectiveID in your ObjectiveData ScriptableObject.")]
         [SerializeField] protected int targetObjectiveID;
         [SerializeField] protected int progressAmount = 1;
+        [SerializeField] protected int prerequisiteID = -1;
 
         public virtual void TriggerProgress() {
             if (targetObjectiveID == 0) {

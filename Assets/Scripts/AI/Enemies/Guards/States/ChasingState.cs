@@ -40,15 +40,18 @@ namespace Guards
                 {
                     SceneUIManager.Instance.MissionFailed("You were caught by a guard!");
                     return;
-                } else if (dist <= Manager.attacker.attackRange)
-                {
-                    Manager.attacker.Attack();
                 }
 
                 if (Manager.PlayerTarget != null)
                 {
                     AwarenessManager.Instance.ReportGuardSuspicion(CHASING_INCREMENT);
                     navigator.SetDestination(Manager.PlayerTarget.position, true);
+                }
+
+                if (dist <= Manager.attacker.attackRange)
+                {
+                    Manager.attacker.Attack();
+                    return;
                 }
 
             }

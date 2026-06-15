@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 646be7ee3a296a84cb56432b33333f3b, type: 3}
-  m_Name: HeavyArmour
+  m_Name: Military-Grade Vest
   m_EditorClassIdentifier: Assembly-CSharp::ArmourItem
   itemID: 0
-  itemTitle: Heavy Armour
+  itemTitle: Military-Grade Vest
   itemDescription: +30 Defense
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 7099864899303204193, guid: 0efa298e8c797fb46b35abe6cd2ff992, type: 3}
   suspicionModifier: 40
   armourValue: 30

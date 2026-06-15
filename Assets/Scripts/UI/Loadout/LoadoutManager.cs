@@ -189,7 +189,7 @@ public class LoadoutManager : MonoBehaviour
             itemsToShow = allArmours;
         } else if (type == "WeaponItem") {
             itemsToShow = allWeapons;
-        } else if (type == "GadgetItem") {
+        } else {
             itemsToShow = allGadgets;
         }
         List<LoadoutBtnUI> tempBtns = new();
@@ -293,4 +293,24 @@ public class LoadoutManager : MonoBehaviour
             }
         }
     }
+
+    /*
+    public void DebugLoadout()
+    {
+        string str = "Player Inv: ";
+        foreach (var item in PlayerLoadout)
+        {
+            
+            if(item.myItem == null)
+            {
+                str += "null, ";
+            } else
+            {
+               str += item.myItem.itemTitle + ", "; 
+            }
+            
+        }
+        Debug.Log(str);
+    }
+    */
 }

@@ -48,9 +48,9 @@ namespace HeistGame.Door
                 return false;
             }
 
-            if (lockBehavior != null && lockBehavior.IsLocked && !lockBehavior.TryUnlock())
+            if (lockBehavior != null && lockBehavior.IsLocked)
             {
-                Debug.Log("Door blocked: locked");
+                NotificationManager.Instance.SendNotification("Door Is Locked, Unlock the Door Using the Right Tool To Open", Color.yellow);
                 return false;
             }
 
@@ -78,14 +78,14 @@ namespace HeistGame.Door
             return true;
         }
 
-        public bool TryDestroyDoor()
+        public bool TryDestroyDoor(int itemID)
         {
             if (destroyBehavior == null)
             {
                 return false;
             }
 
-            bool destroyed = destroyBehavior.TryDestroy();
+            bool destroyed = destroyBehavior.TryDestroy(itemID);
             if (destroyed)
             {
                 Pathfinder.NotifyObstacleChanged(transform.position);

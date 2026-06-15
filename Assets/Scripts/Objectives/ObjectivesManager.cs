@@ -44,7 +44,15 @@ namespace HeistGame.Objectives {
                 bool newlyCompleted = target.AdvanceProgress(progressAmount);
                 OnObjectivesChanged?.Invoke();
 
-                if (newlyCompleted) NotificationManager.Instance.SendNotification($"Objective completed: {target.Data.title}", Color.green);
+                if (newlyCompleted) {
+                    NotificationManager.Instance.SendNotification($"Objective completed: {target.Data.title}", Color.green);
+
+                    // Check if all non-optional objectives are completed to trigger level completion
+                    for (int i = 0; i < activeObjectives.Count; i++) {
+                        if (!activeObjectives[i].Data.isOptional && !activeObjectives[i].IsCompleted) return;
+                    }
+                    SceneUIManager.Instance.MissionComplete();
+                }
             }
         }
 
@@ -62,8 +70,7 @@ namespace HeistGame.Objectives {
                 OnObjectivesChanged?.Invoke();
 
                 if (newlyFailed) {
-                    if (!target.Data.isOptional) 
-                    {
+                    if (!target.Data.isOptional) {
                         SceneUIManager.Instance.MissionFailed($"Objective failed: {target.Data.title}");
                     } else {
                         NotificationManager.Instance.SendNotification($"Objective failed: {target.Data.title}", Color.yellow);
@@ -79,6 +86,13 @@ namespace HeistGame.Objectives {
                 target.Reveal();
                 OnObjectivesChanged?.Invoke(); // Tell the UI to redraw because a new objective appeared
             }
+        }
+
+        public bool IsComplete(int objectiveID) {
+            ActiveObjective target = activeObjectives.Find(o => o.Data.objectiveID == objectiveID);
+            if (target != null) return target.IsCompleted;
+            Debug.LogWarning($"Objective with ID {objectiveID} not found!");
+            return false;
         }
     }
 }

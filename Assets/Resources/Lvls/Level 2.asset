@@ -12,18 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ee6701e4be47914da9c70926dc8d0b2, type: 3}
   m_Name: Level 2
   m_EditorClassIdentifier: Assembly-CSharp::LvlOrganizer
-  sceneAsset: {fileID: 0}
-  sceneName: 
-  lvlTitle: Level 2
-  lvlDescription: 'Rob Bank
-
-    Meh
-
-    No die'
+  sceneAsset: {fileID: 102900000, guid: 7ca5d2df818f8cc4397f104eb984cee9, type: 3}
+  sceneName: Blacksite
+  lvlTitle: The Hadal Affair
+  lvlDescription: You've been contracted by foreign powers to retrieve data from
+    a government blacksite. You usually have a no questions asked policy, but this
+    is pushing it.
   lvlIcon: {fileID: 0}
   objectiveText:
-  - Rob Bank
-  - Stealthy
+  - Enter The Office
+  - Hack The Computer
   - Escape
-  prerequisites:
-  - {fileID: 11400000, guid: fc049113bc6f10048b20781e41e03d96, type: 2}
+  prerequisites: []

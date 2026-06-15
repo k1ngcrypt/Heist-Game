@@ -21,7 +21,8 @@ namespace Guards
         [SerializeField] private ContactFilter2D lineOfSightFilter;
         [SerializeField] private int lineOfSightBufferSize = 4;
         [SerializeField] private Vector2[] patrolPoints;
-        [SerializeField] private float suspicionPerTick = 10f;
+        [SerializeField] private float suspiciongainPerTick = 5f;
+        [SerializeField] private float suspicionLossPerTick = 2f;
         [SerializeField] private float maxSuspicion = 100f;
         [SerializeField] private float immediateDetectionRange = 1f;
 
@@ -46,7 +47,7 @@ namespace Guards
         public Vector2 LastKnownPlayerPosition { get; private set; }
         public Vector2 LastKnownAnomalyPosition { get; private set; }
         public GameObject CurrentAnomaly { get; private set; } = null;
-        public float Suspicion { get; private set; }
+        public float Suspicion { get; private set; } = 0f;
 
         public Transform PlayerTarget => playerTarget;
         public IdleState IdleState => idleState;
@@ -99,8 +100,7 @@ namespace Guards
             // Tick debt lets the turn system catch up without skipping intermediate guard decisions.
             while (TickDebt > 0)
             {
-                awarenessManager.ReportGuardSuspicion(Mathf.Min(suspicionPerTick, Suspicion));
-                if (!IsChasing) Suspicion = Mathf.Max(0f, Suspicion - suspicionPerTick);
+                if (!IsChasing) Suspicion = Mathf.Max(0f, Suspicion - suspicionLossPerTick);
                 currentState.TickState();
                 TickDebt--;
             }
@@ -176,12 +176,13 @@ namespace Guards
         public void IncreaseSuspicion()
         {
             // Suspicion is clamped so the state machine can rely on a predictable max threshold.
-            Suspicion = Mathf.Min(maxSuspicion+1, Suspicion + suspicionPerTick);
-            if (Suspicion >= maxSuspicion)
+            Suspicion = Mathf.Min(maxSuspicion+1, Suspicion + suspiciongainPerTick);
+            if (Suspicion + AwarenessManager.Instance.awareness >= maxSuspicion)
             {
                 UpdateState(chasingState);
-                awarenessManager.ReportGuardSuspicion(Suspicion);
+                awarenessManager.ReportGuardSuspicion(suspiciongainPerTick);
             }
+            //Debug.Log("Guard suspicion increased to " + Suspicion + "Awareness: " + AwarenessManager.Instance.awareness);
         }
 
         public Vector2? GetCurrentPatrolPoint()
@@ -275,11 +276,6 @@ namespace Guards
             Gizmos.DrawLine(origin, origin + rightDirection * detectionRange);
         }
 
-        public void SetBaseSuspicion()
-        {
-            Suspicion += awarenessManager.awareness;
-            Suspicion = Mathf.Clamp(Suspicion, 0f, maxSuspicion);
-        }
 
         public AwarenessLevel AwarenessLevel()
         {
