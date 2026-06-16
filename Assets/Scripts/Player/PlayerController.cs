@@ -13,10 +13,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
-    private PlayerStats playerStats;
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
     private Animator animator;
+    private PlayerStats playerStats;
+    private static readonly int IsWalkingHash = Animator.StringToHash("IsWalking");
+    private static readonly int DirectionHash = Animator.StringToHash("Direction");
     
     private bool isMoving = false;
     public bool inVent = false;
@@ -50,16 +52,16 @@ public class PlayerController : MonoBehaviour
             System.Func<Key, bool> inputHeld = (key) => Keyboard.current[key].isPressed;
 
             if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) {
-                animator.SetInteger("Direction",1);
+                animator.SetInteger(DirectionHash,1);
                 await AttemptMove(Vector2.up);
             } else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow)) {
-                animator.SetInteger("Direction",0);
+                animator.SetInteger(DirectionHash,0);
                 await AttemptMove(Vector2.left);
             } else if (inputHeld(Key.S) || inputHeld(Key.DownArrow)) {
-                animator.SetInteger("Direction",3);
+                animator.SetInteger(DirectionHash,3);
                 await AttemptMove(Vector2.down);
             } else if (inputHeld(Key.D) || inputHeld(Key.RightArrow)) {
-                animator.SetInteger("Direction",2);
+                animator.SetInteger(DirectionHash,2);
                 await AttemptMove(Vector2.right);
             }
             
@@ -113,7 +115,7 @@ public class PlayerController : MonoBehaviour
 
         // Vents take twice as long to physically move through
         float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
-        animator.SetBool("IsWalking",true);
+        animator.SetBool(IsWalkingHash, true);
 
         while (elapsedTime < currentMoveDuration)
         {
@@ -124,14 +126,14 @@ public class PlayerController : MonoBehaviour
             await Awaitable.EndOfFrameAsync();
         }
 
-        animator.SetBool("IsWalking",false);
+        animator.SetBool(IsWalkingHash, false);
         transform.position = Map.AlignToObjectPos(endPosition);
         int fall = 0;
         while (CheckGround()) {
             await Awaitable.WaitForSecondsAsync(0.1f);
             fall++;
         }
-        playerStats.TakeDamage(fall*5);
+        if (fall>0) playerStats.TakeDamage(fall*5);
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
