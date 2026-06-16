@@ -70,6 +70,16 @@ public class InteractArea : MonoBehaviour, ITurnActor
         topRight = worldPosition + new Vector3(radius, radius, 0) + buffer;
         bottomLeft = worldPosition - new Vector3(radius, radius, 0) - buffer;
         
+        Transform parent = transform.parent;
+        if (!parent) return;
+
+        Vector3 parentScale = parent.lossyScale;
+
+        transform.localScale = new Vector3(
+            parentScale.x < 0 ? -1f : 1f,
+            parentScale.y < 0 ? -1f : 1f,
+            1f
+        );
     }
     public void OnDisable() {
         turnManager.Unregister(this);

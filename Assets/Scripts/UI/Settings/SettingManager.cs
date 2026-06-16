@@ -128,5 +128,13 @@ public class SettingManager : MonoBehaviour
     {
         godMode = value;
         Debug.Log($"GodMode set to {value}");
+        if (TimerUI.Instance != null)
+        {
+            TimerUI.Instance.UpdateTimerUI();
+        }
+        if (HealthBarUI.Instance != null)
+        {
+            HealthBarUI.Instance.UpdateHealthUI();
+        }
     }
 }

@@ -9,9 +9,11 @@ public class ItemOverlay : MonoBehaviour
 
     public void Initialize(LoadoutItems item)
     {
+        var nameRt = itemNameText.GetComponent<RectTransform>();
         if (itemNameText != null)
         {
             itemNameText.text = item.itemTitle;
+            nameRt.sizeDelta = new Vector2(nameRt.sizeDelta.x, itemNameText.preferredHeight);
         }
         if (itemDescriptionText != null)
         {
@@ -19,7 +21,7 @@ public class ItemOverlay : MonoBehaviour
         }
 
         var boxRt = GetComponent<RectTransform>();
-        var nameRt = itemNameText.GetComponent<RectTransform>();
+        
         float prefHeight = itemDescriptionText.preferredHeight;
         
         var layout = GetComponent<VerticalLayoutGroup>();

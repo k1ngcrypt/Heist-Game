@@ -85,6 +85,7 @@ public class SceneUIManager : MonoBehaviour
 
     public void MissionFailed(string cause)
     {
+        if (SettingManager.godMode) return;
         SetPause(true);
         inGameOverlays.SetActive(false);
         allPauseOverlays.SetActive(false);
