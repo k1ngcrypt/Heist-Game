@@ -25,7 +25,7 @@ public class PlayerStats : MonoBehaviour {
     public void IncreaseBaseArmour(int amount) { baseArmour += amount; }
     public int GetTotalArmour() {
         LoadoutItems additionalArmour = InventoryManager.Instance.ReturnEquipArmour();
-        return baseArmour + ((additionalArmour.GetType() == typeof(ArmourItem))? ((ArmourItem)additionalArmour).armourValue : 0);
+        return baseArmour + ((additionalArmour.itemTitle != "Empty")? ((ArmourItem)additionalArmour).armourValue : 0);
     }
 
     public void TakeDamage(float damage) {

@@ -42,22 +42,8 @@ public class InteractionOverlay : MonoBehaviour
         txtRt.sizeDelta = new Vector2(btnPrefab.GetComponent<RectTransform>().sizeDelta.x, txtRt.sizeDelta.y);
         canvas.GetComponent<Transform>().position = worldPosition;
         menuPanel.GetComponent<Transform>().position = worldPosition - new Vector3(0, 0.5f, 0); // One tile down;
-        if (!player.inVent) canvas.worldCamera = Camera.main;
-        else {
-            Camera[] allCams = FindObjectsByType<Camera>(FindObjectsSortMode.None);
-            Camera targetCam = Camera.main;
-            float closestDistance = float.MaxValue;
-
-            foreach (Camera c in allCams) {
-                if (c == Camera.main || c.targetTexture != null || c.name.Contains("shadow")) continue;
-                float dist = Vector2.Distance(new Vector2(c.transform.position.x, c.transform.position.y), new Vector2(worldPosition.x, worldPosition.y));
-                if (dist < closestDistance) {
-                    closestDistance = dist;
-                    targetCam = c;
-                }
-            }
-            canvas.worldCamera = targetCam;
-        }
+        CameraManager cameraManager = FindAnyObjectByType<CameraManager>();
+        canvas.worldCamera = cameraManager.GetCurrentCamera();
 
         int hotkeyNumber = 1;
         float basisHeight = btnPrefab.GetComponent<RectTransform>().rect.height - btnPrefab.GetComponentInChildren<TMP_Text>().preferredHeight - 5;

@@ -1,7 +1,10 @@
+using Guards;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using System.Collections.Generic;
+using static UnityEngine.UI.Image;
 public class PlayerController : MonoBehaviour
 {
     private static readonly int DirectionHash = Animator.StringToHash("Direction");
@@ -9,6 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
+    [SerializeField] private CameraManager cameraManager;
     //private PlayerStats playerStats; May be used later, but is not currently used in the PlayerController script, so is commented out to avoid confusion. Stats are currently only managed through the PlayerStats script.
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
@@ -32,6 +36,7 @@ public class PlayerController : MonoBehaviour
 
     void Start() { 
         Map.SetPlayer(gameObject);
+        if (cameraManager==null) cameraManager = FindAnyObjectByType<CameraManager>();
         combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Pain")); 
         animator = GetComponent<Animator>();
         //playerStats = GetComponent<PlayerStats>();
@@ -45,24 +50,32 @@ public class PlayerController : MonoBehaviour
         {
             static bool inputHeld(Key key) => Keyboard.current[key].isPressed;
 
-            if (inputHeld(Key.W) || inputHeld(Key.UpArrow)) {
+            if (inputHeld(Key.W) || inputHeld(Key.UpArrow))
+            {
                 animator.SetInteger(DirectionHash, 1);
                 await AttemptMove(Vector2.up);
-            } else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow)) {
+            }
+            else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow))
+            {
                 animator.SetInteger(DirectionHash, 0);
                 await AttemptMove(Vector2.left);
-            } else if (inputHeld(Key.S) || inputHeld(Key.DownArrow)) {
+            }
+            else if (inputHeld(Key.S) || inputHeld(Key.DownArrow))
+            {
                 animator.SetInteger(DirectionHash, 3);
                 await AttemptMove(Vector2.down);
-            } else if (inputHeld(Key.D) || inputHeld(Key.RightArrow)) {
+            }
+            else if (inputHeld(Key.D) || inputHeld(Key.RightArrow))
+            {
                 animator.SetInteger(DirectionHash, 2);
                 await AttemptMove(Vector2.right);
             }
-            
+
             else if (inputHeld(Key.Z)) await Rest();
             else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
             else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
             else if (Keyboard.current.fKey.wasPressedThisFrame) await UseGadget();
+            else if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !EventSystem.current.IsPointerOverGameObject()) await Shoot();
         }
     }
 
@@ -215,5 +228,31 @@ public class PlayerController : MonoBehaviour
             }
         }
         return false;
+    }
+
+    private async Awaitable Shoot()
+    {
+        isMoving = true;
+        LoadoutItems item = InventoryManager.Instance.ReturnEquipWeapon();
+        if (item.itemTitle != "Empty")
+        {
+            Vector3 mouseWorldPos = cameraManager.GetCurrentCamera().ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            mouseWorldPos.z = 0f;
+            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, (mouseWorldPos - transform.position).normalized, (item as WeaponItem).range);
+            Debug.DrawRay(transform.position, (mouseWorldPos - transform.position).normalized * (item as WeaponItem).range, Color.green, 0.5f);
+
+            foreach (RaycastHit2D hit in hits) {
+                if (hit.collider.CompareTag("Player")) continue;
+
+                Debug.Log("Hit valid target: " + hit.collider.name);
+
+                if (hit.collider.gameObject.GetComponent<GuardStateManager>() != null) {
+                    hit.collider.gameObject.GetComponent<HealthManager>().TakeDamage((item as WeaponItem).damageValue);
+                }
+                break;
+            }
+        }
+        await TurnManager.Instance.ProcessTicks(1);
+        isMoving = false;
     }
 }
