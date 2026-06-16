@@ -34,10 +34,12 @@ namespace Guards
                 Manager.Navigator.SetDestination(Manager.PlayerTarget.position, true);
 
                 Manager.IncreaseSuspicion();
+                if (Vector2.Distance(Manager.Navigator.transform.position, Manager.PlayerTarget.position) < 1.2f) Manager.UpdateState(Manager.SearchingState);
                 Manager.Navigator.TickAdvance();
                 return;
             }
 
+            if (Vector2.Distance(Manager.Navigator.transform.position, Manager.PlayerTarget.position) < 0.4f) Manager.UpdateState(Manager.SearchingState);
             Manager.Navigator.TickAdvance();
             if (Manager.Navigator.ReachedDestination)
             {

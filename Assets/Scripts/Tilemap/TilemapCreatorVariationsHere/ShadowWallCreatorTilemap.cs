@@ -8,7 +8,7 @@ using UnityEngine.Tilemaps;
 public class ShadowWallCreatorTilemap : DuplicateTilemapBase
 {
     [Header("Tile References")]
-    public List<RuleTile> ReferenceTiles;
+    public List<TileBase> ReferenceTiles;
     public RuleTile NewTile;
 
     protected override bool OnCreation() {
@@ -21,7 +21,7 @@ public class ShadowWallCreatorTilemap : DuplicateTilemapBase
     }
 
     protected override TileBase GetTile(Vector3Int v) {
-        foreach (RuleTile t in ReferenceTiles) if (Map.IsTile(v, t)) return NewTile;
+        foreach (TileBase t in ReferenceTiles) if (Map.IsTile(v, t)) return NewTile;
         return null;
     }
 }
