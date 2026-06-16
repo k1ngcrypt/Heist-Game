@@ -4,7 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using static UnityEngine.UI.Image;
+using HeistGame.Objectives;
+using System;
+using System.Collections.Generic;
+using NUnit.Framework;
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
 {
     private static readonly int DirectionHash = Animator.StringToHash("Direction");
@@ -12,11 +17,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
-    [SerializeField] private CameraManager cameraManager;
-    //private PlayerStats playerStats; May be used later, but is not currently used in the PlayerController script, so is commented out to avoid confusion. Stats are currently only managed through the PlayerStats script.
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
     private Animator animator;
+    private PlayerStats playerStats;
+    private static readonly int IsWalkingHash = Animator.StringToHash("IsWalking");
+    private static readonly int DirectionHash = Animator.StringToHash("Direction");
     
     private bool isMoving = false;
     public bool inVent = false;
@@ -39,7 +45,7 @@ public class PlayerController : MonoBehaviour
         if (cameraManager==null) cameraManager = FindAnyObjectByType<CameraManager>();
         combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Pain")); 
         animator = GetComponent<Animator>();
-        //playerStats = GetComponent<PlayerStats>();
+        playerStats = GetComponent<PlayerStats>();
     }
     async void Update()
     {
@@ -122,7 +128,7 @@ public class PlayerController : MonoBehaviour
 
         // Vents take twice as long to physically move through
         float currentMoveDuration = moveDuration * (inVent ? ventMoveDurationMultiplier : 1);
-        animator.SetBool("IsWalking",true);
+        animator.SetBool(IsWalkingHash, true);
 
         while (elapsedTime < currentMoveDuration)
         {
@@ -133,9 +139,14 @@ public class PlayerController : MonoBehaviour
             await Awaitable.EndOfFrameAsync();
         }
 
-        animator.SetBool("IsWalking",false);
+        animator.SetBool(IsWalkingHash, false);
         transform.position = Map.AlignToObjectPos(endPosition);
-        while (CheckGround()) await Awaitable.WaitForSecondsAsync(0.1f);
+        int fall = 0;
+        while (CheckGround()) {
+            await Awaitable.WaitForSecondsAsync(0.1f);
+            fall++;
+        }
+        if (fall>0) playerStats.TakeDamage(fall*5);
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
