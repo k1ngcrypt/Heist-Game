@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 646be7ee3a296a84cb56432b33333f3b, type: 3}
   m_Name: GuardDisguise
   m_EditorClassIdentifier: Assembly-CSharp::ArmourItem
-  itemTitle: Disguise
+  itemTitle: Guard Suit
   itemDescription: Guard Disguise
   itemIcon: {fileID: 21300000, guid: 66feccad04dadc24f97764f66ad32fa2, type: 3}
   suspicionModifier: 80
   armourValue: 0
+  isDisguise: 1

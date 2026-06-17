@@ -39,10 +39,9 @@ public class PlayerStats : MonoBehaviour {
         if (health == 0) SceneUIManager.Instance.MissionFailed("You Died");
     }
 
-    public bool IsDisguised()
-    {
-        LoadoutItems Armour = InventoryManager.Instance.ReturnEquipArmour();
-        return Armour != null && Armour.itemTitle == "Disguise";
+    public bool IsDisguised() {
+        ArmourItem Armour = InventoryManager.Instance.ReturnEquipArmour() as ArmourItem;
+        return Armour != null && Armour.isDisguise;
     }
 
 }

@@ -25,20 +25,20 @@ namespace HeistGame.Objectives
             TickDebt = 0;
             Vector3 currentPosition = playerPos.position;
             if (currentPosition.x > bottomLeft.x - buffer.x && currentPosition.x < topRight.x + buffer.x &&
-                currentPosition.y > bottomLeft.y - buffer.y && currentPosition.y < topRight.y + buffer.y)
-            {
+                currentPosition.y > bottomLeft.y - buffer.y && currentPosition.y < topRight.y + buffer.y) {
                 TriggerProgress();
             }
             return;
         }
 
-        public override void TriggerProgress()
+        public override bool TriggerProgress()
         {
-            base.TriggerProgress();
+            if (!base.TriggerProgress()) return false;
 
             Debug.Log("Area was entered, objective progress triggered.");
             gameObject.transform.SetParent(null);
             Destroy(gameObject);
+            return true;
         }
     }
 }

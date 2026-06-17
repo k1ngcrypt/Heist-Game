@@ -4,19 +4,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using HeistGame.Objectives;
-using System;
-using System.Collections.Generic;
-using NUnit.Framework;
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
 {
-    private static readonly int DirectionHash = Animator.StringToHash("Direction");
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
+    [SerializeField] private CameraManager cameraManager;
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
     private Animator animator;
@@ -81,6 +77,7 @@ public class PlayerController : MonoBehaviour
             else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
             else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
             else if (Keyboard.current.fKey.wasPressedThisFrame) await UseGadget();
+            else if (Keyboard.current.rKey.wasPressedThisFrame) await ReloadWeapon();
             else if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !EventSystem.current.IsPointerOverGameObject()) await Shoot();
         }
     }
@@ -165,8 +162,8 @@ public class PlayerController : MonoBehaviour
             if (hit != null)
             {
                 InteractionOverlay interactOverlay = hit.GetComponentInChildren<InteractionOverlay>();
-                if (interactOverlay != null)
-                {
+                if (interactOverlay == null) interactOverlay = hit.GetComponent<InteractionOverlay>();
+                if (interactOverlay != null){
                     interactOverlay.ToggleMenuStatus();
                     break;
                 }
@@ -186,12 +183,12 @@ public class PlayerController : MonoBehaviour
 
             if (hit != null)
             {
-                InteractArea interactArea = null;
+                InteractArea interactArea = hit.GetComponent<InteractArea>();
                 InteractionOverlay overlay = null;
                 foreach (Transform child in hit.transform)
                 {
-                    interactArea = child.GetComponent<InteractArea>();
                     if (interactArea != null) break;
+                    interactArea = child.GetComponent<InteractArea>();
                 }
                 if (interactArea != null) overlay = interactArea.GetComponentInChildren<InteractionOverlay>();
                 if (interactArea != null && overlay != null)
@@ -241,28 +238,85 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    private async Awaitable Shoot()
-    {
+    //Gizmo Stuff, Will Remove when Finished With Weapon's Shooting Visually
+    private Vector2 debugOrigin;
+    private Vector2 debugDirection;
+    private float debugRange;
+    private bool hasShotPassed;
+
+    private async Awaitable Shoot() {
         isMoving = true;
-        LoadoutItems item = InventoryManager.Instance.ReturnEquipWeapon();
-        if (item.itemTitle != "Empty")
+
+        WeaponItem weapon = InventoryManager.Instance.ReturnEquipWeapon() as WeaponItem;
+        if (weapon.itemTitle == "Empty"){
+            isMoving = false;
+            return; 
+        }
+        else if (weapon.currentAmmo <= 0){
+            NotificationManager.Instance.SendNotification("You have no ammo to shoot!", Color.yellow);
+            isMoving = false;
+            return;
+        }
+        GuardStateManager[] allGuards = FindObjectsByType<GuardStateManager>();
+        GuardStateManager closestTarget = null;
+        
+        float closestDistance = weapon.range;
+        Vector2 direction = (cameraManager.GetCurrentCamera().ScreenToWorldPoint(Mouse.current.position.ReadValue()) - transform.position).normalized;
+
+        debugOrigin = transform.position;
+        debugDirection = direction;
+        debugRange = weapon.range;
+        hasShotPassed = false;
+
+        foreach (GuardStateManager guard in allGuards)
         {
-            Vector3 mouseWorldPos = cameraManager.GetCurrentCamera().ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            mouseWorldPos.z = 0f;
-            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, (mouseWorldPos - transform.position).normalized, (item as WeaponItem).range);
-            Debug.DrawRay(transform.position, (mouseWorldPos - transform.position).normalized * (item as WeaponItem).range, Color.green, 0.5f);
+            // Extra tag validation safety rule
+            if (!guard.CompareTag("Guard")) continue;
 
-            foreach (RaycastHit2D hit in hits) {
-                if (hit.collider.CompareTag("Player")) continue;
+            Vector2 guardPos = guard.transform.position;
+            Vector2 toGuard = guardPos - (Vector2)transform.position;
 
-                Debug.Log("Hit valid target: " + hit.collider.name);
 
-                if (hit.collider.gameObject.GetComponent<GuardStateManager>() != null) {
-                    hit.collider.gameObject.GetComponent<HealthManager>().TakeDamage((item as WeaponItem).damageValue);
+            if (Vector2.Dot(toGuard.normalized, direction.normalized) > 0.95f) {
+                float distance = toGuard.magnitude;
+
+                if (distance <= closestDistance) {
+                    RaycastHit2D wallHit = Physics2D.Raycast(transform.position, direction, distance, ~(1 << LayerMask.NameToLayer("Default")));
+                    
+                    if (wallHit.collider == null) {
+                        closestDistance = distance;
+                        closestTarget = guard;
+                        hasShotPassed = true;
+                    }
                 }
-                break;
             }
         }
+        if (closestTarget != null) {
+            Debug.Log($"Direct hit confirmed on: {closestTarget.gameObject.name} without a collider!");
+            closestTarget.gameObject.GetComponent<HealthManager>().TakeDamage(weapon.damageValue);
+        } else {
+            Debug.Log("Shot missed or hit a structural wall.");
+        }
+        weapon.currentAmmo--;
+        await TurnManager.Instance.ProcessTicks(1);
+        isMoving = false;
+    }
+
+    private void OnDrawGizmos() {
+        if (debugRange <= 0) return;
+
+        Gizmos.color = hasShotPassed ? Color.green : Color.red;
+        Vector3 targetPoint = (Vector3)debugOrigin + (Vector3)(debugDirection * debugRange);
+        Gizmos.DrawLine((Vector3)debugOrigin, targetPoint);
+        Gizmos.DrawWireSphere(targetPoint, 0.2f);
+    }
+
+    private async Awaitable ReloadWeapon() {
+        isMoving = true;
+        WeaponItem weapon = InventoryManager.Instance.ReturnEquipWeapon() as WeaponItem;
+        if (weapon.itemTitle == "Empty") {isMoving = false; return;}
+
+        weapon.ReloadWeapon();
         await TurnManager.Instance.ProcessTicks(1);
         isMoving = false;
     }

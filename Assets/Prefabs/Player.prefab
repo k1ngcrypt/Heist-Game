@@ -116,9 +116,6 @@ MonoBehaviour:
   cameraManager: {fileID: 0}
   floorTilemap: {fileID: 0}
   baseTilemap: {fileID: 0}
-  layersToHit:
-    serializedVersion: 2
-    m_Bits: 282
   inVent: 0
 --- !u!114 &3801663687178193811
 MonoBehaviour:

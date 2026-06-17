@@ -7,7 +7,8 @@ public class BreakDoorTool : GadgetItem {
     [SerializeField] public int breakingToolID;
     private int combinedMask;
 
-    public void OnEnable() {
+    protected override void ResetItemStats() {
+        base.ResetItemStats();
         combinedMask = 1 << LayerMask.NameToLayer("Obstacle");
         if (combinedMask == null) combinedMask =  1 << LayerMask.NameToLayer("Pain");
     }

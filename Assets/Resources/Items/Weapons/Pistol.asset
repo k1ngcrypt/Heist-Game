@@ -16,7 +16,8 @@ MonoBehaviour:
   itemDescription: Pew Pew
   itemIcon: {fileID: -1425015239, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}
   suspicionModifier: 50
-  damageValue: 3
-  isSilenced: 0
+  damageValue: 20
+  soundDistance: 10
   range: 10
   ammoCapacity: 12
+  currentAmmo: 12

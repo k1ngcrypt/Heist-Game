@@ -7,7 +7,8 @@ public class LockDoorTool : GadgetItem {
     [SerializeField] public int lockingToolID;
     private int combinedMask;
 
-    public void OnEnable() {
+    protected override void ResetItemStats() {
+        base.ResetItemStats();
         combinedMask = 1 << LayerMask.NameToLayer("Obstacle");
         if (combinedMask == null) combinedMask =  1 << LayerMask.NameToLayer("Pain");
     }

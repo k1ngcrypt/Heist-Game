@@ -66,10 +66,17 @@ public class InventoryManager : MonoBehaviour
 
     public void InitializeInventory(List<LoadoutItems> loadout)
     {
+        if (allItems != null) { 
+            foreach (LoadoutItems oldItem in allItems) {
+                if (oldItem != null && !oldItem.name.StartsWith("Empty")) {
+                    Destroy(oldItem);
+        }}}
+        
+
         allItems = new List<LoadoutItems>();
         for(int i = 0; i < loadout.Count; i++)
         {
-            allItems.Add(loadout[i]);
+            allItems.Add(GetSafeItemInstance(loadout[i]));
         }
         for(int i = 0; i < extraSlots; i++)
         {
@@ -490,12 +497,13 @@ public class InventoryManager : MonoBehaviour
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
                 ItemUI newItem = Instantiate(itemPrefab, allSlots[i].transform);
-                newItem.Initialize(item, slot, canvas);
+                LoadoutItems uniqueItemInstance = GetSafeItemInstance(item);
+                newItem.Initialize(uniqueItemInstance, slot, canvas);
                 newItem.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
 
                 slot.UpdateItem(newItem);
 
-                allItems[i] = item;
+                allItems[i] = uniqueItemInstance;
 
                 Destroy(oldItem.gameObject);
                 
@@ -515,6 +523,7 @@ public class InventoryManager : MonoBehaviour
             {
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
+                if (check != null && check.itemTitle != "Empty") Destroy(check);
                 ItemUI replaceEmpty = Instantiate(itemPrefab, allSlots[i].transform);
                 LoadoutItems empty;
                 if (item is ArmourItem) empty = emptyArmour;
@@ -559,6 +568,13 @@ public class InventoryManager : MonoBehaviour
         if (equippedSlot == null || slot == null || equippedSlot != slot) return;
         equippedSlot.GetComponent<Image>().color = unselected;
         equippedSlot = null;
+    }
+
+    private LoadoutItems GetSafeItemInstance(LoadoutItems sourceItem) {
+        if (sourceItem == null) return null;
+        
+        if (sourceItem.itemTitle == "Empty") return sourceItem; 
+        return Instantiate(sourceItem);
     }
 
     /*
