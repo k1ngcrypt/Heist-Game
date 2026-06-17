@@ -561,6 +561,17 @@ public class InventoryManager : MonoBehaviour
         equippedSlot = null;
     }
 
+    public void UpdateVisual(LoadoutItems item)
+    {
+        for(int i = 0; i < allItems.Count; i++)
+        {
+            if (allItems[i] == item)
+            {
+                allSlots[i].currentItem.UpdateVisual();
+            }
+        }
+    }
+
     /*
     public void DebugLoadout()
     {

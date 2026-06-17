@@ -13,6 +13,14 @@ public class TimerUI : MonoBehaviour, ITurnActor
 
     public int TickDebt { get; set; }
 
+    public static TimerUI Instance { get; private set;}
+
+    public void Start()
+    {
+        Instance = this;
+        UpdateTimerUI();
+    }
+
     public void OnValidate() {
         if (turnManager == null) turnManager = TurnManager.Instance;
         if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>();
@@ -28,11 +36,34 @@ public class TimerUI : MonoBehaviour, ITurnActor
     public async Awaitable OnTick()
     {
         TickDebt = 0;
-        turnsLeft--;
-        timerText.text = turnsLeft+"";
-        if (turnsLeft == 0)
+        if (SettingManager.Instance.godMode)
         {
-            SceneUIManager.Instance.MissionFailed("Ran Out of Moves");
+            timerText.text = "∞";
+        } else
+        {
+            turnsLeft--;
+            timerText.text = turnsLeft+"";
+            if (turnsLeft == 0)
+            {
+                SceneUIManager.Instance.MissionFailed("Ran Out of Moves");
+            }
+        }
+        Resize();
+    }
+
+    public void OnDestroy()
+    {
+        Instance = null;
+    }
+
+    public void UpdateTimerUI()
+    {
+        if (SettingManager.Instance.godMode)
+        {
+            timerText.text = "∞";
+        } else
+        {
+            timerText.text = turnsLeft+"";
         }
         Resize();
     }

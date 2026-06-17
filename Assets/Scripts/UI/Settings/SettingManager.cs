@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.Audio;
 
 public class SettingManager : MonoBehaviour
 {
@@ -11,7 +10,6 @@ public class SettingManager : MonoBehaviour
     [SerializeField] private Toggle fullScreenToggle;
     [SerializeField] private Toggle godModeToggle;
     [SerializeField] private Scrollbar volumeBar;
-    [SerializeField] private AudioMixer audioMixer;
     public static SettingManager Instance { get; private set; }
     private Resolution[] resolutions;
     private List<string> options;
@@ -19,10 +17,10 @@ public class SettingManager : MonoBehaviour
     private int currentResIdx = 0;
     private int currentGraphicIdx = 0;
     private bool fullScreen = false;
-    private float volumeSlider = 0;
+    private float volumeSlider = 1;
 
 
-    public static bool godMode;
+    public bool godMode {get; private set;}
 
     public void Start()
     {
@@ -80,8 +78,6 @@ public class SettingManager : MonoBehaviour
         godModeToggle.onValueChanged.RemoveAllListeners();
         godModeToggle.onValueChanged.AddListener(SetGodMode);
 
-
-        if (volumeBar == null) return;
         volumeBar.value = volumeSlider;
         volumeBar.onValueChanged.RemoveAllListeners();
         volumeBar.onValueChanged.AddListener(SetVolume);
@@ -120,18 +116,24 @@ public class SettingManager : MonoBehaviour
         Debug.Log($"Resolution set to {res.width} x {res.height}");
     }
 
-    public void SetVolume(float value) //value inbetween 0 and 1, with 1 being on the left, and 0 being on the right
+    public void SetVolume(float value)
     {
         volumeSlider = value;
-        Debug.Log($"Volume set to {value * -80f}");
-        if (audioMixer == null || volumeBar == null) return;
-        audioMixer.SetFloat("volume", value * -80f); //at the left, it becomes -80, and at the right, it becomes 0
-        
+        Debug.Log($"Volume set to {value}");
+        AudioManager.Instance.SetVolume(value);
     }
 
     public void SetGodMode(bool value)
     {
         godMode = value;
         Debug.Log($"GodMode set to {value}");
+        if (TimerUI.Instance != null)
+        {
+            TimerUI.Instance.UpdateTimerUI();
+        }
+        if (HealthBarUI.Instance != null)
+        {
+            HealthBarUI.Instance.UpdateHealthUI();
+        }
     }
 }
