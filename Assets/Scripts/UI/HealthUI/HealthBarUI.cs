@@ -30,7 +30,7 @@ public class HealthBarUI : MonoBehaviour
     {
         if (SettingManager.Instance.godMode)
         {
-            percentText.text = $"∞";
+            percentText.text = "∞";
             currentHealthRT.sizeDelta = new Vector2(fullHealthRT.sizeDelta.x, currentHealthRT.sizeDelta.y); 
         } else
         {
