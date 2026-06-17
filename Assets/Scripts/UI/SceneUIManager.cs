@@ -1,9 +1,6 @@
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using TMPro;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class SceneUIManager : MonoBehaviour
 {
@@ -13,10 +10,6 @@ public class SceneUIManager : MonoBehaviour
     [SerializeField] private GameObject victoryScreen;
     [SerializeField] private GameObject defeatScreen;
     [SerializeField] private TextMeshProUGUI causeDefeatTxt;
-    #if UNITY_EDITOR
-    [SerializeField] private SceneAsset mainMenu;
-    #endif
-
     public static SceneUIManager Instance;
     
     private bool paused = false;
@@ -55,10 +48,8 @@ public class SceneUIManager : MonoBehaviour
     {
         paused = pauseSignal;
         if (!paused) {
-            if (_pauseSignal != null) {
-                _pauseSignal.SetResult(true);
-                _pauseSignal = null;
-            }
+            _pauseSignal?.SetResult(true);
+            _pauseSignal = null;
         } else {
             _pauseSignal = new AwaitableCompletionSource<bool>();
         }
@@ -66,7 +57,7 @@ public class SceneUIManager : MonoBehaviour
 
     public void BackToMainMenu()
     {
-        SceneManager.LoadScene(mainMenu.name);
+        SceneManager.LoadScene(0);
     }
 
     public void RestartScene()
