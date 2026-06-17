@@ -7,5 +7,5 @@ AnimatorOverrideController:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GuardAnimator
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: fb68fc94f5c7df34ba9c1e091e394648, type: 2}
   m_Clips: []
