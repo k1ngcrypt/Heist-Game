@@ -89,6 +89,10 @@ public class AudioManager : MonoBehaviour
         audioSource.volume = volume;
     }
 
+    public float GetVolume() {
+        return audioSource.volume;
+    }
+
     public void PlayLockdownMusic()
     {
         PlayMusic(LockdownMusic);
