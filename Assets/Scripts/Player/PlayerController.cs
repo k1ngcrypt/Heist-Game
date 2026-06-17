@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     private PlayerStats playerStats;
     private static readonly int IsWalkingHash = Animator.StringToHash("IsWalking");
     private static readonly int DirectionHash = Animator.StringToHash("Direction");
+    [SerializeField] private LineRenderer weaponVisuals;
     
     private bool isMoving = false;
     public bool inVent = false;
@@ -237,13 +238,6 @@ public class PlayerController : MonoBehaviour
         }
         return false;
     }
-
-    //Gizmo Stuff, Will Remove when Finished With Weapon's Shooting Visually
-    private Vector2 debugOrigin;
-    private Vector2 debugDirection;
-    private float debugRange;
-    private bool hasShotPassed;
-
     private async Awaitable Shoot() {
         isMoving = true;
 
@@ -260,13 +254,19 @@ public class PlayerController : MonoBehaviour
         GuardStateManager[] allGuards = FindObjectsByType<GuardStateManager>();
         GuardStateManager closestTarget = null;
         
-        float closestDistance = weapon.range;
-        Vector2 direction = (cameraManager.GetCurrentCamera().ScreenToWorldPoint(Mouse.current.position.ReadValue()) - transform.position).normalized;
+        Vector3 mouseWorldPos = cameraManager.GetCurrentCamera().ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector2 direction = (mouseWorldPos - transform.position).normalized;
+        float maxShootDistance = weapon.range;
+        Vector3 finalVisualTargetPosition = transform.position + (Vector3)(direction * maxShootDistance);
 
-        debugOrigin = transform.position;
-        debugDirection = direction;
-        debugRange = weapon.range;
-        hasShotPassed = false;
+        RaycastHit2D wallHit = Physics2D.Raycast(transform.position, direction, weapon.range, ~(1 << LayerMask.NameToLayer("Default")));
+        
+        if (wallHit.collider != null) {
+            maxShootDistance = wallHit.distance;
+            finalVisualTargetPosition = wallHit.point;
+        }
+
+        float closestGuardDistance = maxShootDistance;
 
         foreach (GuardStateManager guard in allGuards)
         {
@@ -280,35 +280,34 @@ public class PlayerController : MonoBehaviour
             if (Vector2.Dot(toGuard.normalized, direction.normalized) > 0.95f) {
                 float distance = toGuard.magnitude;
 
-                if (distance <= closestDistance) {
-                    RaycastHit2D wallHit = Physics2D.Raycast(transform.position, direction, distance, ~(1 << LayerMask.NameToLayer("Default")));
-                    
-                    if (wallHit.collider == null) {
-                        closestDistance = distance;
-                        closestTarget = guard;
-                        hasShotPassed = true;
-                    }
+                if (distance <= closestGuardDistance) {
+                    closestGuardDistance = distance;
+                    closestTarget = guard;
+                    finalVisualTargetPosition = guard.transform.position;
                 }
             }
         }
         if (closestTarget != null) {
             Debug.Log($"Direct hit confirmed on: {closestTarget.gameObject.name} without a collider!");
-            closestTarget.gameObject.GetComponent<HealthManager>().TakeDamage(weapon.damageValue);
+            AwarenessManager.Instance.MakeSound(transform.position, weapon.soundDistance);
+            closestTarget.GetComponent<HealthManager>().TakeDamage(weapon.damageValue);
         } else {
             Debug.Log("Shot missed or hit a structural wall.");
         }
         weapon.currentAmmo--;
+        VisualEffects(finalVisualTargetPosition);
         await TurnManager.Instance.ProcessTicks(1);
         isMoving = false;
     }
 
-    private void OnDrawGizmos() {
-        if (debugRange <= 0) return;
-
-        Gizmos.color = hasShotPassed ? Color.green : Color.red;
-        Vector3 targetPoint = (Vector3)debugOrigin + (Vector3)(debugDirection * debugRange);
-        Gizmos.DrawLine((Vector3)debugOrigin, targetPoint);
-        Gizmos.DrawWireSphere(targetPoint, 0.2f);
+    private async void VisualEffects(Vector3 hit) {
+        if (weaponVisuals != null) {
+            weaponVisuals.SetPosition(0, transform.position);
+            weaponVisuals.SetPosition(1, hit);
+            weaponVisuals.enabled = true;
+            await Awaitable.WaitForSecondsAsync(0.1f);
+            if (weaponVisuals != null) weaponVisuals.enabled = false;
+        }
     }
 
     private async Awaitable ReloadWeapon() {
