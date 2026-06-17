@@ -21,11 +21,24 @@ public class HealthBarUI : MonoBehaviour
         UpdateHealthUI();
     }
 
+    public void OnDestroy()
+    {
+        Instance = null;
+    }
+
     public void UpdateHealthUI()
     {
-        float percent = Mathf.Clamp(playerStats.GetCurrentHealth() / playerStats.GetMaxHealth(),0f,1f);
+        if (SettingManager.Instance.godMode)
+        {
+            percentText.text = "∞";
+            currentHealthRT.sizeDelta = new Vector2(fullHealthRT.sizeDelta.x, currentHealthRT.sizeDelta.y); 
+        } else
+        {
+            float percent = Mathf.Clamp(playerStats.GetCurrentHealth() / playerStats.GetMaxHealth(),0f,1f);
 
-        percentText.text = $"{Mathf.RoundToInt(100*percent)}%";
-        currentHealthRT.sizeDelta = new Vector2(fullHealthRT.sizeDelta.x * percent, currentHealthRT.sizeDelta.y);
+            percentText.text = $"{Mathf.RoundToInt(100*percent)}%";
+            currentHealthRT.sizeDelta = new Vector2(fullHealthRT.sizeDelta.x * percent, currentHealthRT.sizeDelta.y); 
+        }
+        
     }
 }

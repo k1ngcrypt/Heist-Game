@@ -5,12 +5,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "LockTool", menuName = "Heist Game/Loadout Items/Gadgets/Lock Door Tool")]
 public class LockDoorTool : GadgetItem {
     [SerializeField] public int lockingToolID;
-    private int combinedMask;
+    private LayerMask combinedMask;
 
-    protected override void ResetItemStats() {
+    public override void ResetItemStats() {
         base.ResetItemStats();
-        combinedMask = 1 << LayerMask.NameToLayer("Obstacle");
-        if (combinedMask == null) combinedMask =  1 << LayerMask.NameToLayer("Pain");
+        combinedMask = 1 << LayerMask.NameToLayer("Obstacle") | 1 << LayerMask.NameToLayer("Pain");
     }
 
     private readonly Vector2[] moveDirections = new Vector2[] {
@@ -39,6 +38,7 @@ public class LockDoorTool : GadgetItem {
                                     break;
                                 }
                             }
+                            NotificationManager.Instance.SendMessage("The obstacle has been unlocked!", Color.green);
                             await TurnManager.Instance.ProcessTicks(1);
                             return true; 
                         } else {
@@ -46,13 +46,13 @@ public class LockDoorTool : GadgetItem {
                             return false;
                         }
                     } else {
-                        NotificationManager.Instance.SendNotification("This door is unlocked!", Color.white);
+                        NotificationManager.Instance.SendNotification("This obstacle is unlocked!");
                         return false;
                     }
                 }
             }
         }
-        NotificationManager.Instance.SendNotification("There is no object to use this tool on", Color.yellow);
+        NotificationManager.Instance.SendNotification("There is no object to use this tool on.", Color.yellow);
         return false;
     }
 }

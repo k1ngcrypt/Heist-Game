@@ -6,5 +6,5 @@ public class ArmourItem : LoadoutItems {
     [Header("Armour Specific Item Stuff")]
     [SerializeField] public int armourValue;
     [SerializeField] public bool isDisguise = false;
-    protected override void ResetItemStats() {} //Does Nothing For Armour
+    public override void ResetItemStats() {} //Does Nothing For Armour
 }

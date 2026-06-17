@@ -215,8 +215,12 @@ public class PlayerController : MonoBehaviour
     private async Awaitable UseGadget() {
         isMoving = true;
 
-        LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
-        if (item != null) await ((GadgetItem)item).TryExecute();
+        GadgetItem item = InventoryManager.Instance.ReturnEquipItem() as GadgetItem;
+        if (item != null && item.itemTitle != "Empty") {
+            await item.TryExecute();
+        } else {
+            NotificationManager.Instance.SendNotification("No usable gadget is currently equipped!", Color.yellow);
+        }
 
         isMoving = false;
     }
@@ -259,7 +263,7 @@ public class PlayerController : MonoBehaviour
         float maxShootDistance = weapon.range;
         Vector3 finalVisualTargetPosition = transform.position + (Vector3)(direction * maxShootDistance);
 
-        RaycastHit2D wallHit = Physics2D.Raycast(transform.position, direction, weapon.range, ~(1 << LayerMask.NameToLayer("Default")));
+        RaycastHit2D wallHit = Physics2D.Raycast(transform.position, direction, weapon.range, ~(1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("UI")));
         
         if (wallHit.collider != null) {
             maxShootDistance = wallHit.distance;
@@ -291,10 +295,9 @@ public class PlayerController : MonoBehaviour
             Debug.Log($"Direct hit confirmed on: {closestTarget.gameObject.name} without a collider!");
             AwarenessManager.Instance.MakeSound(transform.position, weapon.soundDistance);
             closestTarget.GetComponent<HealthManager>().TakeDamage(weapon.damageValue);
-        } else {
-            Debug.Log("Shot missed or hit a structural wall.");
         }
         weapon.currentAmmo--;
+        InventoryManager.Instance.UpdateVisual(weapon);
         VisualEffects(finalVisualTargetPosition);
         await TurnManager.Instance.ProcessTicks(1);
         isMoving = false;
@@ -316,6 +319,7 @@ public class PlayerController : MonoBehaviour
         if (weapon.itemTitle == "Empty") {isMoving = false; return;}
 
         weapon.ReloadWeapon();
+        InventoryManager.Instance.UpdateVisual(weapon);
         await TurnManager.Instance.ProcessTicks(1);
         isMoving = false;
     }

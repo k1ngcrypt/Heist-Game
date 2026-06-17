@@ -10,16 +10,6 @@ public abstract class LoadoutItems : ScriptableObject {
     [SerializeField] public float suspicionModifier;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void InitializeSceneListener() { 
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
 
-    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
-        LoadoutItems[] items = Resources.FindObjectsOfTypeAll<LoadoutItems>();
-
-        foreach (LoadoutItems item in items) item.ResetItemStats();
-    }
-
-    protected abstract void ResetItemStats();
+    public abstract void ResetItemStats();
 }

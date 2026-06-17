@@ -9,8 +9,8 @@ public class WeaponItem : LoadoutItems {
     [SerializeField] public int ammoCapacity = 1;
     public int currentAmmo;
 
-    protected override void ResetItemStats() {
+    public override void ResetItemStats() {
         currentAmmo = ammoCapacity;
     }
-    public void ReloadWeapon() { ResetItemStats(); }
+    public void ReloadWeapon() { currentAmmo = ammoCapacity; }
 }

@@ -66,13 +66,6 @@ public class InventoryManager : MonoBehaviour
 
     public void InitializeInventory(List<LoadoutItems> loadout)
     {
-        if (allItems != null) { 
-            foreach (LoadoutItems oldItem in allItems) {
-                if (oldItem != null && !oldItem.name.StartsWith("Empty")) {
-                    Destroy(oldItem);
-        }}}
-        
-
         allItems = new List<LoadoutItems>();
         for(int i = 0; i < loadout.Count; i++)
         {
@@ -92,9 +85,9 @@ public class InventoryManager : MonoBehaviour
     public void CreateInventory(Transform player, TurnManager turnManager, GameObject inventoryArea, GameObject slotsArea, GameObject equipArea, Transform div, Canvas canvas, Transform bagInv, Transform top)
     {
         allItems = new List<LoadoutItems>();
-        foreach(var item in startingLoadout)
+        for(int i = 0; i < startingLoadout.Count; i++)
         {
-            allItems.Add(item);
+            allItems.Add(GetSafeItemInstance(startingLoadout[i]));
         }
         this.player = player;
         this.turnManager = turnManager;
@@ -115,7 +108,7 @@ public class InventoryManager : MonoBehaviour
 
         for(int idx = 0; idx < startingLoadout.Count; idx++)
         {
-            LoadoutItems item = startingLoadout[idx];
+            LoadoutItems item = allItems[idx];
 
             SlotUI itemSlot;
             if (item is not GadgetItem)
@@ -144,7 +137,7 @@ public class InventoryManager : MonoBehaviour
 
         for(int i = 0; i < startingLoadout.Count; i++)
         {
-            LoadoutItems item = startingLoadout[i];
+            LoadoutItems item = allItems[i];
             ItemUI itemUI = Instantiate(itemPrefab, allSlots[i].transform);
             itemUI.Initialize(item, allSlots[i], canvas);
             itemUI.GetComponent<RectTransform>().position = allSlots[i].transform.position;
@@ -480,7 +473,7 @@ public class InventoryManager : MonoBehaviour
     {
         if (equippedSlot == null)
         {
-            return null;
+            return emptyGadget;
         }
         return equippedSlot.currentItem.myItem;
     }
@@ -497,13 +490,12 @@ public class InventoryManager : MonoBehaviour
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
                 ItemUI newItem = Instantiate(itemPrefab, allSlots[i].transform);
-                LoadoutItems uniqueItemInstance = GetSafeItemInstance(item);
-                newItem.Initialize(uniqueItemInstance, slot, canvas);
+                newItem.Initialize(GetSafeItemInstance(item), slot, canvas);
                 newItem.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
 
                 slot.UpdateItem(newItem);
 
-                allItems[i] = uniqueItemInstance;
+                allItems[i] = item;
 
                 Destroy(oldItem.gameObject);
                 
@@ -523,7 +515,6 @@ public class InventoryManager : MonoBehaviour
             {
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
-                if (check != null && check.itemTitle != "Empty") Destroy(check);
                 ItemUI replaceEmpty = Instantiate(itemPrefab, allSlots[i].transform);
                 LoadoutItems empty;
                 if (item is ArmourItem) empty = emptyArmour;
@@ -572,9 +563,23 @@ public class InventoryManager : MonoBehaviour
 
     private LoadoutItems GetSafeItemInstance(LoadoutItems sourceItem) {
         if (sourceItem == null) return null;
-        
         if (sourceItem.itemTitle == "Empty") return sourceItem; 
         return Instantiate(sourceItem);
+    }
+
+    public void UpdateVisual(LoadoutItems item)
+    {
+        for(int i = 0; i < allItems.Count; i++)
+        {
+            if (allItems[i] == item)
+            {
+                allSlots[i].currentItem.UpdateVisual();
+            }
+        }
+    }
+
+    public void InitializeAllItems() {
+        for (int i = 0; i < allItems.Count; i++) allItems[i].ResetItemStats();
     }
 
     /*

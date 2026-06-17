@@ -3,10 +3,10 @@ using UnityEngine;
 public abstract class GadgetItem : LoadoutItems {
     [Header("Gadget Specific Item Stuff")]
     [SerializeField] public int maxDurability;
-    protected int currentDurability;
+    public int currentDurability;
     protected Transform player;
 
-    protected override void ResetItemStats() {
+    public override void ResetItemStats() {
         currentDurability = maxDurability;
         FetchPlayerReference();
     }
@@ -24,6 +24,7 @@ public abstract class GadgetItem : LoadoutItems {
         bool success = await OnExecute();
         if (success) {
             currentDurability--;
+            InventoryManager.Instance.UpdateVisual(this);
             if (currentDurability <= 0) InventoryManager.Instance.TryRemoveItem(this);
         }
     }

@@ -84,6 +84,11 @@ public class AudioManager : MonoBehaviour
         audioSource.Play();
     }
 
+    public void SetVolume(float volume)
+    {
+        audioSource.volume = volume;
+    }
+
     public void PlayLockdownMusic()
     {
         PlayMusic(LockdownMusic);

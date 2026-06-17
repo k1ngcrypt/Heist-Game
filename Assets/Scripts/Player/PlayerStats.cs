@@ -1,5 +1,4 @@
 using UnityEngine;
-using HeistGame.Objectives;
 
 public class PlayerStats : MonoBehaviour {
     private float health = 100;
@@ -29,6 +28,7 @@ public class PlayerStats : MonoBehaviour {
     }
 
     public void TakeDamage(float damage) {
+        if (SettingManager.Instance.godMode) return;
         float damageAfterArmour = Mathf.Round((damage - (damage * DamageUtils.ArmourReductionPercentage(GetTotalArmour())))*100f) / 100.0f;
         health = Mathf.Max(0, health - damageAfterArmour);
         if (!healthWarningTriggered && health <= maxHealth * lowHealthThreshold) {
