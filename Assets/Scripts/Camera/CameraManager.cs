@@ -45,6 +45,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     [SerializeField] private GameObject globalRadiance;
     [SerializeField] private GameObject tinyCarrotLight;
     [SerializeField] private Volume volume;
+    [SerializeField] private Shader shadowChanger, addingShader, allAlpha;
     [SerializeField] private TurnManager turnManager;
     [HideInInspector] [SerializeField] private List<BoundsInt> layerBounds;
     private readonly List<RenderTexture> inputRT = new();
@@ -53,7 +54,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
     private readonly List<Material> shadowMaterials = new();
     private Vector3 velocity = Vector3.zero;
     private Camera mainCamera;
-    private Shader shader;
+    //private Shader shader;
     private readonly List<RenderTexture> textures = new();
     private const int SHADOWEXTRASIDESIZES = 4;
     private const float AC = Mathf.PI/180f;
@@ -246,8 +247,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
             cameraData.cameraStack.Add(c);
         }
         Debug.Log("[CameraManager] Camera stack updated with " + cameras.Count + " cameras.");
-        shader = Shader.Find("Custom/ShadowChanger");
-        if (shader == null) {
+        if (shadowChanger == null) {
             Debug.LogError("[CameraManager] Failed to find shader");
             return;
         }
@@ -320,7 +320,7 @@ public class CameraManager : MonoBehaviour, ITurnActor
             Graphics.Blit(Texture2D.blackTexture, inputRT[i]);
 
             //Create the shadow output
-            shadowMaterials.Add(new Material(shader));
+            shadowMaterials.Add(new Material(shadowChanger));
             shadowMaterials[i].SetTexture("_OtherTex", inputRT[i]);
             GameObject permalightOutput = Instantiate(shadowSpotlight, transform.position, Quaternion.identity);
             permalightOutput.transform.position = new Vector3(bounds.center.x+0.5f, bounds.center.y+0.5f, 0);
@@ -340,14 +340,14 @@ public class CameraManager : MonoBehaviour, ITurnActor
     }
 
     void Start() {
-        addingMaterial = new Material(Shader.Find("Custom/AddingShader"));
+        addingMaterial = new Material(addingShader);
         int l = Map.CurrentLayer();
         pos = Map.Player.transform.position+(l==0?new Vector3(0,0,-10) : new Vector3(-layerLocations[l-1].x, l-layerLocations[l-1].y, -10));
         for (int i = 0; i < cameras.Count; i++) 
             cameras[i].enabled = i < l;
 
         //Have Camera Blit Alpha of the Floor Onto shadow render texture, then set culling layers to ShadowLayer
-        Material m = new(Shader.Find("Custom/allAlpha"));
+        Material m = new(allAlpha);
         if (sinRadiance) {
             sinRadiance.SetActive(false);
             Destroy(sinRadiance); //The reason for both of these is because Destroy isn't immediate, and DestroyImmediate isn't safe to use during runtime. Let it be.
