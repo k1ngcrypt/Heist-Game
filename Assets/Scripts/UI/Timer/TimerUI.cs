@@ -36,9 +36,9 @@ public class TimerUI : MonoBehaviour, ITurnActor
     public async Awaitable OnTick()
     {
         TickDebt = 0;
-        if (SettingManager.godMode)
+        if (SettingManager.Instance.godMode)
         {
-            timerText.text = "Infinite";
+            timerText.text = "∞";
         } else
         {
             turnsLeft--;
@@ -58,9 +58,9 @@ public class TimerUI : MonoBehaviour, ITurnActor
 
     public void UpdateTimerUI()
     {
-        if (SettingManager.godMode)
+        if (SettingManager.Instance.godMode)
         {
-            timerText.text = "Infinite";
+            timerText.text = "∞";
         } else
         {
             timerText.text = turnsLeft+"";

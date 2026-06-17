@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using HeistGame.Door;
-using NUnit.Framework.Constraints;
 
 namespace HeistGame.Interactions {
     public class DoorInteractions : MonoBehaviour, IInteractionContributor {
@@ -81,7 +80,7 @@ namespace HeistGame.Interactions {
 
         private async void UnlockDoor() {
             bool success;
-            //Get Eqqipped Tool Id Here When Made
+            //Get Equipped Tool Id Here When Made
             if (lockBehavior != null) {
                 if(lockBehavior.IsLocked) {
                     GadgetItem item = (GadgetItem)InventoryManager.Instance.ReturnEquipItem();
@@ -118,7 +117,7 @@ namespace HeistGame.Interactions {
             bool success;
             if (destroyBehavior != null) {
                 GadgetItem item = (GadgetItem)InventoryManager.Instance.ReturnEquipItem();
-                if (destroyBehavior is NotConstraint Destructible) {
+                if (destroyBehavior is not Destructible) {
                     NotificationManager.Instance.SendNotification("You can not break down this door", Color.yellow);
                     return;
                 }

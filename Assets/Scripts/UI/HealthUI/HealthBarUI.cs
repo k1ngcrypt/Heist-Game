@@ -28,9 +28,9 @@ public class HealthBarUI : MonoBehaviour
 
     public void UpdateHealthUI()
     {
-        if (SettingManager.godMode)
+        if (SettingManager.Instance.godMode)
         {
-            percentText.text = $"Infinite";
+            percentText.text = $"∞";
             currentHealthRT.sizeDelta = new Vector2(fullHealthRT.sizeDelta.x, currentHealthRT.sizeDelta.y); 
         } else
         {

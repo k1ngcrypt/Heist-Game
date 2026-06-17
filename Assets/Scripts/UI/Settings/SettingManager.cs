@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.Audio;
 
 public class SettingManager : MonoBehaviour
 {
@@ -21,7 +20,7 @@ public class SettingManager : MonoBehaviour
     private float volumeSlider = 1;
 
 
-    public static bool godMode;
+    public bool godMode {get; private set;}
 
     public void Start()
     {
