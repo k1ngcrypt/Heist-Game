@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Guards
 {
+    [RequireComponent(typeof(Animator))]
     public class GuardNavigator : MonoBehaviour
     {
         // Pathfinding is injected so navigation can be swapped or reused without rewriting movement logic.
@@ -13,6 +14,11 @@ namespace Guards
         private readonly List<int> currentPath = new();
         private int pathIndex;
         private Vector2 destination;
+        private Vector2 nextPosition;
+        private const float GUARDSPEED = 15f;
+        private readonly int IsWalkingHash = Animator.StringToHash("IsWalking");
+        private readonly int DirectionHash = Animator.StringToHash("Direction");
+        private Animator animator;
         private bool hasDestination;
         private Vector2 lastMoveDirection;
 
@@ -49,6 +55,8 @@ namespace Guards
         private void Awake()
         {
             lastMoveDirection = transform.up;
+            nextPosition = transform.position;
+            animator = GetComponent<Animator>();
         }
 
         public void ClearDestination()
@@ -60,6 +68,7 @@ namespace Guards
 
         public void TickAdvance()
         {
+            transform.position = nextPosition;
             if (!hasDestination || pathfinder == null) return;
 
             if (!HasPath)
@@ -82,14 +91,15 @@ namespace Guards
                 return;
             }
 
-            Vector2 nextPosition = pathfinder.GetNodeWorldPosition(nextIndex);
+            nextPosition = pathfinder.GetNodeWorldPosition(nextIndex);
+            animator.SetBool(IsWalkingHash, true);
             Vector2 delta = nextPosition - (Vector2)transform.position;
             if (delta.sqrMagnitude > 0.0001f)
             {
                 lastMoveDirection = delta.normalized;
+                SetAnimationDirection();
             }
 
-            transform.position = nextPosition;
             pathIndex++;
 
             while (pendingClears.Count > 0)
@@ -169,6 +179,18 @@ namespace Guards
         private void ScheduleClear(ISpecialTile interaction)
         {
             pendingClears.Enqueue((pathIndex+1, interaction));
+        }
+
+        public void Update() {
+            if (nextPosition != (Vector2)transform.position) transform.position = Vector3.MoveTowards(transform.position, nextPosition, GUARDSPEED * Time.deltaTime);
+            else animator.SetBool(IsWalkingHash, false);
+        }
+
+        private void SetAnimationDirection() {
+            int baseDir = Mathf.RoundToInt(2*(Mathf.Atan2(lastMoveDirection.y, lastMoveDirection.x)/Mathf.PI+1)) % 4;
+            if (baseDir == 3) animator.SetInteger(DirectionHash, 1);
+            else if (baseDir == 1) animator.SetInteger(DirectionHash, 3);
+            else animator.SetInteger(DirectionHash, baseDir);
         }
     }
 }
