@@ -68,7 +68,7 @@ namespace Guards
 
         public void TickAdvance()
         {
-            transform.position = nextPosition;
+            transform.position = Map.AlignToObjectPos(nextPosition);
             if (!hasDestination || pathfinder == null) return;
 
             if (!HasPath)

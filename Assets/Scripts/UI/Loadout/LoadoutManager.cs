@@ -1,7 +1,8 @@
-using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 [System.Serializable]
 public class AreaList
@@ -108,10 +109,26 @@ public class LoadoutManager : MonoBehaviour
     {
         //code below sets the text for the 4 visible items
         // text = item type + number (if gadget)
-        itemTitleText1.text = PlayerLoadout[leftMostIndex].myItem.GetType().Name + " " + ((leftMostIndex) - firstGadgetIndex >= 0 ? (leftMostIndex) - firstGadgetIndex + 1 : " ");
-        itemTitleText2.text = PlayerLoadout[leftMostIndex + 1].myItem.GetType().Name + " " + ((leftMostIndex+1) - firstGadgetIndex >= 0 ? (leftMostIndex+1) - firstGadgetIndex + 1 : " ");
-        itemTitleText3.text = PlayerLoadout[leftMostIndex + 2].myItem.GetType().Name + " " + ((leftMostIndex+2) - firstGadgetIndex >= 0 ? (leftMostIndex+2) - firstGadgetIndex + 1 : " ");
-        itemTitleText4.text = PlayerLoadout[leftMostIndex + 3].myItem.GetType().Name + " " + ((leftMostIndex+3) - firstGadgetIndex >= 0 ? (leftMostIndex+3) - firstGadgetIndex + 1 : " ");
+        itemTitleText1.text = GetItemText(PlayerLoadout[leftMostIndex].myItem) + " " + ((leftMostIndex) - firstGadgetIndex >= 0 ? (leftMostIndex) - firstGadgetIndex + 1 : " ");
+        itemTitleText2.text = GetItemText(PlayerLoadout[leftMostIndex+1].myItem) + " " + ((leftMostIndex+1) - firstGadgetIndex >= 0 ? (leftMostIndex+1) - firstGadgetIndex + 1 : " ");
+        itemTitleText3.text = GetItemText(PlayerLoadout[leftMostIndex+2].myItem) + " " + ((leftMostIndex+2) - firstGadgetIndex >= 0 ? (leftMostIndex+2) - firstGadgetIndex + 1 : " ");
+        itemTitleText4.text = GetItemText(PlayerLoadout[leftMostIndex+3].myItem) + " " + ((leftMostIndex+3) - firstGadgetIndex >= 0 ? (leftMostIndex+3) - firstGadgetIndex + 1 : " ");
+    }
+
+    private string GetItemText(LoadoutItems item)
+    {
+        if (item is GadgetItem)
+        {
+            return "Gadget Item";
+        } else if (item is WeaponItem)
+        {
+            return "Weapon Item";
+        }
+        else if (item is ArmourItem)
+        {
+            return "Armour Item";
+        }
+        return "Gadget Item";
     }
 
     private void ResizeContent()

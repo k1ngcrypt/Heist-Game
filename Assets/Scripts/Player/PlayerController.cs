@@ -92,6 +92,8 @@ public class PlayerController : MonoBehaviour
         else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
         else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
         else if (Keyboard.current.fKey.wasPressedThisFrame) await UseGadget();
+        else if (Keyboard.current.rKey.wasPressedThisFrame) await ReloadWeapon();
+        else if (Mouse.current.leftButton.wasPressedThisFrame && !EventSystem.current.IsPointerOverGameObject()) await Shoot();
 
         isMoving = false;
     }
@@ -219,7 +221,6 @@ public class PlayerController : MonoBehaviour
         }
     }
     private async Awaitable UseGadget() {
-        isMoving = true;
 
         GadgetItem item = InventoryManager.Instance.ReturnEquipItem() as GadgetItem;
         if (item != null && item.itemTitle != "Empty") {
@@ -227,8 +228,6 @@ public class PlayerController : MonoBehaviour
         } else {
             NotificationManager.Instance.SendNotification("No usable gadget is currently equipped!", Color.yellow);
         }
-
-        isMoving = false;
     }
 
     private bool CheckGround()
@@ -249,16 +248,13 @@ public class PlayerController : MonoBehaviour
         return false;
     }
     private async Awaitable Shoot() {
-        isMoving = true;
 
         WeaponItem weapon = InventoryManager.Instance.ReturnEquipWeapon() as WeaponItem;
         if (weapon.itemTitle == "Empty"){
-            isMoving = false;
             return; 
         }
         else if (weapon.currentAmmo <= 0){
             NotificationManager.Instance.SendNotification("You have no ammo to shoot!", Color.yellow);
-            isMoving = false;
             return;
         }
         GuardStateManager[] allGuards = FindObjectsByType<GuardStateManager>();
@@ -306,7 +302,6 @@ public class PlayerController : MonoBehaviour
         InventoryManager.Instance.UpdateVisual(weapon);
         VisualEffects(finalVisualTargetPosition);
         await TurnManager.Instance.ProcessTicks(1);
-        isMoving = false;
     }
 
     private async void VisualEffects(Vector3 hit) {
@@ -320,13 +315,11 @@ public class PlayerController : MonoBehaviour
     }
 
     private async Awaitable ReloadWeapon() {
-        isMoving = true;
         WeaponItem weapon = InventoryManager.Instance.ReturnEquipWeapon() as WeaponItem;
-        if (weapon.itemTitle == "Empty") {isMoving = false; return;}
+        if (weapon.itemTitle == "Empty") return;
 
         weapon.ReloadWeapon();
         InventoryManager.Instance.UpdateVisual(weapon);
         await TurnManager.Instance.ProcessTicks(1);
-        isMoving = false;
     }
 }

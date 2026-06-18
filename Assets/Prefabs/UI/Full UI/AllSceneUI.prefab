@@ -2233,7 +2233,6 @@ MonoBehaviour:
   victoryScreen: {fileID: 9206239703192594758}
   defeatScreen: {fileID: 2174976748055680354}
   causeDefeatTxt: {fileID: 3109709556760830104}
-  mainMenu: {fileID: 102900000, guid: 0e79df7ec735d4f479a90d7a6bd4bf02, type: 3}
 --- !u!1 &4000554516874827124
 GameObject:
   m_ObjectHideFlags: 0
@@ -2811,7 +2810,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 15, y: 0}
-  m_SizeDelta: {x: 120, y: 20}
+  m_SizeDelta: {x: 240, y: 20}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &4811658104130678943
 CanvasRenderer:
@@ -5369,7 +5368,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 50%
+  m_text: 100%
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

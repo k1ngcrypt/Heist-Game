@@ -46,7 +46,7 @@ public class LockDoorTool : GadgetItem {
                             return false;
                         }
                     } else {
-                        NotificationManager.Instance.SendNotification("This obstacle is unlocked!");
+                        NotificationManager.Instance.SendNotification("This obstacle is already unlocked!");
                         return false;
                     }
                 }
