@@ -46,9 +46,15 @@ public class SettingManager : MonoBehaviour
             if (resolutions[i].width == Screen.currentResolution.width && resolutions[i].height == Screen.currentResolution.height)
             {
                 Debug.Log($"Resolution found at {resolutions[i].width} x {resolutions[i].height}");
+                options[i] = options[i] + " (Default)";
                 currentResIdx = i;
             }
         }
+
+        currentGraphicIdx = QualitySettings.GetQualityLevel();
+        fullScreen = Screen.fullScreen;
+        volumeSlider = AudioManager.Instance.GetVolume();
+        godMode = false;
 
         Reinitialize(resolutionDropdown, graphicDropdown, fullScreenToggle, godModeToggle, volumeBar);
     }
