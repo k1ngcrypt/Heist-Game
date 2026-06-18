@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEditor.Overlays;
 
 [Serializable]
 public class InteractBtnTemplate
