@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class BagUI : MonoBehaviour, ITurnActor
 {
     private TurnManager turnManager;
-    private Transform player;
+    private static Transform player;
     private Canvas canvas;
     
     public int TickDebt { get; set; }
@@ -26,10 +26,14 @@ public class BagUI : MonoBehaviour, ITurnActor
 
     private Vector2 baseSize = new Vector2(275, 80);
 
-    public void Initialize(Vector3 position, Transform playerTr, TurnManager turnM, Canvas canvas, ItemUI itemPrefab, SlotUI slotPrefab, LoadoutItems emptyItem)
+    private void OnEnable()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+    }
+
+    public void Initialize(Vector2 position, TurnManager turnM, Canvas canvas, ItemUI itemPrefab, SlotUI slotPrefab, LoadoutItems emptyItem)
     {
         turnManager = turnM;
-        player = playerTr;
         GetComponent<RectTransform>().position = position;
         this.canvas = canvas;
         worldPosition = position;

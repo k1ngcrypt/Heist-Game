@@ -1,5 +1,4 @@
 using Guards;
-using System;
 using UnityEngine;
 
 public class HealthManager : MonoBehaviour
@@ -9,6 +8,7 @@ public class HealthManager : MonoBehaviour
     [SerializeField] private int armourPoints;
     [SerializeField] GuardStateManager guardStateManager;
     [SerializeField] private GameObject bloodPuddlePrefab;
+    [SerializeField] private ArmourItem disguiseDrop;
 
     public float Health { get; private set; }
 
@@ -26,6 +26,7 @@ public class HealthManager : MonoBehaviour
         if (Health <= 0)
         {
             Instantiate(bloodPuddlePrefab, transform.position, transform.rotation);
+            InventoryManager.Instance.DropItem(disguiseDrop, transform.position);
             guardStateManager.Die();
             return;
         }

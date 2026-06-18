@@ -380,6 +380,11 @@ public class InventoryManager : MonoBehaviour
 
     public void BagItem(ItemUI item)
     {
+        BagItem(item, player.position);
+    }
+
+    public void BagItem(ItemUI item, Vector2 position)
+    {
         if (item.slotOrigin.idx == -1)
         {
             //alr in bag, just return it
@@ -393,7 +398,7 @@ public class InventoryManager : MonoBehaviour
         {
             //no bag, create new one
             BagUI bag = Instantiate(bagPrefab);
-            bag.Initialize(player.position, player, turnManager, canvas, itemPrefab, slotPrefab, emptyGadget);
+            bag.Initialize(position, turnManager, canvas, itemPrefab, slotPrefab, emptyGadget);
             currentBag = bag;
             AwarenessManager.Instance.RegisterAnomaly(bag.transform);
         }
@@ -582,6 +587,25 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < allItems.Count; i++) allItems[i].ResetItemStats();
     }
 
+    public void DropItem(LoadoutItems item, Vector2 position)
+    {
+        if (item == null || item.itemTitle == "Empty") return;
+
+        BagUI bag = Instantiate(bagPrefab);
+        bag.Initialize(position, turnManager, canvas, itemPrefab, slotPrefab, emptyGadget);
+        AwarenessManager.Instance.RegisterAnomaly(bag.transform);
+
+        // Build a temporary ItemUI so DroppedItem can consume it
+        SlotUI tempSlot = Instantiate(slotPrefab, bag.transform);
+        tempSlot.Initialize(-1, item);
+
+        ItemUI tempItem = Instantiate(itemPrefab, tempSlot.transform);
+        tempItem.Initialize(GetSafeItemInstance(item), tempSlot, canvas);
+        tempSlot.UpdateItem(tempItem);
+
+        bag.DroppedItem(tempItem);
+    }
+
     /*
     public void DebugLoadout()
     {
@@ -613,5 +637,5 @@ public class InventoryManager : MonoBehaviour
         Debug.Log(str);
     }
     */
-    
+
 }
