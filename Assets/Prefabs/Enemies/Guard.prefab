@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6394337360240163575}
   - component: {fileID: 5471542813830199753}
   - component: {fileID: 4328530488661504676}
+  - component: {fileID: 3112043597330461939}
   m_Layer: 0
   m_Name: AlertIcon
   m_TagString: Untagged
@@ -27,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 4490652852507322581}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 1.2666667, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -82,7 +83,7 @@ SpriteRenderer:
   m_SortingLayer: 6
   m_SortingOrder: 500
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -8575853106858217408, guid: 77cd4638f19821d4f96ec7fe86cdb62d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -90,7 +91,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
 --- !u!114 &4328530488661504676
 MonoBehaviour:
@@ -104,8 +105,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1342e6099c2d83541962ca18f3348ae4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuardIcon
-  questionMarkSprite: {fileID: 4775622751544739237, guid: 6707712c6386fe4449f67764c2ddb204, type: 3}
-  exclamationMarkSprite: {fileID: -1068468898, guid: 6707712c6386fe4449f67764c2ddb204, type: 3}
+  spriteRenderer: {fileID: 0}
+--- !u!95 &3112043597330461939
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4490652852507322581}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a0f5d0ba7f62be04f8806ab564ae2ada, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6095351796322370848
 GameObject:
   m_ObjectHideFlags: 0
@@ -125,6 +147,7 @@ GameObject:
   - component: {fileID: 3713465338528146934}
   - component: {fileID: 1069157695289695112}
   - component: {fileID: 6680804769121850437}
+  - component: {fileID: 9101281099078123126}
   m_Layer: 0
   m_Name: Guard
   m_TagString: Untagged
@@ -189,7 +212,6 @@ MonoBehaviour:
   suspicionLossPerTick: 2
   maxSuspicion: 200
   immediateDetectionRange: 1
-  Suspicion: 0
   Navigator: {fileID: 5126320102472977764}
 --- !u!114 &1934003314051609791
 MonoBehaviour:
@@ -357,6 +379,28 @@ MonoBehaviour:
   attackRange: 7
   weaponVisuals: {fileID: 7117842327098040416}
   visualDuration: 0.6
+--- !u!95 &9101281099078123126
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6095351796322370848}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: f3e95a48c3823b542b83ff1ffc6d2854, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &7390927231835673281
 PrefabInstance:
   m_ObjectHideFlags: 0

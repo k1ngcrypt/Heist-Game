@@ -9,6 +9,7 @@ public class DuplicateFloor : DuplicateTilemapBase
     [Header("Tile References")]
     [SerializeField] private Tilemap Floor;
     [SerializeField] private Tilemap Base;
+    [SerializeField] private Tilemap Grassssss;
 
     protected override bool OnCreation() {
         if (Floor==null||Base==null) return false;
@@ -22,6 +23,6 @@ public class DuplicateFloor : DuplicateTilemapBase
         return true;
     }
     protected override TileBase GetTile(Vector3Int v) {
-        return Map.IsNull(v) ? (Floor.GetTile(v)==null ? Base.GetTile(v) : Floor.GetTile(v)) : null;
+        return Map.IsNull(v) ? (Floor.GetTile(v)==null ? (Base.GetTile(v)==null&&Grassssss!=null? Grassssss.GetTile(v) : Base.GetTile(v)) : Floor.GetTile(v)) : null;
     }
 }

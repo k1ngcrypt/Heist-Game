@@ -1,25 +1,25 @@
 using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Animator))]
 public class GuardIcon : MonoBehaviour
 {
-    [Header("Icon Textures")]
-    [SerializeField] private Sprite questionMarkSprite;
-    [SerializeField] private Sprite exclamationMarkSprite;
-
-    private SpriteRenderer spriteRenderer => GetComponent<SpriteRenderer>();
-
-    public void TriggerSuspicious() => ShowIcon(questionMarkSprite);
-    public void TriggerAlerted() => ShowIcon(exclamationMarkSprite);
-
-    private void ShowIcon(Sprite nextSprite)
-    {
-        spriteRenderer.sprite = nextSprite;
+    private readonly int stateHash = Animator.StringToHash("Icon");
+    private Animator animator;
+    
+    void Awake() {
+        animator = GetComponent<Animator>();
     }
 
-    public void HideIcon()
-    {
-        spriteRenderer.sprite = null;
+    public void HideIcon() {
+        animator.SetInteger(stateHash, 0);
+    }
+
+    public void TriggerSuspicious() {
+        animator.SetInteger(stateHash, 1);
+    }
+    
+    public void TriggerAlerted() {
+        animator.SetInteger(stateHash, 2);
     }
 }
