@@ -22,7 +22,7 @@ public static class DetectionUtils
         }
 
         // 1. Distance Check
-        if (sqrDistance > range * range)
+        if (sqrDistance > (range * range))
             return false;
 
         // 2. FOV Check

@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 9101281099078123126}
   m_Layer: 0
   m_Name: Guard
-  m_TagString: Untagged
+  m_TagString: Guard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -363,6 +363,7 @@ MonoBehaviour:
   armourPoints: 0
   guardStateManager: {fileID: 8280607028422896662}
   bloodPuddlePrefab: {fileID: 2165276560976525288, guid: 3b3432d60ea9ed648be8f076f0889325, type: 3}
+  disguiseDrop: {fileID: 11400000, guid: bc47283faf051d54588dad5095d33a02, type: 2}
 --- !u!114 &6680804769121850437
 MonoBehaviour:
   m_ObjectHideFlags: 0

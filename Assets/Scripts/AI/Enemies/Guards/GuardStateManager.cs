@@ -61,6 +61,7 @@ namespace Guards
 
         public GuardNavigator Navigator;
         public int TickDebt { get; set; }
+        private PlayerStats playerStats;
 
         private void OnEnable()
         {
@@ -71,6 +72,7 @@ namespace Guards
             searchingState = GetComponent<SearchingState>();
             Navigator = GetComponent<GuardNavigator>();
             attacker = GetComponent<GuardAttacker>();
+            playerStats = playerTarget.GetComponent<PlayerStats>();
             //healthManager = GetComponent<HealthManager>();
 
             hitBuffer = new RaycastHit2D[Mathf.Max(1, lineOfSightBufferSize)];
@@ -131,7 +133,7 @@ namespace Guards
                 transform.position,
                 detectionForward,
                 playerTarget,
-                detectionRange,
+                detectionRange * (playerStats.IsDisguised() ? 0.5f : 1f),
                 fieldOfView,
                 lineOfSightFilter,
                 hitBuffer,

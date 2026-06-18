@@ -17,4 +17,5 @@ MonoBehaviour:
   itemIcon: {fileID: 671371338, guid: a3052b4aa0fd20249a1ff3a0d8e3bf8a, type: 3}
   suspicionModifier: 20
   maxDurability: 7
+  currentDurability: 7
   lockingToolID: 1

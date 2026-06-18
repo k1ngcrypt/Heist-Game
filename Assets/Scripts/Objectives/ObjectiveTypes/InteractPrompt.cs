@@ -8,9 +8,8 @@ namespace HeistGame.Interactions
     {
         private InteractionStateManager stateManager;
 
-        [SerializeField] private string nameOfInteract;
         [SerializeField] private string InteractText;
-        [SerializeField] protected int targetObjectiveID;
+        private ObjectiveTrigger objectiveTrigger;
 
         private void Awake()
         {
@@ -20,6 +19,7 @@ namespace HeistGame.Interactions
         private void FetchDependencies()
         {
             stateManager = GetComponent<InteractionStateManager>();
+            objectiveTrigger = GetComponent<ObjectiveTrigger>();
         }
 
         public List<InteractBtnTemplate> GetContextButtons()
@@ -33,9 +33,8 @@ namespace HeistGame.Interactions
             return myButtons;
         }
 
-        private async void UpdateObj()
-        {
-            if (ObjectiveManager.Instance != null) ObjectiveManager.Instance.UpdateObjectiveProgress(targetObjectiveID, 1);
+        private async void UpdateObj() {
+            if (objectiveTrigger != null) if (!objectiveTrigger.TriggerProgress()) return;
             Destroy(gameObject);
         }
     }

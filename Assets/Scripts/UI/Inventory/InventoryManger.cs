@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; 
+using UnityEngine.UI;
 
 public class InventoryManager : MonoBehaviour
-{    
+{
     [SerializeField] private ItemUI itemPrefab;
     [SerializeField] private SlotUI slotPrefab;
     [SerializeField] private ItemOverlay itemOverlayPrefab;
@@ -11,7 +11,7 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private LoadoutItems emptyArmour;
     [SerializeField] private LoadoutItems emptyWeapon;
     [SerializeField] private LoadoutItems emptyGadget;
-    
+
     [SerializeField] public int extraSlots = 1;
 
     private Transform player;
@@ -19,12 +19,12 @@ public class InventoryManager : MonoBehaviour
 
     public int startingArmour = 1;
     public int startingWeapons = 1;
-    
+
     private List<LoadoutItems> allItems;
     private List<LoadoutItems> startingLoadout;
     private List<SlotUI> allSlots;
     private ItemOverlay currentOverlay;
-    
+
     private GameObject inventoryBox;
     private Transform inventorySlots;
     private Transform equippedSlots;
@@ -34,8 +34,8 @@ public class InventoryManager : MonoBehaviour
     private Transform topLayer;
     private SlotUI overlaySlot;
     private SlotUI equippedSlot = null;
-    private Color unselected = new Color(1, 1, 1, 100f/255f);
-    private Color selected = new Color(0, 1, 0, 100f/255f);
+    private Color unselected = new Color(1, 1, 1, 100f / 255f);
+    private Color selected = new Color(0, 1, 0, 100f / 255f);
 
     public static InventoryManager Instance { get; private set; }
 
@@ -67,16 +67,16 @@ public class InventoryManager : MonoBehaviour
     public void InitializeInventory(List<LoadoutItems> loadout)
     {
         allItems = new List<LoadoutItems>();
-        for(int i = 0; i < loadout.Count; i++)
+        for (int i = 0; i < loadout.Count; i++)
         {
-            allItems.Add(loadout[i]);
+            allItems.Add(GetSafeItemInstance(loadout[i]));
         }
-        for(int i = 0; i < extraSlots; i++)
+        for (int i = 0; i < extraSlots; i++)
         {
             allItems.Add(emptyGadget);
         }
         startingLoadout = new List<LoadoutItems>();
-        foreach(var item in allItems)
+        foreach (var item in allItems)
         {
             startingLoadout.Add(item);
         }
@@ -85,13 +85,13 @@ public class InventoryManager : MonoBehaviour
     public void CreateInventory(Transform player, TurnManager turnManager, GameObject inventoryArea, GameObject slotsArea, GameObject equipArea, Transform div, Canvas canvas, Transform bagInv, Transform top)
     {
         allItems = new List<LoadoutItems>();
-        foreach(var item in startingLoadout)
+        for (int i = 0; i < startingLoadout.Count; i++)
         {
-            allItems.Add(item);
+            allItems.Add(GetSafeItemInstance(startingLoadout[i]));
         }
         this.player = player;
         this.turnManager = turnManager;
-        
+
         inventoryBox = inventoryArea;
         divider = div.GetComponent<RectTransform>();
         inventorySlots = slotsArea.transform;
@@ -106,16 +106,17 @@ public class InventoryManager : MonoBehaviour
 
         allSlots = new List<SlotUI>();
 
-        for(int idx = 0; idx < startingLoadout.Count; idx++)
+        for (int idx = 0; idx < startingLoadout.Count; idx++)
         {
-            LoadoutItems item = startingLoadout[idx];
+            LoadoutItems item = allItems[idx];
 
             SlotUI itemSlot;
             if (item is not GadgetItem)
             {
                 itemSlot = Instantiate(slotPrefab, equippedSlots);
                 countEquipped++;
-            } else
+            }
+            else
             {
                 itemSlot = Instantiate(slotPrefab, inventorySlots);
                 countInv++;
@@ -123,21 +124,21 @@ public class InventoryManager : MonoBehaviour
             itemSlot.Initialize(idx, item);
             allSlots.Add(itemSlot);
         }
-        
+
         var rectInv = inventoryBox.GetComponent<RectTransform>();
         var equipRect = equippedSlots.GetComponent<RectTransform>();
         var slotRect = inventorySlots.GetComponent<RectTransform>();
-        
+
         ResizeElement(equippedSlots, slotPrefab.GetComponent<RectTransform>().rect.width, countEquipped);
         ResizeElement(inventorySlots, slotPrefab.GetComponent<RectTransform>().rect.width, countInv);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(rectInv);
 
-        rectInv.sizeDelta = new Vector2(equipRect.sizeDelta.x + divider.sizeDelta.x + slotRect.sizeDelta.x , rectInv.sizeDelta.y);
+        rectInv.sizeDelta = new Vector2(equipRect.sizeDelta.x + divider.sizeDelta.x + slotRect.sizeDelta.x, rectInv.sizeDelta.y);
 
-        for(int i = 0; i < startingLoadout.Count; i++)
+        for (int i = 0; i < startingLoadout.Count; i++)
         {
-            LoadoutItems item = startingLoadout[i];
+            LoadoutItems item = allItems[i];
             ItemUI itemUI = Instantiate(itemPrefab, allSlots[i].transform);
             itemUI.Initialize(item, allSlots[i], canvas);
             itemUI.GetComponent<RectTransform>().position = allSlots[i].transform.position;
@@ -149,9 +150,9 @@ public class InventoryManager : MonoBehaviour
     {
         var layout = element.GetComponent<GridLayoutGroup>();
         var rect = element.GetComponent<RectTransform>();
-    
+
         LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
-        
+
         float spacing = layout.spacing.x;
         float rightPad = layout.padding.right;
         float leftPad = layout.padding.left;
@@ -159,7 +160,8 @@ public class InventoryManager : MonoBehaviour
         if (count % 2 == 1)
         {
             count = (count + 1) / 2;
-        } else
+        }
+        else
         {
             count /= 2;
         }
@@ -184,7 +186,7 @@ public class InventoryManager : MonoBehaviour
             side = -1;
         }
 
-        currentOverlay.GetComponent<RectTransform>().localPosition = localPos - side * new Vector3(itemPrefab.GetComponent<RectTransform>().rect.width*0.5f + btnOrigin.GetComponent<RectTransform>().rect.width*0.5f + offset, 0, 0);
+        currentOverlay.GetComponent<RectTransform>().localPosition = localPos - side * new Vector3(itemPrefab.GetComponent<RectTransform>().rect.width * 0.5f + btnOrigin.GetComponent<RectTransform>().rect.width * 0.5f + offset, 0, 0);
     }
 
     public void DestroyOverlay()
@@ -205,11 +207,13 @@ public class InventoryManager : MonoBehaviour
         LoadoutItems item;
         if (slot.slotType == "ArmourItem")
         {
-            item = emptyArmour;           
-        } else if (slot.slotType == "WeaponItem")
+            item = emptyArmour;
+        }
+        else if (slot.slotType == "WeaponItem")
         {
-            item = emptyWeapon;   
-        } else
+            item = emptyWeapon;
+        }
+        else
         {
             item = emptyGadget;
         }
@@ -220,7 +224,7 @@ public class InventoryManager : MonoBehaviour
 
         //put item on top
         itm.transform.SetParent(topLayer);
-        
+
         SetAllItemsRaycast(false);
     }
 
@@ -236,7 +240,8 @@ public class InventoryManager : MonoBehaviour
             ItemUI child = slot.currentItem;
             if (child == null) continue;
             var cg = child.GetComponent<CanvasGroup>();
-            if (cg != null) {
+            if (cg != null)
+            {
                 cg.blocksRaycasts = value;
             }
         }
@@ -250,7 +255,8 @@ public class InventoryManager : MonoBehaviour
             {
                 if (child == null) continue;
                 var cg = child.GetComponent<CanvasGroup>();
-                if (cg != null) {
+                if (cg != null)
+                {
                     cg.blocksRaycasts = value;
                 }
             }
@@ -285,14 +291,16 @@ public class InventoryManager : MonoBehaviour
         if (newItm != null)
         {
             oldSlot = newItm.slotOrigin; //its old slot as its where the new item is comming from
-        } else
+        }
+        else
         {
             return;
         }
         if (oldItm != null)
         {
             newSlot = oldItm.slotOrigin; //its new slot as its where new item is going to
-        } else
+        }
+        else
         {
             return;
         }
@@ -329,7 +337,8 @@ public class InventoryManager : MonoBehaviour
             oldItm.GetComponent<RectTransform>().position = oldSlot.GetComponent<RectTransform>().position;
             oldItm.UpdateSlot(oldSlot);
             RemoveFiller();
-        } else if (oldItm != null)
+        }
+        else if (oldItm != null)
         {
             //empty, instead of swap, destroy current, and replace with filler
             Destroy(oldItm.gameObject);
@@ -343,7 +352,8 @@ public class InventoryManager : MonoBehaviour
         //adjust loadout, and for safety, the bag updates are at the end
         newItm.transform.SetParent(newSlot.transform, true);
         (oldItm ?? fillerItem).transform.SetParent(oldSlot.transform, true);
-        if (newSlot.idx == -1 && oldSlot.idx == -1) {
+        if (newSlot.idx == -1 && oldSlot.idx == -1)
+        {
             //swaps two in bag. New done first to not destroy bag
             if (oldItm == null)
             {
@@ -362,7 +372,8 @@ public class InventoryManager : MonoBehaviour
             //swap removes new from inv
             allItems[oldSlot.idx] = (oldItm ?? fillerItem).myItem;
             currentBag.ReplaceFromSlot(newItm, newSlot);
-        } else
+        }
+        else
         {
             //swap two items in the inventory
             allItems[newSlot.idx] = newItm.myItem;
@@ -380,6 +391,11 @@ public class InventoryManager : MonoBehaviour
 
     public void BagItem(ItemUI item)
     {
+        BagItem(item, player.position);
+    }
+
+    public void BagItem(ItemUI item, Vector2 position)
+    {
         if (item.slotOrigin.idx == -1)
         {
             //alr in bag, just return it
@@ -393,7 +409,7 @@ public class InventoryManager : MonoBehaviour
         {
             //no bag, create new one
             BagUI bag = Instantiate(bagPrefab);
-            bag.Initialize(player.position, player, turnManager, canvas, itemPrefab, slotPrefab, emptyGadget);
+            bag.Initialize(position, turnManager, canvas, itemPrefab, slotPrefab, emptyGadget);
             currentBag = bag;
             AwarenessManager.Instance.RegisterAnomaly(bag.transform);
         }
@@ -432,7 +448,7 @@ public class InventoryManager : MonoBehaviour
     //API for developer interaction
     public bool HasItem(LoadoutItems item)
     {
-        foreach(LoadoutItems check in allItems)
+        foreach (LoadoutItems check in allItems)
         {
             if (check == item)
             {
@@ -444,8 +460,8 @@ public class InventoryManager : MonoBehaviour
 
     public LoadoutItems ReturnEquipArmour()
     {
-        if (allItems == null||allSlots == null) return emptyArmour;
-        for(int i = 0; i < allSlots.Count; i++)
+        if (allItems == null || allSlots == null) return emptyArmour;
+        for (int i = 0; i < allSlots.Count; i++)
         {
             SlotUI slot = allSlots[i];
             if (slot.slotType == "ArmourItem")
@@ -458,7 +474,7 @@ public class InventoryManager : MonoBehaviour
     public LoadoutItems ReturnEquipWeapon()
     {
         SlotUI slot;
-        for(int i = 0; i < allSlots.Count; i++)
+        for (int i = 0; i < allSlots.Count; i++)
         {
             slot = allSlots[i];
             if (slot.slotType == "WeaponItem")
@@ -473,7 +489,7 @@ public class InventoryManager : MonoBehaviour
     {
         if (equippedSlot == null)
         {
-            return null;
+            return emptyGadget;
         }
         return equippedSlot.currentItem.myItem;
     }
@@ -481,7 +497,7 @@ public class InventoryManager : MonoBehaviour
     public bool TryAddItem(LoadoutItems item)
     {
         LoadoutItems check = emptyGadget;
-        for(int i = 0; i < allItems.Count; i++)
+        for (int i = 0; i < allItems.Count; i++)
         {
             check = allItems[i];
             bool typeMatch = check.GetType() == item.GetType() || (check is GadgetItem && item is GadgetItem);
@@ -490,7 +506,7 @@ public class InventoryManager : MonoBehaviour
                 SlotUI slot = allSlots[i];
                 ItemUI oldItem = slot.currentItem;
                 ItemUI newItem = Instantiate(itemPrefab, allSlots[i].transform);
-                newItem.Initialize(item, slot, canvas);
+                newItem.Initialize(GetSafeItemInstance(item), slot, canvas);
                 newItem.GetComponent<Transform>().position = slot.GetComponent<Transform>().position;
 
                 slot.UpdateItem(newItem);
@@ -498,7 +514,7 @@ public class InventoryManager : MonoBehaviour
                 allItems[i] = item;
 
                 Destroy(oldItem.gameObject);
-                
+
                 return true;
             }
         }
@@ -508,7 +524,7 @@ public class InventoryManager : MonoBehaviour
     public bool TryRemoveItem(LoadoutItems item)
     {
         LoadoutItems check = emptyGadget;
-        for(int i = 0; i < allItems.Count; i++)
+        for (int i = 0; i < allItems.Count; i++)
         {
             check = allItems[i];
             if (check == item)
@@ -528,7 +544,7 @@ public class InventoryManager : MonoBehaviour
                 allItems[i] = empty;
 
                 Destroy(oldItem.gameObject);
-                
+
                 CheckEquipped(slot);
 
                 return true;
@@ -546,7 +562,8 @@ public class InventoryManager : MonoBehaviour
             slot.GetComponent<Image>().color = unselected;
             equippedSlot = null;
             return;
-        } else if (equippedSlot != null)
+        }
+        else if (equippedSlot != null)
         {
             equippedSlot.GetComponent<Image>().color = unselected;
         }
@@ -561,15 +578,47 @@ public class InventoryManager : MonoBehaviour
         equippedSlot = null;
     }
 
+    private LoadoutItems GetSafeItemInstance(LoadoutItems sourceItem)
+    {
+        if (sourceItem == null) return null;
+        if (sourceItem.itemTitle == "Empty") return sourceItem;
+        return Instantiate(sourceItem);
+    }
+
     public void UpdateVisual(LoadoutItems item)
     {
-        for(int i = 0; i < allItems.Count; i++)
+        for (int i = 0; i < allItems.Count; i++)
         {
             if (allItems[i] == item)
             {
                 allSlots[i].currentItem.UpdateVisual();
             }
         }
+    }
+
+    public void InitializeAllItems()
+    {
+        for (int i = 0; i < allItems.Count; i++) allItems[i].ResetItemStats();
+        for (int i = 0; i < allItems.Count; i++) allSlots[i].currentItem.UpdateVisual();
+    }
+
+    public void DropItem(LoadoutItems item, Vector2 position)
+    {
+        if (item == null || item.itemTitle == "Empty") return;
+
+        BagUI bag = Instantiate(bagPrefab);
+        bag.Initialize(position, turnManager, canvas, itemPrefab, slotPrefab, emptyGadget);
+        AwarenessManager.Instance.RegisterAnomaly(bag.transform);
+
+        // Build a temporary ItemUI so DroppedItem can consume it
+        SlotUI tempSlot = Instantiate(slotPrefab, bag.transform);
+        tempSlot.Initialize(-1, item);
+
+        ItemUI tempItem = Instantiate(itemPrefab, tempSlot.transform);
+        tempItem.Initialize(GetSafeItemInstance(item), tempSlot, canvas);
+        tempSlot.UpdateItem(tempItem);
+
+        bag.DroppedItem(tempItem);
     }
 
     /*
@@ -603,5 +652,5 @@ public class InventoryManager : MonoBehaviour
         Debug.Log(str);
     }
     */
-    
+
 }

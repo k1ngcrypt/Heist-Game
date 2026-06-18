@@ -7,9 +7,9 @@ public class BreakDoorTool : GadgetItem {
     [SerializeField] public int breakingToolID;
     private int combinedMask;
 
-    public void OnEnable() {
-        combinedMask = 1 << LayerMask.NameToLayer("Obstacle");
-        if (combinedMask == null) combinedMask =  1 << LayerMask.NameToLayer("Pain");
+    public override void ResetItemStats() {
+        base.ResetItemStats();
+        combinedMask = 1 << LayerMask.NameToLayer("Obstacle") | 1 << LayerMask.NameToLayer("Pain");
     }
 
     private readonly Vector2[] moveDirections = new Vector2[] {
@@ -38,6 +38,7 @@ public class BreakDoorTool : GadgetItem {
                                     break;
                                 }
                             }
+                            NotificationManager.Instance.SendMessage("The door has been destroyed!", Color.green);
                             await TurnManager.Instance.ProcessTicks(1);
                             return true; 
                         } else {

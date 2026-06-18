@@ -39,6 +39,8 @@ public class CameraDetector : MonoBehaviour
     public UnityEvent OnSuspicionStarted => onSuspicionStarted;
     public UnityEvent OnSuspicionCleared => onSuspicionCleared;
 
+    private PlayerStats playerStats;
+
     private void Awake()
     {
         GameObject playerObject = GameObject.FindWithTag("Player");
@@ -51,6 +53,7 @@ public class CameraDetector : MonoBehaviour
     private void OnEnable()
     {
         AwarenessManager.Instance?.RegisterCamera(this);
+        playerStats = player.GetComponent<PlayerStats>();
     }
 
     private void OnDisable()
@@ -69,7 +72,7 @@ public class CameraDetector : MonoBehaviour
             transform.position,
             -transform.up,
             player,
-            detectionRange,
+            detectionRange * (playerStats.IsDisguised() ? 0.5f : 1f),
             viewAngle,
             losFilter,
             losHits,

@@ -4,8 +4,13 @@ using UnityEngine;
 public class WeaponItem : LoadoutItems {
     [Header("Weapon Specific Item Stuff")]
     [SerializeField] public int damageValue;
-    [SerializeField] public bool isSilenced;
-    [SerializeField] public bool isAmmoPowered;
-    [SerializeField] public int ammoCapacity;
+    [SerializeField] public float soundDistance;
+    [SerializeField] public float range;
+    [SerializeField] public int ammoCapacity = 1;
     public int currentAmmo;
+
+    public override void ResetItemStats() {
+        currentAmmo = ammoCapacity;
+    }
+    public void ReloadWeapon() { currentAmmo = ammoCapacity; }
 }

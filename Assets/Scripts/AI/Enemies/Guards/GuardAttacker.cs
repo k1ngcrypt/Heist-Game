@@ -44,7 +44,7 @@ public class GuardAttacker : MonoBehaviour
             weaponVisuals.SetPosition(1, hit.point);
             weaponVisuals.enabled = true;
             await Awaitable.WaitForSecondsAsync(visualDuration);
-            weaponVisuals.enabled = false;
+            if (weaponVisuals != null) weaponVisuals.enabled = false;
         }
     }
 }

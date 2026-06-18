@@ -6,7 +6,7 @@ public abstract class GadgetItem : LoadoutItems {
     public int currentDurability;
     protected Transform player;
 
-    private void OnValidate() {
+    public override void ResetItemStats() {
         currentDurability = maxDurability;
         FetchPlayerReference();
     }
@@ -25,7 +25,7 @@ public abstract class GadgetItem : LoadoutItems {
         if (success) {
             currentDurability--;
             InventoryManager.Instance.UpdateVisual(this);
-            if (currentDurability == 0) InventoryManager.Instance.TryRemoveItem(this);
+            if (currentDurability <= 0) InventoryManager.Instance.TryRemoveItem(this);
         }
     }
     protected abstract Awaitable<bool> OnExecute();

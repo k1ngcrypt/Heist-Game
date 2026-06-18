@@ -21,6 +21,7 @@ public class InventoryBox : MonoBehaviour, IDropHandler
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.CreateInventory(player, turnManager, inventoryArea, slotsArea, equipArea, divider, canvas, bagInv, topLayer);
+            InventoryManager.Instance.InitializeAllItems();
         } else
         {
             Debug.LogWarning("InventoryManager instance not found. Please ensure an InventoryManager is present in the scene.", this);

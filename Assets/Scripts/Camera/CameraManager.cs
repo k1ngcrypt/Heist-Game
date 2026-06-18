@@ -453,6 +453,14 @@ public class CameraManager : MonoBehaviour, ITurnActor
         return;
     }
 
+    public Camera GetCurrentCamera()
+    {
+        if (!enabled) return null;
+        int l = Map.CurrentLayer();
+        if (l == 0) return mainCamera;
+        return cameras[l - 1];
+    }
+
     void LateUpdate()
     {
         //Set Camera Position

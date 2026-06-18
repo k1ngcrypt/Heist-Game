@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEditor.Overlays;
 
 [Serializable]
 public class InteractBtnTemplate
@@ -12,6 +13,7 @@ public class InteractBtnTemplate
     [SerializeField] public UnityEvent onClick = new();
 }
 
+[RequireComponent(typeof(Transform))]
 public class InteractArea : MonoBehaviour, ITurnActor
 {
     [Header("Overlay Settings")]
@@ -60,7 +62,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
         }
         if (FindAnyObjectByType<EventSystem>() == null)
         {
-            GameObject obj = new GameObject("EventSystem");
+            GameObject obj = new("EventSystem");
 
             obj.AddComponent<EventSystem>();
             obj.AddComponent<InputSystemUIInputModule>();
@@ -112,6 +114,7 @@ public class InteractArea : MonoBehaviour, ITurnActor
     public void ClearAllButtons() { buttons.Clear(); }
     public void RefreshActiveOverlayUI(bool onlyIfVisible = false) {
         if (currentOverlay == null) return;
+        if (onlyIfVisible) if (currentOverlay.isMenuOpen) onlyIfVisible = false;
         currentOverlay.Initialize(title, buttons, transform.position, player.GetComponent<PlayerController>());
         if (onlyIfVisible) currentOverlay.ToggleMenuStatus();
     }

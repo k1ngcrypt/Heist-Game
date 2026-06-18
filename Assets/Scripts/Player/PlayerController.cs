@@ -1,10 +1,9 @@
+using Guards;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using HeistGame.Objectives;
-using System;
-using System.Collections.Generic;
-using NUnit.Framework;
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
@@ -13,13 +12,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gridSize = 1f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private AwarenessManager awarenessManager;
+    [SerializeField] private CameraManager cameraManager;
     [SerializeField] private Tilemap floorTilemap;
     [SerializeField] private Tilemap baseTilemap;
     private Animator animator;
     private PlayerStats playerStats;
     private static readonly int IsWalkingHash = Animator.StringToHash("IsWalking");
     private static readonly int DirectionHash = Animator.StringToHash("Direction");
-
+    [SerializeField] private LineRenderer weaponVisuals;
+    
     private bool isMoving = false;
     public bool inVent = false;
 
@@ -40,7 +41,8 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         Map.SetPlayer(gameObject);
-        combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Pain"));
+        if (cameraManager==null) cameraManager = FindAnyObjectByType<CameraManager>();
+        combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Pain")); 
         animator = GetComponent<Animator>();
         playerStats = GetComponent<PlayerStats>();
     }
@@ -90,6 +92,8 @@ public class PlayerController : MonoBehaviour
         else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
         else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
         else if (Keyboard.current.fKey.wasPressedThisFrame) await UseGadget();
+        else if (Keyboard.current.rKey.wasPressedThisFrame) await ReloadWeapon();
+        else if (Mouse.current.leftButton.wasPressedThisFrame && !EventSystem.current.IsPointerOverGameObject()) await Shoot();
 
         isMoving = false;
     }
@@ -172,8 +176,8 @@ public class PlayerController : MonoBehaviour
             if (hit != null)
             {
                 InteractionOverlay interactOverlay = hit.GetComponentInChildren<InteractionOverlay>();
-                if (interactOverlay != null)
-                {
+                if (interactOverlay == null) interactOverlay = hit.GetComponent<InteractionOverlay>();
+                if (interactOverlay != null){
                     interactOverlay.ToggleMenuStatus();
                     break;
                 }
@@ -191,12 +195,12 @@ public class PlayerController : MonoBehaviour
 
             if (hit != null)
             {
-                InteractArea interactArea = null;
+                InteractArea interactArea = hit.GetComponent<InteractArea>();
                 InteractionOverlay overlay = null;
                 foreach (Transform child in hit.transform)
                 {
-                    interactArea = child.GetComponent<InteractArea>();
                     if (interactArea != null) break;
+                    interactArea = child.GetComponent<InteractArea>();
                 }
                 if (interactArea != null) overlay = interactArea.GetComponentInChildren<InteractionOverlay>();
                 if (interactArea != null && overlay != null)
@@ -216,10 +220,14 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    private async Awaitable UseGadget()
-    {
-        LoadoutItems item = InventoryManager.Instance.ReturnEquipItem();
-        if (item != null) await ((GadgetItem)item).TryExecute();
+    private async Awaitable UseGadget() {
+
+        GadgetItem item = InventoryManager.Instance.ReturnEquipItem() as GadgetItem;
+        if (item != null && item.itemTitle != "Empty") {
+            await item.TryExecute();
+        } else {
+            NotificationManager.Instance.SendNotification("No usable gadget is currently equipped!", Color.yellow);
+        }
     }
 
     private bool CheckGround()
@@ -238,5 +246,80 @@ public class PlayerController : MonoBehaviour
             }
         }
         return false;
+    }
+    private async Awaitable Shoot() {
+
+        WeaponItem weapon = InventoryManager.Instance.ReturnEquipWeapon() as WeaponItem;
+        if (weapon.itemTitle == "Empty"){
+            return; 
+        }
+        else if (weapon.currentAmmo <= 0){
+            NotificationManager.Instance.SendNotification("You have no ammo to shoot!", Color.yellow);
+            return;
+        }
+        GuardStateManager[] allGuards = FindObjectsByType<GuardStateManager>();
+        GuardStateManager closestTarget = null;
+        
+        Vector3 mouseWorldPos = cameraManager.GetCurrentCamera().ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector2 direction = (mouseWorldPos - transform.position).normalized;
+        float maxShootDistance = weapon.range;
+        Vector3 finalVisualTargetPosition = transform.position + (Vector3)(direction * maxShootDistance);
+
+        RaycastHit2D wallHit = Physics2D.Raycast(transform.position, direction, weapon.range, ~(1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("UI")));
+        
+        if (wallHit.collider != null) {
+            maxShootDistance = wallHit.distance;
+            finalVisualTargetPosition = wallHit.point;
+        }
+
+        float closestGuardDistance = maxShootDistance;
+
+        foreach (GuardStateManager guard in allGuards)
+        {
+            // Extra tag validation safety rule
+            if (!guard.CompareTag("Guard")) continue;
+
+            Vector2 guardPos = guard.transform.position;
+            Vector2 toGuard = guardPos - (Vector2)transform.position;
+
+
+            if (Vector2.Dot(toGuard.normalized, direction.normalized) > 0.95f) {
+                float distance = toGuard.magnitude;
+
+                if (distance <= closestGuardDistance) {
+                    closestGuardDistance = distance;
+                    closestTarget = guard;
+                    finalVisualTargetPosition = guard.transform.position;
+                }
+            }
+        }
+        if (closestTarget != null) {
+            Debug.Log($"Direct hit confirmed on: {closestTarget.gameObject.name} without a collider!");
+            AwarenessManager.Instance.MakeSound(transform.position, weapon.soundDistance);
+            closestTarget.GetComponent<HealthManager>().TakeDamage(weapon.damageValue);
+        }
+        weapon.currentAmmo--;
+        InventoryManager.Instance.UpdateVisual(weapon);
+        VisualEffects(finalVisualTargetPosition);
+        await TurnManager.Instance.ProcessTicks(1);
+    }
+
+    private async void VisualEffects(Vector3 hit) {
+        if (weaponVisuals != null) {
+            weaponVisuals.SetPosition(0, transform.position);
+            weaponVisuals.SetPosition(1, hit);
+            weaponVisuals.enabled = true;
+            await Awaitable.WaitForSecondsAsync(0.1f);
+            if (weaponVisuals != null) weaponVisuals.enabled = false;
+        }
+    }
+
+    private async Awaitable ReloadWeapon() {
+        WeaponItem weapon = InventoryManager.Instance.ReturnEquipWeapon() as WeaponItem;
+        if (weapon.itemTitle == "Empty") return;
+
+        weapon.ReloadWeapon();
+        InventoryManager.Instance.UpdateVisual(weapon);
+        await TurnManager.Instance.ProcessTicks(1);
     }
 }
