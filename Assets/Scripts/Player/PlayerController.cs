@@ -33,54 +33,67 @@ public class PlayerController : MonoBehaviour
         new Vector2(1, -1).normalized, new Vector2(-1, -1).normalized
     };
     private int combinedMask;
-    void Awake() {
+    void Awake()
+    {
         Map.SetPlayer(gameObject);
     }
 
-    void Start() { 
+    void Start()
+    {
         Map.SetPlayer(gameObject);
         if (cameraManager==null) cameraManager = FindAnyObjectByType<CameraManager>();
         combinedMask = wallLayer | (1 << LayerMask.NameToLayer("Pain")); 
         animator = GetComponent<Animator>();
         playerStats = GetComponent<PlayerStats>();
     }
-    async void Update()
+    // Change from 'async void' to a standard 'void'
+    void Update()
     {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) { SceneUIManager.Instance.TogglePause(); return; }
+        if (Keyboard.current == null || SceneUIManager.Instance.IsPaused()) return;
 
-        // Prevent starting new actions while one is in progress
-        if (!isMoving && Keyboard.current != null && !SceneUIManager.Instance.IsPaused())
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            static bool inputHeld(Key key) => Keyboard.current[key].isPressed;
-
-            if (inputHeld(Key.W) || inputHeld(Key.UpArrow))
-            {
-                animator.SetInteger(DirectionHash, 1);
-                await AttemptMove(Vector2.up);
-            }
-            else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow))
-            {
-                animator.SetInteger(DirectionHash, 0);
-                await AttemptMove(Vector2.left);
-            }
-            else if (inputHeld(Key.S) || inputHeld(Key.DownArrow))
-            {
-                animator.SetInteger(DirectionHash, 3);
-                await AttemptMove(Vector2.down);
-            }
-            else if (inputHeld(Key.D) || inputHeld(Key.RightArrow))
-            {
-                animator.SetInteger(DirectionHash, 2);
-                await AttemptMove(Vector2.right);
-            }
-
-            else if (inputHeld(Key.Z)) await Rest();
-            else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
-            else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
-            else if (Keyboard.current.fKey.wasPressedThisFrame) await UseGadget();
-            else if (Keyboard.current.rKey.wasPressedThisFrame) await ReloadWeapon();
-            else if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !EventSystem.current.IsPointerOverGameObject()) await Shoot();
+            SceneUIManager.Instance.TogglePause();
+            return;
         }
+
+        if (isMoving) return;
+
+        HandleInputAsync();
+    }
+
+    private async void HandleInputAsync()
+    {
+        isMoving = true;
+
+        static bool inputHeld(Key key) => Keyboard.current[key].isPressed;
+
+        if (inputHeld(Key.W) || inputHeld(Key.UpArrow))
+        {
+            animator.SetInteger(DirectionHash, 1);
+            await AttemptMove(Vector2.up);
+        }
+        else if (inputHeld(Key.A) || inputHeld(Key.LeftArrow))
+        {
+            animator.SetInteger(DirectionHash, 0);
+            await AttemptMove(Vector2.left);
+        }
+        else if (inputHeld(Key.S) || inputHeld(Key.DownArrow))
+        {
+            animator.SetInteger(DirectionHash, 3);
+            await AttemptMove(Vector2.down);
+        }
+        else if (inputHeld(Key.D) || inputHeld(Key.RightArrow))
+        {
+            animator.SetInteger(DirectionHash, 2);
+            await AttemptMove(Vector2.right);
+        }
+        else if (inputHeld(Key.Z)) await Rest();
+        else if (Keyboard.current.eKey.wasPressedThisFrame) await InteractWithObject();
+        else if (TryGetPressedNumber(out int pressedNumber)) await TryButtonPress(pressedNumber);
+        else if (Keyboard.current.fKey.wasPressedThisFrame) await UseGadget();
+
+        isMoving = false;
     }
 
     private bool TryGetPressedNumber(out int pressedNumber)
@@ -102,24 +115,23 @@ public class PlayerController : MonoBehaviour
 
     private async Awaitable Rest()
     {
-        isMoving = true;
         if (TurnManager.Instance != null) await TurnManager.Instance.ProcessTicks(1);
 
         await Awaitable.WaitForSecondsAsync(restDuration);
-        isMoving = false;
     }
 
     private async Awaitable AttemptMove(Vector2 direction)
     {
         Vector2 targetPos = (Vector2)transform.position + (direction * gridSize);
-        if (Map.IsInitialized) {
-            if (Map.IsNull(Map.AlignObjectToGrid(targetPos))&&!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
-        } else if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
+        if (Map.IsInitialized)
+        {
+            if (Map.IsNull(Map.AlignObjectToGrid(targetPos)) && !Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
+        }
+        else if (!Physics2D.OverlapCircle(targetPos, 0.1f, wallLayer)) await Move(direction);
     }
 
     private async Awaitable Move(Vector2 direction)
     {
-        isMoving = true;
         Vector2 startPosition = transform.position;
         Vector2 endPosition = startPosition + (direction * gridSize);
         float elapsedTime = 0f;
@@ -140,21 +152,20 @@ public class PlayerController : MonoBehaviour
         animator.SetBool(IsWalkingHash, false);
         transform.position = Map.AlignToObjectPos(endPosition);
         int fall = 0;
-        while (CheckGround()) {
+        while (CheckGround())
+        {
             await Awaitable.WaitForSecondsAsync(0.1f);
             fall++;
         }
-        if (fall>0) playerStats.TakeDamage(fall*5);
+        if (fall > 0) playerStats.TakeDamage(fall * 5);
         awarenessManager.MakeSound(endPosition, 0.8f); // Make noise on move
         await TurnManager.Instance.ProcessTicks(inVent ? ventMoveTicks : 1);
         await Awaitable.WaitForSecondsAsync(interactionDuration);
         //GetComponent<PlayerStats>().TakeDamage(10);
-        isMoving = false;
     }
 
     private async Awaitable InteractWithObject()
     {
-        isMoving = true;
         for (int i = 0; i < moveDirections.Length; i++)
         {
             Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
@@ -170,12 +181,10 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-        isMoving = false;
     }
 
     private async Awaitable TryButtonPress(int number)
     {
-        isMoving = true;
         for (int i = 0; i < moveDirections.Length; i++)
         {
             Vector2 targetPos = (Vector2)transform.position + (moveDirections[i] * gridSize);
@@ -201,16 +210,13 @@ public class PlayerController : MonoBehaviour
                     {
                         activeButtons[targetIndex].onClick.Invoke();
                         await Awaitable.WaitForSecondsAsync(interactionDuration);
-                        isMoving = false;
                         return;
                     }
                     else NotificationManager.Instance.SendNotification($"No button assigned to {number} in this menu.", Color.yellow);
-                    isMoving = false;
                     return;
                 }
             }
         }
-        isMoving = false;
     }
     private async Awaitable UseGadget() {
         isMoving = true;
